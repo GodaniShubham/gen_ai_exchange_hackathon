@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nirvana AI - Generative AI for Youth Mental Wellness</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Floating bubbles animation */
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      animation: floatUp 12s linear infinite;
+    }
+    @keyframes floatUp {
+      from { transform: translateY(100vh) scale(0.5); opacity: 0; }
+      to { transform: translateY(-10vh) scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-900 via-purple-900 to-black text-white overflow-hidden relative">
+
+  <!-- Floating Bubbles -->
+  <div class="bubble w-16 h-16 left-10 animate-pulse" style="animation-delay:2s;"></div>
+  <div class="bubble w-20 h-20 left-1/3" style="animation-delay:4s;"></div>
+  <div class="bubble w-12 h-12 left-2/3" style="animation-delay:6s;"></div>
+  <div class="bubble w-24 h-24 left-3/4" style="animation-delay:8s;"></div>
+
+  <!-- Hero Section -->
+  <section class="flex flex-col items-center justify-center min-h-screen text-center px-6">
+    <h1 class="text-6xl md:text-7xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-indigo-400 to-teal-300 animate-pulse">
+      Nirvana AI
+    </h1>
+    <p class="mt-6 text-xl md:text-2xl max-w-2xl text-gray-300">
+      Generative AI for <span class="font-bold text-indigo-400">Youth Mental Wellness</span>  
+    </p>
+    <p class="mt-3 text-lg text-gray-400 italic">
+      “Your personalized AI companion for mindfulness, resilience, and emotional balance.”
+    </p>
+    <div class="mt-8">
+      <a href="#explore" class="px-8 py-3 rounded-full bg-gradient-to-r from-teal-400 to-indigo-600 shadow-lg hover:scale-105 transition transform text-lg font-semibold">
+        Explore the Vision
+      </a>
+    </div>
+  </section>
+
+  <!-- Mission Section -->
+  <section id="explore" class="py-20 px-8 bg-black/40 backdrop-blur-lg">
+    <h2 class="text-4xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-pink-400 to-purple-500">
+      Why Nirvana AI?
+    </h2>
+    <div class="grid md:grid-cols-3 gap-10 max-w-6xl mx-auto">
+      <div class="p-6 rounded-2xl bg-gradient-to-br from-purple-700/40 to-pink-700/20 shadow-xl hover:scale-105 transition">
+        <h3 class="text-2xl font-semibold mb-4">🌱 Mindful Growth</h3>
+        <p class="text-gray-300">Guided journaling, affirmations, and AI-powered reflections for everyday mental balance.</p>
+      </div>
+      <div class="p-6 rounded-2xl bg-gradient-to-br from-indigo-700/40 to-blue-700/20 shadow-xl hover:scale-105 transition">
+        <h3 class="text-2xl font-semibold mb-4">🤝 Empathy Engine</h3>
+        <p class="text-gray-300">A compassionate AI that listens and responds with empathy, not judgment.</p>
+      </div>
+      <div class="p-6 rounded-2xl bg-gradient-to-br from-teal-700/40 to-green-700/20 shadow-xl hover:scale-105 transition">
+        <h3 class="text-2xl font-semibold mb-4">✨ Youth Empowerment</h3>
+        <p class="text-gray-300">Equipping young minds with resilience tools to thrive in an uncertain world.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="text-center py-10 text-gray-400 text-sm">
+    © 2025 Nirvana AI · Built with ❤️ for Global Hackathons
+  </footer>
+
+  <script>
+    // Randomize bubble positions
+    document.querySelectorAll('.bubble').forEach(bubble => {
+      bubble.style.left = Math.random() * window.innerWidth + 'px';
+      bubble.style.animationDuration = (8 + Math.random() * 6) + 's';
+    });
+  </script>
+</body>
+</html>

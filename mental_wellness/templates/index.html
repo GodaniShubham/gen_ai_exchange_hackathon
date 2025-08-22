@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Saharathi AI – Youth Mental Wellness</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Minimal Lottie web component -->
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ["Inter", "ui-sans-serif", "system-ui"] },
+                    colors: {
+                        brand: {
+                            50: "#e9fdf5",
+                            100: "#c8f8e6",
+                            200: "#9df0d3",
+                            300: "#6de6be",
+                            400: "#42d6a7",
+                            500: "#1cc88a", // primary
+                            600: "#13a573",
+                            700: "#0f845e",
+                            800: "#0b6549",
+                            900: "#084f3a",
+                        },
+                    },
+                    boxShadow: {
+                        mnc: "0 10px 30px rgba(0,0,0,.25)",
+                    },
+                    backgroundImage: {
+                        heroGrad: "radial-gradient(60% 80% at 80% 20%, rgba(28,200,138,.18) 0%, transparent 60%), radial-gradient(60% 60% at 20% 30%, rgba(78,115,223,.15) 0%, transparent 70%), linear-gradient(135deg, #0b132b 0%, #1b2a49 50%, #0d1f2d 100%)",
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        :root {
+            --hero-fade: 0;
+        }
+
+        html,
+        body {
+            scroll-behavior: smooth;
+        }
+
+        /* NAVBAR */
+        .nav-blur {
+            backdrop-filter: saturate(180%) blur(14px);
+        }
+
+        .nav-shadow {
+            box-shadow: 0 4px 24px rgba(0, 0, 0, .22);
+        }
+
+        /* HERO */
+        .hero-mask {
+            -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 70%, rgba(0, 0, 0, 0) 100%);
+            mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 70%, rgba(0, 0, 0, 0) 100%);
+        }
+
+        .hero-art {
+            opacity: calc(1 - var(--hero-fade));
+            transition: opacity .2s linear;
+        }
+
+        .hero-cta {
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .hero-cta:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 24px rgba(28, 200, 138, .35);
+        }
+
+        /* SECTION DIVIDER */
+        .section-divider {
+            position: relative;
+        }
+
+        .section-divider:before {
+            content: "";
+            position: absolute;
+            inset: -1px 0 auto 0;
+            height: 22px;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.25), transparent);
+            opacity: .35;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-[#0b1320] text-white">
+    <!-- NAVBAR -->
+    <header id="nav" class="fixed inset-x-0 top-0 z-50 nav-blur">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 items-center justify-between">
+                <!-- Brand -->
+                <a href="#" class="flex items-center gap-3 group">
+                    <span
+                        class="relative inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-indigo-500 shadow-mnc">
+                        <svg viewBox="0 0 24 24" class="h-5 w-5 text-white/90">
+                            <path d="M3 12c4-6 14-6 18 0M6 16c3-4 9-4 12 0" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" />
+                            <circle cx="12" cy="12" r="2" fill="currentColor" />
+                        </svg>
+                    </span>
+                    <span class="text-lg font-bold tracking-tight">Saharathi <span
+                            class="text-brand-300">AI</span></span>
+                </a>
+                <!-- Nav links -->
+                <nav class="hidden md:flex items-center gap-8 text-sm">
+                    <a href="#mission" class="text-white/80 hover:text-white transition">Mission</a>
+                    <a href="#how" class="text-white/80 hover:text-white transition">How it works</a>
+                    <a href="#solutions" class="text-white/80 hover:text-white transition">Solutions</a>
+                    <a href="#trust" class="text-white/80 hover:text-white transition">Trust & Safety</a>
+                </nav>
+                <div class="hidden md:flex items-center gap-3">
+                    <!-- Language switcher (added) -->
+                    <select id="langSwitcher"
+                        class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-white/80 text-sm hover:bg-white/5">
+                        <option value="en">EN</option>
+                        <option value="hi">हिंदी</option>
+                        <option value="hinglish">Hinglish</option>
+                    </select>
+                    <a href="#demo"
+                        class="px-4 py-2 rounded-lg border border-white/10 hover:border-white/20 text-white/80 hover:text-white transition"
+                        data-i18n="hero.demo">Watch demo</a>
+                    <a href="#get-started"
+                        class="hero-cta inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-500 text-[#0a1713] font-semibold"
+                        data-i18n="hero.cta">
+                        Get Started
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor">
+                            <path
+                                d="M13.5 5.5a1 1 0 0 1 1.5.86V10h3.64a1 1 0 0 1 .7 1.71l-7.29 7.29a1 1 0 0 1-1.71-.7V13H6.5a1 1 0 0 1-.86-1.5z" />
+                        </svg>
+                    </a>
+                </div>
+                <!-- Mobile -->
+                <button id="menuBtn" class="md:hidden p-2 rounded-lg bg-white/5 hover:bg-white/10"
+                    aria-label="Open menu">
+                    <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile panel -->
+        <div id="mobileNav" class="md:hidden hidden border-t border-white/10 bg-[#0f1a2b]/95 backdrop-blur-lg">
+            <div class="mx-auto max-w-7xl px-4 py-4 flex flex-col gap-4 text-sm">
+                <!-- Mobile language (added) -->
+                <div class="flex items-center justify-between">
+                    <span class="text-white/70">Language</span>
+                    <select id="langSwitcherMobile"
+                        class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-white/80">
+                        <option value="en">EN</option>
+                        <option value="hi">हिंदी</option>
+                        <option value="hinglish">Hinglish</option>
+                    </select>
+                </div>
+                <a href="#mission" class="text-white/90">Mission</a>
+                <a href="#how" class="text-white/90">How it works</a>
+                <a href="#solutions" class="text-white/90">Solutions</a>
+                <a href="#trust" class="text-white/90">Trust & Safety</a>
+                <a href="#get-started"
+                    class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-brand-500 text-[#0a1713] font-semibold"
+                    data-i18n="hero.cta">Get Started</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="relative pt-28 md:pt-32 hero-mask bg-heroGrad">
+        <div class="absolute inset-0 pointer-events-none">
+            <!-- Subtle grid -->
+            <svg class="absolute inset-0 w-full h-full opacity-[.06]" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                        <path d="M40 0H0V40" fill="none" stroke="white" stroke-width="1" />
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#grid)" />
+            </svg>
+        </div>
+
+        <div class="relative mx-auto max-w-7xl px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <!-- Copy -->
+                <div class="space-y-6">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight"
+                        data-i18n="hero.title">
+                        Human support, at AI scale
+                    </h1>
+                    <p class="text-white/70 text-lg md:text-xl max-w-xl" data-i18n="hero.desc">
+                        Saharathi AI guides young minds through stress, anxiety, and uncertainty — offering private,
+                        24/7 support and evidence-informed exercises, all wrapped in culturally inclusive design.
+                    </p>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="#get-started"
+                            class="hero-cta inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-brand-500 text-[#0a1713] font-semibold"
+                            data-i18n="hero.cta">Get Started</a>
+                        <a href="#demo"
+                            class="inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-white/15 text-white/90 hover:border-white/25"
+                            data-i18n="hero.demo">Watch demo</a>
+                    </div>
+                    <div class="flex items-center gap-6 pt-4 text-white/50 text-sm">
+                        <div class="flex items-center gap-2">
+                            <span class="h-2.5 w-2.5 rounded-full bg-emerald-400"></span>
+                            <span data-i18n="hero.b1">Secure & private</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="h-2.5 w-2.5 rounded-full bg-indigo-400"></span>
+                            <span data-i18n="hero.b2">Built for Gen Z</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="h-2.5 w-2.5 rounded-full bg-sky-400"></span>
+                            <span data-i18n="hero.b3">Available 24/7</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hero Illustration (inline SVG, dark line-art) -->
+                <div class="relative">
+                    <img src="hero_img.png" alt="">
+
+                </div>
+            </div>
+        </div>
+        <!-- subtle divider wave -->
+        <div class="section-divider mt-16">
+            <svg class="w-full h-14 text-[#0b1320]" preserveAspectRatio="none" viewBox="0 0 1440 60" aria-hidden="true">
+                <path fill="currentColor" d="M0 0h1440v36C989 86 492 12 0 36V0Z" />
+            </svg>
+        </div>
+    </section>
+
+    <!-- ***** Mood Save (added just below hero) ***** -->
+    <section id="mood" class="relative bg-[#0b1320]">
+        <div class="mx-auto max-w-3xl px-6 lg:px-8 py-12">
+            <div class="p-6 md:p-8 rounded-2xl bg-white/5 border border-white/10">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-bold" data-i18n="mood.title">How are you feeling today?
+                        </h2>
+                        <p class="mt-2 text-white/60" data-i18n="mood.subtitle">Slide to pick your mood, then submit.
+                        </p>
+                    </div>
+                    <!-- Live mood preview -->
+                    <div class="shrink-0 text-center">
+                        <div id="moodEmoji" class="text-4xl md:text-5xl select-none">🙂</div>
+                        <div id="moodLabel" class="text-sm text-white/70 mt-1">Good</div>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <input id="moodSlider" type="range" min="0" max="4" step="1" value="3"
+                        class="w-full accent-brand-500">
+                </div>
+
+                <div class="mt-4">
+                    <textarea id="moodNotes" rows="3"
+                        class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/40"
+                        data-i18n-ph="mood.notePh" placeholder="Add a note (optional)"></textarea>
+                </div>
+
+                <div class="mt-6 flex items-center gap-3">
+                    <button id="moodSubmit"
+                        class="px-5 py-3 rounded-xl bg-brand-500 text-[#0a1713] font-semibold hover:opacity-90"
+                        data-i18n="mood.submit">
+                        Submit
+                    </button>
+                    <span id="moodSaved" class="text-emerald-400 font-semibold hidden" data-i18n="mood.saved">Saved
+                        ✅</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mission -->
+    <section id="mission" class="py-20 bg-[#0b1320]">
+        <div class="mx-auto max-w-7xl px-6 grid md:grid-cols-3 gap-8">
+            <div class="p-6 bg-white/5 rounded-2xl border border-white/10">
+                <h3 data-i18n="mission.1.title" class="text-xl font-semibold">Proactive support</h3>
+                <p data-i18n="mission.1.body" class="mt-2 text-white/70">Daily check-ins detect early stress and suggest
+                    steps.</p>
+            </div>
+            <div class="p-6 bg-white/5 rounded-2xl border border-white/10">
+                <h3 data-i18n="mission.2.title" class="text-xl font-semibold">Private by design</h3>
+                <p data-i18n="mission.2.body" class="mt-2 text-white/70">Your conversations are encrypted and under your
+                    control.</p>
+            </div>
+            <div class="p-6 bg-white/5 rounded-2xl border border-white/10">
+                <h3 data-i18n="mission.3.title" class="text-xl font-semibold">Inclusive guidance</h3>
+                <p data-i18n="mission.3.body" class="mt-2 text-white/70">Culturally aware prompts help every user feel
+                    supported.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How it works -->
+    <section id="how" class="relative bg-[#0e1628]">
+        <div class="mx-auto max-w-7xl px-6 lg:px-8 py-20">
+            <h2 class="text-3xl md:text-4xl font-bold mb-10" data-i18n="how.title">How it works</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="p-8 rounded-2xl bg-white/5 border border-white/10 relative">
+                    <span class="text-brand-300 font-semibold">01</span>
+                    <h3 class="mt-2 text-xl font-semibold" data-i18n="how.s1.title">Share & reflect</h3>
+                    <p class="mt-3 text-white/70" data-i18n="how.s1.body">Confide your thoughts in a safe space. We
+                        listen first, then guide gently.</p>
+                </div>
+                <div class="p-8 rounded-2xl bg-white/5 border border-white/10 relative">
+                    <span class="text-brand-300 font-semibold">02</span>
+                    <h3 class="mt-2 text-xl font-semibold" data-i18n="how.s2.title">Get tailored guidance</h3>
+                    <p class="mt-3 text-white/70" data-i18n="how.s2.body">Receive practices that match your goals — from
+                        breathing to journaling to reframing.</p>
+                </div>
+                <div class="p-8 rounded-2xl bg-white/5 border border-white/10 relative">
+                    <span class="text-brand-300 font-semibold">03</span>
+                    <h3 class="mt-2 text-xl font-semibold" data-i18n="how.s3.title">Grow with insights</h3>
+                    <p class="mt-3 text-white/70" data-i18n="how.s3.body">Simple analytics show trends and progress so
+                        you can celebrate wins.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Solutions / Trust -->
+    <section id="solutions" class="relative bg-[#0b1320]">
+        <div class="mx-auto max-w-7xl px-6 lg:px-8 py-20">
+            <div class="grid lg:grid-cols-2 gap-10 items-center">
+
+                <!-- Schools & NGOs -->
+                <div class="p-8 rounded-2xl bg-white/5 border border-white/10">
+                    <h3 class="text-2xl font-semibold" data-i18n="solutions.schools.title">For schools & NGOs</h3>
+                    <p class="mt-4 text-white/70" data-i18n="solutions.schools.desc">
+                        Deploy a co-pilot for counsellors and mentors. Aggregate, anonymized insights help you support
+                        more students without burning out teams.
+                    </p>
+                </div>
+
+                <!-- Families -->
+                <div class="p-8 rounded-2xl bg-white/5 border border-white/10">
+                    <h3 class="text-2xl font-semibold" data-i18n="solutions.families.title">For families</h3>
+                    <p class="mt-4 text-white/70" data-i18n="solutions.families.desc">
+                        Build healthy routines at home with reminders, shared check-ins, and age-aware content for teens
+                        and young adults.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    <section id="trust" class="relative bg-[#0e1628]">
+        <div class="mx-auto max-w-7xl px-6 lg:px-8 py-20">
+            <h2 class="text-3xl md:text-4xl font-bold mb-10" data-i18n="trust.title">
+    Trust & Safety
+</h2>
+<ul class="grid md:grid-cols-3 gap-8">
+    <li class="p-8 rounded-2xl bg-white/5 border border-white/10" data-i18n="trust.1">
+        Clinical advisors review content. Crisis flows escalate to human help where required.
+    </li>
+    <li class="p-8 rounded-2xl bg-white/5 border border-white/10" data-i18n="trust.2">
+        Transparent model use. You control data retention and export your records anytime.
+    </li>
+    <li class="p-8 rounded-2xl bg-white/5 border border-white/10" data-i18n="trust.3">
+        Accessibility by default: WCAG AA color contrast and screen-reader friendly labels.
+    </li>
+</ul>
+        </div>
+    </section>
+
+
+
+    <footer class="border-t border-white/10 bg-[#0b1320]">
+        <div
+            class="mx-auto max-w-7xl px-6 lg:px-8 py-10 text-white/60 text-sm flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>© 2025 Saharathi AI</div>
+        </div>
+    </footer>
+
+    <script>
+        // --- Mobile menu toggle ---
+        const menuBtn = document.getElementById('menuBtn');
+        const mobileNav = document.getElementById('mobileNav');
+        menuBtn?.addEventListener('click', () => mobileNav.classList.toggle('hidden'));
+
+        // --- Navbar elevation on scroll ---
+        const nav = document.getElementById('nav');
+        const onScroll = () => { if (window.scrollY > 8) nav.classList.add('nav-shadow'); else nav.classList.remove('nav-shadow'); };
+        window.addEventListener('scroll', onScroll); onScroll();
+
+        // --- Hero fade ---
+        const hero = document.querySelector('section');
+        const updateHeroFade = () => {
+            const rect = hero.getBoundingClientRect();
+            const viewportH = window.innerHeight || 1;
+            const progress = Math.min(1, Math.max(0, (viewportH - rect.top) / (rect.height * 0.85)));
+            document.documentElement.style.setProperty('--hero-fade', progress.toFixed(3));
+        };
+        window.addEventListener('scroll', updateHeroFade);
+        window.addEventListener('resize', updateHeroFade);
+        updateHeroFade();
+
+        // =========================
+        // Language + i18n (instant)
+        // =========================
+        const i18n = {
+            en: {
+                "hero.title": "Human support, at AI scale", "hero.desc": "Saharathi AI guides young minds through stress, anxiety, and uncertainty — private, 24/7 support in culturally inclusive design.", "hero.cta": "Get Started", "hero.demo": "Watch demo", "hero.safe": "Safe & Confidential", "hero.safeDesc": "Your chats stay private. No tracking, no selling data. You're in control.", "nav.mission": "Mission", "nav.how": "How it works", "nav.solutions": "Solutions", "nav.trust": "Trust", "mood.title": "How are you feeling today?", "mood.submit": "Submit", "mood.saved": "Saved ✅", "mission.1.title": "Proactive support", "mission.1.body": "Daily check-ins detect early stress and suggest steps.", "mission.2.title": "Private by design", "mission.2.body": "Your conversations are encrypted and under your control.", "mission.3.title": "Inclusive guidance", "mission.3.body": "Culturally aware prompts help every user feel supported.", "how.title": "How it works", "how.s1.title": "Share & reflect", "how.s1.body": "Talk in a safe space. We listen first, then guide gently.", "how.s2.title": "Tailored guidance", "how.s2.body": "Receive exercises matching your goals — breathing, journaling, reframing.", "how.s3.title": "Grow with insights", "how.s3.body": "See progress trends and celebrate small wins.", "trust.title": "Trust & Safety", "trust.1": "Advisors review content. Crisis escalates to human help.", "trust.2": "Transparent model. You control your data anytime.",
+                "trust.3": "Accessibility: high contrast, screen-reader friendly.",
+                "solutions.schools.title": "For schools & NGOs", "solutions.schools.title": "For schools & NGOs",
+                "solutions.schools.desc": "Deploy a co-pilot for counsellors and mentors. Aggregate, anonymized insights help you support more students without burning out teams.",
+                "solutions.families.title": "For families",
+                "solutions.families.desc": "Build healthy routines at home with reminders, shared check-ins, and age-aware content for teens and young adults."
+            },
+            hi: {
+                "hero.title": "मानवीय सहयोग, AI पैमाने पर", "hero.desc": "Saharathi AI तनाव, चिंता और अनिश्चितता में युवाओं का मार्गदर्शन करता है — निजी, 24/7 सहयोग सांस्कृतिक रूप से समावेशी डिज़ाइन के साथ।", "hero.cta": "शुरू करें", "hero.demo": "डेमो देखें", "hero.safe": "सुरक्षित व गोपनीय", "hero.safeDesc": "आपकी बातचीत निजी रहती है। कोई ट्रैकिंग या डेटा बेचना नहीं। नियंत्रण आपके हाथ में है।", "nav.mission": "मिशन", "nav.how": "कैसे काम करता है", "nav.solutions": "समाधान", "nav.trust": "विश्वास", "mood.title": "आज आप कैसा महसूस कर रहे हैं?", "mood.submit": "सबमिट", "mood.saved": "सेव ✅", "mission.1.title": "प्रोएक्टिव सहयोग", "mission.1.body": "दैनिक चेक-इन शुरुआती तनाव पहचानते हैं और सुझाव देते हैं।", "mission.2.title": "निजी डिज़ाइन", "mission.2.body": "आपकी बातचीत एन्क्रिप्टेड और आपके नियंत्रण में है।", "mission.3.title": "समावेशी मार्गदर्शन", "mission.3.body": "सांस्कृतिक रूप से जागरूक प्रॉम्प्ट सभी उपयोगकर्ताओं को सहयोग देते हैं।", "how.title": "कैसे काम करता है", "how.s1.title": "अपनी बात रखें", "how.s1.body": "सुरक्षित स्थान पर बात करें। हम पहले सुनते हैं फिर धीरे मार्गदर्शन करते हैं।", "how.s2.title": "आपके लिए मार्गदर्शन", "how.s2.body": "सांस, जर्नलिंग, रीफ्रेमिंग जैसी गतिविधियां आपके लक्ष्यों से मेल खाती हैं।", "how.s3.title": "इनसाइट्स के साथ बढ़ें", "how.s3.body": "सरल एनालिटिक्स प्रगति दिखाते हैं ताकि आप जीतें मना सकें।", "trust.title": "विश्वास व सुरक्षा", "trust.1": "सलाहकार सामग्री की समीक्षा करते हैं। संकट में मानव सहयोग मिलता है।", "trust.2": "पारदर्शी मॉडल। आप अपने डेटा पर नियंत्रण रखते हैं।", "trust.3": "सुलभता: उच्च कंट्रास्ट, स्क्रीन-रीडर फ्रेंडली।", "solutions.schools.title": "स्कूलों और NGOs के लिए",
+                "solutions.schools.desc": "काउंसलर्स और मेंटर्स के लिए एक सहायक तैनात करें। एकत्रित और गुमनाम जानकारियाँ आपकी टीम को थकाए बिना अधिक छात्रों की मदद करने में सहायक होती हैं।",
+                "solutions.families.title": "परिवारों के लिए",
+                "solutions.families.desc": "घर पर स्वस्थ दिनचर्या बनाएँ—रिमाइंडर, साझा चेक-इन और किशोरों व युवाओं के लिए उपयुक्त सामग्री के साथ।"
+            },
+            hinglish: {
+                "hero.title": "Human support, AI ke scale par",
+                "hero.desc": "Saharathi AI young minds ko stress, anxiety aur uncertainty se guide karta hai — private, 24/7 support, culturally inclusive design ke saath.",
+                "hero.cta": "Get Started",
+                "hero.demo": "Demo dekho",
+                "hero.safe": "Safe & Confidential",
+                "hero.safeDesc": "Aapke chats private rehte hain. Koi tracking nahi, koi data selling nahi. Control aapke haath mein hai.",
+                "nav.mission": "Mission",
+                "nav.how": "Kaise kaam karta hai",
+                "nav.solutions": "Solutions",
+                "nav.trust": "Trust",
+                "mood.title": "Aaj aap kaisa feel kar rahe ho?",
+                "mood.submit": "Submit",
+                "mood.saved": "Saved ✅",
+                "mission.1.title": "Proactive support",
+                "mission.1.body": "Daily check-ins se early stress detect hota hai aur helpful steps milte hain.",
+                "mission.2.title": "Private by design",
+                "mission.2.body": "Aapki conversations encrypted hain aur aapke control mein.",
+                "mission.3.title": "Inclusive guidance",
+                "mission.3.body": "Culture-aware prompts har user ko support feel karne mein madad karte hain.",
+                "how.title": "Kaise kaam karta hai",
+                "how.s1.title": "Share & reflect",
+                "how.s1.body": "Safe space mein baat karo. Pehle hum sunte hain, phir softly guide karte hain.",
+                "how.s2.title": "Tailored guidance",
+                "how.s2.body": "Exercises milti hain jo aapke goals ke match hoti hain — breathing, journaling, reframing.",
+                "how.s3.title": "Grow with insights",
+                "how.s3.body": "Progress trends dekho aur small wins celebrate karo.",
+                "trust.title": "Trust & Safety",
+                "trust.1": "Advisors content check karte hain. Agar crisis ho toh human help tak escalate hota hai.",
+                "trust.2": "Model transparent hai. Aap apne data pe kabhi bhi control kar sakte ho.",
+                "trust.3": "Accessibility ensured hai: high contrast aur screen-reader friendly.",
+                "solutions.schools.title": "Schools aur NGOs ke liye",
+                "solutions.schools.desc": "Counsellors aur mentors ke liye ek co-pilot deploy karo. Aggregated aur anonymized insights se aap zyada students ko support kar sakte ho bina teams ko burnout kiye.",
+                "solutions.families.title": "Families ke liye",
+                "solutions.families.desc": "Ghar par healthy routines banao—reminders, shared check-ins, aur teens aur young adults ke liye age-aware content ke sath."
+
+            }
+        };
+        const MOOD_LEVELS = {
+            en: ["😣 Stressed", "😔 Sad", "😐 Okay", "🙂 Good", "😊 Great"],
+            hi: ["😣 बहुत तनाव", "😔 उदास", "😐 ठीक-ठाक", "🙂 अच्छा", "😊 बहुत अच्छा"],
+            hinglish: ["😣 Tension", "😔 Udaas", "😐 Theek-Thaak", "🙂 Accha", "😊 Bahut accha"],
+        };
+
+        let currentLang = 'en';
+
+        function applyLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (i18n[lang] && i18n[lang][key] !== undefined) el.textContent = i18n[lang][key];
+            });
+            document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+                const key = el.getAttribute('data-i18n-ph');
+                if (i18n[lang] && i18n[lang][key] !== undefined) el.placeholder = i18n[lang][key];
+            });
+            updateMoodUI();
+        }
+
+        const switcher = document.getElementById('langSwitcher');
+        const switcherMobile = document.getElementById('langSwitcherMobile');
+        const syncSwitchers = (val) => {
+            if (switcher) switcher.value = val;
+            if (switcherMobile) switcherMobile.value = val;
+        };
+        switcher?.addEventListener('change', e => { applyLanguage(e.target.value); syncSwitchers(e.target.value); });
+        switcherMobile?.addEventListener('change', e => { applyLanguage(e.target.value); syncSwitchers(e.target.value); });
+
+        // =========================
+        // Mood UX (save = show msg)
+        // =========================
+        const moodSlider = document.getElementById('moodSlider');
+        const moodEmoji = document.getElementById('moodEmoji');
+        const moodLabel = document.getElementById('moodLabel');
+        const moodNotes = document.getElementById('moodNotes');
+        const moodSaved = document.getElementById('moodSaved');
+        const moodSubmit = document.getElementById('moodSubmit');
+
+        function updateMoodUI() {
+            const idx = parseInt(moodSlider.value, 10);
+            const text = MOOD_LEVELS[currentLang][idx];
+            moodEmoji.textContent = text.split(' ')[0]; // emoji
+            moodLabel.textContent = text.replace(/^[^\s]+\s?/, ''); // label without emoji
+        }
+        moodSlider?.addEventListener('input', updateMoodUI);
+
+        moodSubmit?.addEventListener('click', () => {
+            // no DB yet — just show saved message
+            moodSaved.classList.remove('hidden');
+            // optional: fade out after 3s
+            setTimeout(() => moodSaved.classList.add('hidden'), 3000);
+            // (when DB ready, send: { level: moodSlider.value, notes: moodNotes.value, ts: Date.now() })
+        });
+
+        // initialize
+        applyLanguage('en');
+        updateMoodUI();
+    </script>
+</body>
+
+</html>

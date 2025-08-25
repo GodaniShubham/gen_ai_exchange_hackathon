@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container max-w-3xl mx-auto mt-10">
+
+  <!-- Title -->
+  <h2 class="text-center text-4xl font-bold mb-8 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent animate__animated animate__fadeInDown">
+    💬 Chat with AI
+  </h2>
+
+  <!-- Chat Window -->
+  <div id="chat_area"
+       class="rounded-3xl p-5 mb-6 h-[500px] overflow-y-auto space-y-4 shadow-2xl border border-gray-700 bg-gray-900/70 backdrop-blur-xl scroll-smooth animate__animated animate__fadeIn"
+       style="scrollbar-width: thin; scrollbar-color: #4ade80 transparent;">
+    <div class="text-center text-gray-400 italic">👋 Start a conversation with ChatBuddy...</div>
+  </div>
+
+  <!-- Input Area -->
+  <div class="flex gap-3 items-center animate__animated animate__fadeInUp">
+    <input type="text" id="user_input"
+           class="flex-grow px-5 py-3 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-400 shadow-inner transition duration-300"
+           placeholder="Type your message..." />
+
+    <button onclick="sendMessage()" 
+            class="p-4 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg transition-all duration-300 transform hover:scale-110 hover:-translate-y-1">
+      <i class="fas fa-paper-plane"></i>
+    </button>
+  </div>
+</div>
+
+<!-- JS Logic -->
+<script>
+async function sendMessage() {
+  const inputEl = document.getElementById("user_input");
+  const userMessage = inputEl.value.trim();
+  const chatBox = document.getElementById("chat_area");
+
+  if (userMessage === "") return;
+
+  // User bubble
+  chatBox.innerHTML += `
+    <div class="flex justify-end animate__animated animate__fadeInRight">
+      <div class="max-w-md px-5 py-3 rounded-3xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-md">
+        ${userMessage}
+      </div>
+    </div>
+  `;
+  inputEl.value = "";
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  // Typing bubble
+  const typingBubble = document.createElement("div");
+  typingBubble.id = "typing";
+  typingBubble.className = "flex justify-start animate__animated animate__fadeInLeft";
+  typingBubble.innerHTML = `
+    <div class="px-5 py-3 rounded-3xl bg-gray-700 text-gray-300 animate-pulse">
+      Typing<span class="dot">...</span>
+    </div>
+  `;
+  chatBox.appendChild(typingBubble);
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  try {
+    const response = await fetch("/chatbot_api/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "X-CSRFToken": "{{ csrf_token }}"
+      },
+      body: "message=" + encodeURIComponent(userMessage)
+    });
+
+    const data = await response.json();
+
+    // Remove typing bubble
+    typingBubble.remove();
+
+    // Bot bubble
+    chatBox.innerHTML += `
+      <div class="flex justify-start animate__animated animate__fadeInLeft">
+        <div class="max-w-md px-5 py-3 rounded-3xl bg-gray-800/90 border border-gray-700 text-white shadow-md">
+          ${data.reply}
+        </div>
+      </div>
+    `;
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+  } catch (error) {
+    typingBubble.remove();
+    chatBox.innerHTML += `
+      <div class="flex justify-start">
+        <div class="max-w-md px-5 py-3 rounded-3xl bg-red-700 text-white shadow-md">
+          ⚠️ Error: Could not connect to the server.
+        </div>
+      </div>
+    `;
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+}
+
+// Send on Enter
+document.getElementById("user_input").addEventListener("keypress", function (e) {
+  if (e.key === "Enter") {
+    sendMessage();
+  }
+});
+</script>
+
+<!-- Animate.css for animations -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+{% endblock %}

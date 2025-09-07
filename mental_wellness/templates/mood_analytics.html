@@ -1,129 +1,325 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mood Analytics – Saharathi AI</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@1.1.0"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ["Inter", "ui-sans-serif", "system-ui"] },
-                    colors: {
-                        brand: {
-                            50: "#e9fdf5", 100: "#c8f8e6", 200: "#9df0d3", 300: "#6de6be", 400: "#42d6a7",
-                            500: "#1cc88a", 600: "#13a573", 700: "#0f845e", 800: "#0b6549", 900: "#084f3a",
-                        },
-                    },
-                    boxShadow: { mnc: "0 10px 30px rgba(0,0,0,.25)" },
-                    animation: {
-                        pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        gradient: 'gradient 3s ease infinite',
-                    },
-                    keyframes: {
-                        pulse: {
-                            '0%, 100%': { opacity: 1 },
-                            '50%': { opacity: .5 },
-                        },
-                        gradient: {
-                            '0%': { backgroundPosition: '0% 50%' },
-                            '50%': { backgroundPosition: '100% 50%' },
-                            '100%': { backgroundPosition: '0% 50%' },
-                        },
-                    },
-                    backgroundSize: {
-                        '200': '200% 200%',
-                    },
-                },
-            },
-        };
-    </script>
-    <style>
-        html, body { scroll-behavior: smooth; background-color: #0b1320; color: white; }
-        .chart-container { position: relative; height: 400px; width: 100%; background: rgba(255,255,255,0.05); border-radius: 1rem; padding: 1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
-        .suggestion-card { background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(28,200,138,0.05)); border: 1px solid rgba(28,200,138,0.2); border-radius: 1rem; padding: 1.5rem; margin-bottom: 1rem; transition: all 0.3s ease; }
-        .suggestion-card:hover { border-color: rgba(28,200,138,0.5); transform: translateY(-4px); box-shadow: 0 8px 24px rgba(28,200,138,0.3); }
-        .tab-active { background-color: #1cc88a; color: #0a1713; box-shadow: 0 2px 8px rgba(28,200,138,0.4); }
-        button.rounded-full:hover { background-color: #13a573 !important; color: #0a1713 !important; transition: background-color 0.3s ease, color 0.3s ease; }
-        .heatmap { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0.5rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 1rem; }
-        .heatmap-cell { aspect-ratio: 1; border-radius: 0.5rem; transition: transform 0.2s, box-shadow 0.2s; position: relative; }
-        .heatmap-cell:hover { transform: scale(1.15); z-index: 10; box-shadow: 0 4px 12px rgba(255,255,255,0.2); }
-        .heatmap-cell::after { content: attr(data-tooltip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; white-space: nowrap; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
-        .heatmap-cell:hover::after { opacity: 1; }
-        .streak-badge { background: linear-gradient(135deg, #1cc88a, #10b981); border-radius: 9999px; padding: 0.5rem 1rem; font-weight: bold; box-shadow: 0 2px 8px rgba(28,200,138,0.3); animation: pulse 2s infinite; }
-        .gradient-bg { background: linear-gradient(120deg, #0b1320, #1b2a49, #0d1f2d); background-size: 200% 200%; animation: gradient 15s ease infinite; }
-        .icon-btn { display: flex; align-items: center; gap: 0.5rem; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mood Analytics – Saharathi AI</title>
+
+  <style>
+    :root {
+      --bg-0: #000000;
+      --bg-1: #0b0b0d;
+      --bg-2: #111114;
+      --bg-3: #16161a;
+      --txt-0: #ffffff;
+      --txt-1: #d1d1d6;
+      --txt-2: #8e8e93;
+      --stroke: rgba(255, 255, 255, 0.06);
+      --shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+      --accent: #0a84ff;
+      --accent-2: #64d2ff;
+      --success: #30d158;
+      --warning: #ffd60a;
+      --danger: #ff453a;
+    }
+
+    html,
+    body {
+      font-size: 14px;
+      margin: 0;
+      padding: 0;
+      color: var(--txt-0);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, "Helvetica Neue", Arial, system-ui, sans-serif;
+      letter-spacing: -0.01em;
+      line-height: 1.55;
+      width: 100%;
+      max-width: 100%;
+      overflow-x: clip;
+      position: relative;
+      background: var(--bg-0);
+    }
+
+    /* background overlays */
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    body::before {
+      background: radial-gradient(circle at top right, rgba(10, 132, 255, 0.12) 0, transparent 70%);
+    }
+
+    body::after {
+      background:
+        radial-gradient(circle at bottom left, rgba(100, 210, 255, 0.12) 0, transparent 70%),
+        linear-gradient(180deg, var(--bg-1), var(--bg-0));
+    }
+
+    img,
+    canvas,
+    svg {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: saturate(160%) blur(14px);
+      background: color-mix(in srgb, var(--bg-1) 88%, transparent);
+      border-bottom: 1px solid var(--stroke);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .title {
+      font-size: clamp(18px, 2.5vw, 24px);
+      font-weight: 700;
+    }
+
+    .btn {
+      border-radius: 9999px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid var(--stroke);
+      background: linear-gradient(180deg, #1a1a1e, #101014);
+      color: var(--txt-0);
+      transition: all 0.25s ease;
+     
+    }
+
+    .btn-primary {
+      background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 85%, #1c1c1f 15%), #0a345f);
+      border: 1px solid color-mix(in srgb, var(--accent) 45%, #000 55%);
+  /* Softer glow */
+      box-shadow: 0 6px 20px rgba(10, 132, 255, 0.35);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.08);
+      box-shadow: 0 10px 28px rgba(10, 132, 255, 0.45);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 32px auto 0;
+      padding: 0 16px;
+      box-sizing: border-box;
+    }
+
+    .stack {
+      display: grid;
+      gap: 48px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, color-mix(in srgb, var(--bg-3) 92%, transparent), color-mix(in srgb, var(--bg-2) 92%, transparent));
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--stroke);
+    }
+
+    .kicker {
+      color: var(--txt-2);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+    }
+
+    h2 {
+      font-size: clamp(18px, 2.5vw, 22px);
+      margin: 8px 0 14px;
+      font-weight: 700;
+    }
+
+    .subtle {
+      color: var(--txt-1);
+      text-decoration: none;
+    }
+
+    .streaks {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .streak {
+      padding: 10px 18px;
+      border-radius: 9999px;
+      background: linear-gradient(180deg, #151519, #0f0f13);
+      border: 1px solid var(--stroke);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+    }
+
+    .streak .num {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .streak .lbl {
+      font-size: 11px;
+      color: var(--txt-2);
+    }
+
+    .chart-wrap {
+      height: 340px;
+      border-radius: 14px;
+      padding: 12px;
+      background: #0f0f13;
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow);
+    }
+
+    .suggestion-grid {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    .suggestion {
+      background: linear-gradient(180deg, #121216, #0f0f13);
+      border: 1px solid var(--stroke);
+      border-radius: 16px;
+      font-size: 13px;
+      padding: 12px;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .tab {
+      padding: 8px 16px;
+      border-radius: 9999px;
+      border: 1px solid var(--stroke);
+      background: linear-gradient(180deg, #131317, #0f0f13);
+      font-size: 13px;
+      color: var(--txt-1);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03),
+              0 2px 6px rgba(0, 0, 0, 0.25); 
+    }
+
+    .tab.active {
+      background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 25%, #111114 75%), #0e1420);
+      color: #fff;
+      border-color: color-mix(in srgb, var(--accent) 40%, #000 60%);
+       box-shadow: 0 2px 8px rgba(10, 132, 255, 0.18); 
+    }
+
+    .spacer {
+      height: 50px;
+    }
+  </style>
+
+  <!-- libs -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@1.1.0"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
 </head>
-<body class="font-sans gradient-bg">
-    <header class="py-6 px-6 lg:px-8 sticky top-0 z-50 bg-[#0b1320]/95 backdrop-blur-md border-b border-white/10">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <a href="index.html" class="p-2 rounded-full bg-white/5 hover:bg-white/10 transition">
-                <svg viewBox="0 0 24 24" class="h-5 w-5 text-brand-300" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M15 18l-6-6 6-6" />
-                </svg>
-            </a>
-            <h1 class="text-3xl font-bold">Mood Analytics</h1>
-            <button id="exportBtn" class="px-4 py-2 rounded-lg bg-brand-500 text-[#0a1713] font-semibold hover:opacity-90 transition-all hover:shadow-lg">Export Insights</button>
+
+<body>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="{% url 'index' %}" class="subtle">← Back</a>
+      <div class="title">Mood Analytics</div>
+      <button id="exportBtn" class="btn btn-primary">Export</button>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="stack">
+
+      <!-- Mood Streaks -->
+      <section class="card">
+        <div class="kicker">Overview</div>
+        <h2>Your Mood Streaks</h2>
+        <div class="streaks">
+          <div class="streak">
+            <div class="num" id="currentStreak">0</div>
+            <div class="lbl">Current Streak</div>
+          </div>
+          <div class="streak">
+            <div class="num" id="longestStreak">0</div>
+            <div class="lbl">Longest Streak</div>
+          </div>
         </div>
-    </header>
+      </section>
 
-    <main class="max-w-7xl mx-auto px-6 lg:px-8 py-12 space-y-16">
-        <!-- Streak Overview -->
-        <section class="text-center p-6 rounded-2xl bg-white/5 border border-white/10 shadow-xl">
-            <h2 class="text-2xl font-bold mb-6">Your Mood Streaks</h2>
-            <div class="flex justify-center gap-8">
-                <div class="streak-badge"><i class="fas fa-fire text-orange-400"></i> Current Streak: <span id="currentStreak">0</span> days</div>
-                <div class="streak-badge"><i class="fas fa-trophy text-yellow-400"></i> Longest Streak: <span id="longestStreak">0</span> days</div>
-            </div>
-        </section>
-
-        <!-- View Toggle -->
-        <div class="flex flex-wrap justify-center gap-4">
-            <button id="dailyBtn" class="icon-btn px-6 py-3 rounded-full bg-brand-500 text-[#0a1713] font-semibold tab-active shadow-md hover:shadow-lg transition-shadow"><i class="fas fa-calendar-day"></i> Daily View</button>
-            <button id="weeklyBtn" class="icon-btn px-6 py-3 rounded-full bg-white/5 border border-white/10 text-white shadow-md hover:shadow-lg transition-shadow"><i class="fas fa-calendar-week"></i> Weekly Summary</button>
-            <button id="monthlyBtn" class="icon-btn px-6 py-3 rounded-full bg-white/5 border border-white/10 text-white shadow-md hover:shadow-lg transition-shadow"><i class="fas fa-calendar-alt"></i> Monthly Trends</button>
-            <button id="heatmapBtn" class="icon-btn px-6 py-3 rounded-full bg-white/5 border border-white/10 text-white shadow-md hover:shadow-lg transition-shadow"><i class="fas fa-th"></i> Mood Heatmap</button>
+      <!-- Views -->
+      <section class="card">
+        <div class="kicker">Explore</div>
+        <h2>Views</h2>
+        <div class="tabs">
+          <button id="dailyBtn" class="tab active"><i class="fa-solid fa-calendar-day"></i>&nbsp;Daily</button>
+          <button id="weeklyBtn" class="tab"><i class="fa-solid fa-calendar-week"></i>&nbsp;Weekly</button>
+          <button id="monthlyBtn" class="tab"><i class="fa-solid fa-calendar-alt"></i>&nbsp;Monthly</button>
+          <button id="heatmapBtn" class="tab"><i class="fa-solid fa-table-cells"></i>&nbsp;Heatmap</button>
         </div>
-
-        <!-- Chart Section -->
-        <div class="chart-container shadow-xl">
-            <canvas id="moodChart"></canvas>
+        <div class="chart-wrap" style="margin-top:14px;">
+          <canvas id="moodChart"></canvas>
         </div>
+      </section>
 
-        <!-- AI Insights -->
-        <section class="p-6 rounded-2xl bg-white/5 border border-white/10 shadow-xl">
-            <h2 class="text-2xl font-bold mb-6">AI-Powered Insights & Recommendations</h2>
-            <div id="suggestions" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-        </section>
+      <!-- AI Insights -->
+      <section class="card">
+        <div class="kicker">Assistant</div>
+        <h2>AI Insights</h2>
+        <div id="suggestions" class="suggestion-grid"></div>
+      </section>
 
-        <!-- Advanced Trend Analysis -->
-        <section class="p-6 rounded-2xl bg-white/5 border border-white/10 shadow-xl">
-            <h2 class="text-2xl font-bold mb-6">Advanced Trend Analysis</h2>
-            <p id="trendSummary" class="text-white/80 mb-6 text-center font-medium"></p>
-            <div class="h-64">
-                <canvas id="trendChart"></canvas>
-            </div>
-        </section>
-    </main>
+      <!-- Advanced Trend -->
+      <section class="card">
+        <div class="kicker">Analysis</div>
+        <h2>Advanced Trend</h2>
+        <p id="trendSummary" class="subtle" style="text-align:center; margin-bottom: 12px;"></p>
+        <div class="chart-wrap" style="height:320px;">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </section>
+
+      <div class="spacer"></div>
+    </div>
+  </main>
 
     <script>
+        // ===== Data & Utilities =====
         const { DateTime } = luxon;
         const moods = JSON.parse(localStorage.getItem('moods')) || [];
+
         let chartInstance = null;
         let trendChartInstance = null;
         let currentMode = 'daily';
 
         const moodLevels = ["Stressed", "Sad", "Okay", "Good", "Great"];
-        const moodColors = ['#ef4444', '#f59e0b', '#eab308', '#22c55e', '#10b981'];
+        // Map level 0..4 to Apple-ish accent set for points
+        const moodColors = ['#ff453a', '#ffd60a', '#ff9f0a', '#30d158', '#0a84ff'];
 
         function groupBy(data, keyFn) {
             return data.reduce((acc, item) => {
@@ -135,7 +331,7 @@
         }
 
         function calculateAverage(group) {
-            if (group.length === 0) return 0;
+            if (!group || group.length === 0) return 0;
             const sum = group.reduce((acc, m) => acc + m.level, 0);
             return sum / group.length;
         }
@@ -144,7 +340,6 @@
             if (moods.length === 0) return { current: 0, longest: 0 };
 
             const sortedMoods = [...moods].sort((a, b) => new Date(a.date) - new Date(b.date));
-            let currentStreak = 0;
             let longestStreak = 0;
             let prevDate = null;
             let streak = 1;
@@ -160,12 +355,39 @@
                 prevDate = currentDate;
             }
             longestStreak = Math.max(longestStreak, streak);
-            // Assume current streak is from last log to today if consecutive
+
             const lastDate = DateTime.fromISO(sortedMoods[sortedMoods.length - 1].date).startOf('day');
             const today = DateTime.now().startOf('day');
-            currentStreak = today.diff(lastDate, 'days').days <= 1 ? streak : 0;
+            const currentStreak = today.diff(lastDate, 'days').days <= 1 ? streak : 0;
 
             return { current: currentStreak, longest: longestStreak };
+        }
+
+        // ===== Charts =====
+        function baseChartOptions() {
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: 700, easing: 'easeInOutQuart' },
+                plugins: {
+                    legend: { labels: { color: '#e5e7eb', boxWidth: 10, boxHeight: 10, usePointStyle: true } },
+                    tooltip: {
+                        backgroundColor: '#0b0b0e',
+                        titleColor: '#fff', bodyColor: '#fff',
+                        borderColor: 'rgba(255,255,255,0.08)', borderWidth: 1,
+                        padding: 10, displayColors: false
+                    },
+                    zoom: {
+                        zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'xy' },
+                        pan: { enabled: true, mode: 'xy' }
+                    }
+                },
+                scales: {
+                    x: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#c7c7cc' } },
+                    y: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#c7c7cc' } }
+                },
+                elements: { line: { tension: 0.32 }, point: { radius: 4, hoverRadius: 6 } }
+            };
         }
 
         function renderChart(mode) {
@@ -176,40 +398,21 @@
             let data = [];
             let type = 'line';
             let backgroundColor = moodColors;
-            let borderColor = '#1cc88a';
-            let options = {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 4,
-                        ticks: {
-                            stepSize: 1,
-                            callback: value => moodLevels[value]
-                        },
-                        grid: { color: 'rgba(255,255,255,0.1)' }
-                    },
-                    x: { grid: { color: 'rgba(255,255,255,0.1)' } }
-                },
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    zoom: {
-                        zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'xy' },
-                        pan: { enabled: true, mode: 'xy' }
-                    },
-                    legend: { labels: { color: 'white' } },
-                    tooltip: { backgroundColor: '#1f2937', titleColor: '#1cc88a', bodyColor: 'white' }
-                },
-                elements: { line: { tension: 0.4 }, point: { radius: 4, hoverRadius: 6 } }
-            };
+            let borderColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#0a84ff';
+            let options = baseChartOptions();
 
-            const parsedMoods = moods.map(m => ({ ...m, date: DateTime.fromISO(m.date) })).sort((a,b) => a.date - b.date);
+            const parsedMoods = moods.map(m => ({ ...m, date: DateTime.fromISO(m.date) })).sort((a, b) => a.date - b.date);
 
             if (mode === 'daily') {
-                labels = parsedMoods.map(m => m.date.toLocaleString(DateTime.DATE_MED));
+                labels = parsedMoods.map(m => m.date.toJSDate());
                 data = parsedMoods.map(m => m.level);
                 options.scales.x.type = 'time';
                 options.scales.x.time = { unit: 'day' };
+                options.scales.y = {
+                    min: 0, max: 4,
+                    grid: { color: 'rgba(255,255,255,0.06)' },
+                    ticks: { stepSize: 1, color: '#c7c7cc', callback: v => moodLevels[v] }
+                };
             } else if (mode === 'weekly') {
                 type = 'bar';
                 const weeks = groupBy(parsedMoods, m => m.date.weekYear + '-' + m.date.weekNumber);
@@ -221,16 +424,18 @@
                 });
                 data = sortedKeys.map(key => calculateAverage(weeks[key]));
                 backgroundColor = data.map(avg => moodColors[Math.round(avg)]);
+                options.scales.y = { min: 0, max: 4, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { stepSize: 1, color: '#c7c7cc' } };
             } else if (mode === 'monthly') {
                 type = 'bar';
                 const months = groupBy(parsedMoods, m => m.date.toFormat('yyyy-MM'));
-                labels = Object.keys(months).sort().map(k => DateTime.fromFormat(k, 'yyyy-MM').toLocaleString({ month: 'long', year: 'numeric' }));
-                data = Object.values(months).map(group => calculateAverage(group));
+                const keys = Object.keys(months).sort();
+                labels = keys.map(k => DateTime.fromFormat(k, 'yyyy-MM').toLocaleString({ month: 'long', year: 'numeric' }));
+                data = keys.map(k => calculateAverage(months[k]));
                 backgroundColor = data.map(avg => moodColors[Math.round(avg)]);
-                options.scales.x = { stacked: false };
+                options.scales.y = { min: 0, max: 4, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { stepSize: 1, color: '#c7c7cc' } };
             } else if (mode === 'heatmap') {
                 type = 'matrix';
-                const start = parsedMoods[0]?.date.minus({ days: parsedMoods[0].date.weekday - 1 }) || DateTime.now().minus({ months: 3 });
+                const start = parsedMoods[0]?.date?.minus({ days: parsedMoods[0].date.weekday - 1 }) || DateTime.now().minus({ months: 3 });
                 const end = DateTime.now();
                 const weeks = Math.ceil(end.diff(start, 'weeks').weeks);
                 data = [];
@@ -243,32 +448,42 @@
                         data.push({ x: w, y: d, v: avg || 0, date: date.toLocaleString(DateTime.DATE_SHORT) });
                     }
                 }
-                options.scales.x = { type: 'linear', position: 'top', ticks: { callback: v => `Week ${v + 1}` } };
-                options.scales.y = { type: 'linear', reverse: true, ticks: { callback: v => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][v - 1] } };
+                options.scales = {
+                    x: { type: 'linear', position: 'top', grid: { display: false }, ticks: { color: '#c7c7cc', callback: v => `W${v + 1}` } },
+                    y: { type: 'linear', reverse: true, grid: { display: false }, ticks: { color: '#c7c7cc', callback: v => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][v - 1] } }
+                };
                 options.plugins.tooltip = {
+                    backgroundColor: '#0b0b0e', titleColor: '#fff', bodyColor: '#fff', borderColor: 'rgba(255,255,255,0.08)', borderWidth: 1,
                     callbacks: {
-                        title: item => item[0].raw.date,
+                        title: items => items[0].raw.date,
                         label: item => `Mood: ${moodLevels[Math.round(item.raw.v)] || 'No data'} (${item.raw.v.toFixed(1)})`
                     }
                 };
-                options.elements = { matrix: { backgroundColor: (context) => moodColors[Math.round(context.raw.v)] || 'rgba(255,255,255,0.1)' } };
+                options.elements = {
+                    matrix: {
+                        width: ctx => ctx.chart.chartArea && ctx.chart.chartArea.width ? (ctx.chart.chartArea.width / Math.max(1, Math.ceil(data.length / 7))) - 2 : 18,
+                        height: ctx => ctx.chart.chartArea && ctx.chart.chartArea.height ? (ctx.chart.chartArea.height / 7) - 4 : 18,
+                        backgroundColor: c => moodColors[Math.round(c.raw.v)] || 'rgba(255,255,255,0.06)',
+                        borderColor: 'rgba(255,255,255,0.02)', borderWidth: 1
+                    }
+                };
             }
 
             chartInstance = new Chart(ctx, {
-                type: type,
+                type,
                 data: {
-                    labels: labels,
+                    labels,
                     datasets: [{
                         label: 'Mood Level',
-                        data: data,
-                        backgroundColor: backgroundColor,
-                        borderColor: borderColor,
+                        data,
+                        backgroundColor,
+                        borderColor,
                         borderWidth: 2,
                         fill: mode === 'daily',
                         pointBackgroundColor: mode === 'daily' ? moodColors : undefined,
                     }]
                 },
-                options: options
+                options
             });
         }
 
@@ -276,8 +491,7 @@
             const ctx = document.getElementById('trendChart').getContext('2d');
             if (trendChartInstance) trendChartInstance.destroy();
 
-            const parsedMoods = moods.map(m => ({ x: DateTime.fromISO(m.date).toJSDate(), y: m.level }));
-            parsedMoods.sort((a, b) => a.x - b.x);
+            const parsedMoods = moods.map(m => ({ x: DateTime.fromISO(m.date).toJSDate(), y: m.level })).sort((a, b) => a.x - b.x);
 
             trendChartInstance = new Chart(ctx, {
                 type: 'line',
@@ -285,41 +499,37 @@
                     datasets: [{
                         label: 'Mood Trend',
                         data: parsedMoods,
-                        borderColor: '#1cc88a',
-                        tension: 0.4,
+                        borderColor: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#0a84ff',
+                        borderWidth: 2,
+                        tension: 0.32,
                         pointRadius: 3,
                         pointBackgroundColor: parsedMoods.map(p => moodColors[p.y]),
                         pointHoverRadius: 6
                     }]
                 },
                 options: {
+                    ...baseChartOptions(),
+                    plugins: { legend: { display: false } },
                     scales: {
-                        x: { type: 'time', time: { unit: 'day' }, grid: { color: 'rgba(255,255,255,0.1)' } },
-                        y: { min: 0, max: 4, grid: { color: 'rgba(255,255,255,0.1)' } }
-                    },
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } }
+                        x: { type: 'time', time: { unit: 'day' }, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#c7c7cc' } },
+                        y: { min: 0, max: 4, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#c7c7cc' } }
+                    }
                 }
             });
 
-            // Calculate overall trend
+            const avg = calculateAverage(moods.map(m => ({ level: m.level })));
             if (parsedMoods.length > 1) {
                 const first = parsedMoods[0].y;
                 const last = parsedMoods[parsedMoods.length - 1].y;
-                const trend = last - first > 0 ? 'improving' : last - first < 0 ? 'declining' : 'stable';
-                document.getElementById('trendSummary').textContent = `Your overall mood trend is ${trend}. Average mood: ${calculateAverage(moods.map(m => ({level: m.level}))).toFixed(2)} / 4`;
+                const delta = last - first;
+                const trend = delta > 0 ? 'improving' : delta < 0 ? 'declining' : 'stable';
+                document.getElementById('trendSummary').textContent = `Your overall mood trend is ${trend}. Average mood: ${avg.toFixed(2)} / 4`;
             } else {
                 document.getElementById('trendSummary').textContent = 'Log more moods to see trend analysis.';
             }
         }
 
-        function updateStreaks() {
-            const streaks = calculateStreaks();
-            document.getElementById('currentStreak').textContent = streaks.current;
-            document.getElementById('longestStreak').textContent = streaks.longest;
-        }
-
+        // ===== Suggestions =====
         function generateSuggestions() {
             const suggestionsEl = document.getElementById('suggestions');
             suggestionsEl.innerHTML = '';
@@ -329,81 +539,87 @@
                 return;
             }
 
-            // Enhanced suggestions without emojis
             const hours = groupBy(moods, m => new Date(m.date).getHours());
-            const eveningHours = [18,19,20,21];
+            const eveningHours = [18, 19, 20, 21];
             const eveningMoods = eveningHours.flatMap(h => hours[h] || []);
             if (eveningMoods.length > 3 && calculateAverage(eveningMoods) < 2.5) {
-                addSuggestion('AI Detected: Evening anxiety pattern (average score ' + calculateAverage(eveningMoods).toFixed(1) + '). Pro Tip: Schedule our guided breathing session at sunset – users report 20% mood lift.');
+                addSuggestion('AI Detected: Evening anxiety pattern (average score ' + calculateAverage(eveningMoods).toFixed(1) + '). Pro Tip: Schedule our guided breathing session at sunset – many users report a noticeable lift.');
             }
 
             const days = groupBy(moods, m => new Date(m.date).getDay());
             const weekendMoods = [...(days[0] || []), ...(days[6] || [])];
-            const weekdayMoods = moods.filter(m => ![0,6].includes(new Date(m.date).getDay()));
+            const weekdayMoods = moods.filter(m => ![0, 6].includes(new Date(m.date).getDay()));
             if (weekendMoods.length > 2 && weekdayMoods.length > 5 && calculateAverage(weekendMoods) > calculateAverage(weekdayMoods) + 1) {
-                addSuggestion('AI Pattern: Weekend mood boost detected (+' + (calculateAverage(weekendMoods) - calculateAverage(weekdayMoods)).toFixed(1) + ' points). Suggestion: Micro-dose joy – add 15-min hobby breaks to weekdays for sustained balance.');
+                addSuggestion('AI Pattern: Weekend mood boost detected (+' + (calculateAverage(weekendMoods) - calculateAverage(weekdayMoods)).toFixed(1) + ' points). Try adding 15‑minute hobby breaks to weekdays for sustained balance.');
             }
 
-            const sortedMoods = [...moods].sort((a,b) => new Date(a.date) - new Date(b.date));
+            const sortedMoods = [...moods].sort((a, b) => new Date(a.date) - new Date(b.date));
             let lowStreak = 0;
             for (let i = sortedMoods.length - 1; i >= 0; i--) {
                 if (sortedMoods[i].level < 2) lowStreak++;
                 else break;
             }
             if (lowStreak >= 3) {
-                addSuggestion(`AI Alert: ${lowStreak}-day low mood streak. Break it with targeted actions: Start our daily affirmation challenge or journal gratitude – 70% of users see improvement in 3 days.`);
+                addSuggestion(`AI Alert: ${lowStreak}-day low mood streak. Break the pattern with targeted actions: daily affirmations or a short gratitude journal can help.`);
             }
 
             const anxietyKeywords = ['anxious', 'stress', 'worried', 'overwhelmed'];
-            const anxiousNotes = moods.filter(m => anxietyKeywords.some(k => m.notes.toLowerCase().includes(k)));
+            const anxiousNotes = moods.filter(m => (m.notes || '').toLowerCase && anxietyKeywords.some(k => (m.notes || '').toLowerCase().includes(k)));
             if (anxiousNotes.length > moods.length * 0.3) {
-                addSuggestion('AI Note Analysis: Anxiety themes in ' + Math.round((anxiousNotes.length / moods.length) * 100) + '% of entries. Recommendation: Track triggers in notes; try cognitive reframing module. If ongoing, consider professional consultation.');
+                addSuggestion('AI Note Analysis: Anxiety themes present in ' + Math.round((anxiousNotes.length / moods.length) * 100) + '% of entries. Track triggers in notes; consider cognitive reframing exercises.');
             }
 
-            const avgMood = calculateAverage(moods.map(m => ({level: m.level})));
+            const avgMood = calculateAverage(moods.map(m => ({ level: m.level })));
             if (avgMood < 2.5) {
-                addSuggestion(`AI Overview: Mood average ${avgMood.toFixed(1)}/4 (room for growth). Personalized Plan: Set weekly goals in app, enable reminders for mood-boosting activities like our quick meditations.`);
+                addSuggestion(`AI Overview: Mood average ${avgMood.toFixed(1)}/4. Consider setting weekly goals and enabling reminders for brief meditations.`);
             } else if (avgMood > 3.5) {
-                addSuggestion(`AI Kudos: Stellar average of ${avgMood.toFixed(1)}/4! Maintain Momentum: Share successful strategies in notes to build your personal wellness playbook.`);
+                addSuggestion(`AI Kudos: Stellar average of ${avgMood.toFixed(1)}/4! Capture what works in your notes to build a personal playbook.`);
             }
 
             function addSuggestion(text) {
                 const div = document.createElement('div');
-                div.className = 'suggestion-card';
-                div.innerHTML = `<p class="text-white">${text}</p>`;
+                div.className = 'suggestion';
+                div.innerHTML = `<p class="subtle" style="color:#eaeaec; line-height:1.6;">${text}</p>`;
                 suggestionsEl.appendChild(div);
             }
         }
 
-        // Button listeners
-        ['daily', 'weekly', 'monthly', 'heatmap'].forEach(mode => {
-            document.getElementById(mode + 'Btn').addEventListener('click', () => switchMode(mode));
-        });
-
+        // ===== Tabs & Export =====
         function switchMode(mode) {
             currentMode = mode;
-            document.querySelectorAll('button.rounded-full').forEach(btn => {
-                btn.classList.remove('tab-active');
+            document.querySelectorAll('.tab').forEach(btn => {
+                btn.classList.toggle('active', btn.id === mode + 'Btn');
+                btn.setAttribute('aria-selected', btn.id === mode + 'Btn' ? 'true' : 'false');
             });
-            document.getElementById(mode + 'Btn').classList.add('tab-active');
             renderChart(mode);
         }
 
+        document.getElementById('dailyBtn').addEventListener('click', () => switchMode('daily'));
+        document.getElementById('weeklyBtn').addEventListener('click', () => switchMode('weekly'));
+        document.getElementById('monthlyBtn').addEventListener('click', () => switchMode('monthly'));
+        document.getElementById('heatmapBtn').addEventListener('click', () => switchMode('heatmap'));
+
         document.getElementById('exportBtn').addEventListener('click', () => {
-            const csv = 'Date,Level,Notes\n' + moods.map(m => `${m.date},${m.level},"${m.notes.replace(/"/g, '""')}"`).join('\n');
+            const csv = 'Date,Level,Notes\n' + moods.map(m => `${m.date},${m.level},"${(m.notes || '').replace(/"/g, '""')}"`).join('\n');
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url;
-            a.download = 'mood_analytics_data.csv';
-            a.click();
+            a.href = url; a.download = 'mood_analytics_data.csv'; a.click();
+            URL.revokeObjectURL(url);
         });
 
-        // Initial render
+        // ===== Initial Render =====
+        function updateStreaks() {
+            const { current, longest } = calculateStreaks();
+            document.getElementById('currentStreak').textContent = current;
+            document.getElementById('longestStreak').textContent = longest;
+        }
+
         updateStreaks();
         switchMode('daily');
         generateSuggestions();
         renderTrendChart();
     </script>
 </body>
+
 </html>

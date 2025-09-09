@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --hero-fade: 0;
+}
+
+html,
+body {
+    scroll-behavior: smooth;
+}
+
+.hero-mask {
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 70%, rgba(0, 0, 0, 0) 100%);
+    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 70%, rgba(0, 0, 0, 0) 100%);
+}
+
+.hero-art {
+    opacity: calc(1 - var(--hero-fade));
+    transition: opacity 0.2s linear;
+}
+
+.section-divider:before {
+    content: "";
+    position: absolute;
+    inset: -1px 0 auto 0;
+    height: 22px;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.25), transparent);
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+.breathing-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #4f9cff, #2563eb);
+    animation: breathe 6s ease-in-out infinite;
+    opacity: 0.8;
+    box-shadow: 0 0 25px rgba(79, 156, 255, 0.5);
+}
+
+@keyframes breathe {
+
+    0%,
+    100% {
+        transform: scale(0.8);
+        opacity: 0.6;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+}
+
+/* Tailwind custom configuration */
+@layer base {
+    :root {
+        --font-sans: "Inter", ui-sans-serif, system-ui;
+        --color-brand-50: #e9fdf5;
+        --color-brand-100: #c8f8e6;
+        --color-brand-200: #9df0d3;
+        --color-brand-300: #6de6be;
+        --color-brand-400: #42d6a7;
+        --color-brand-500: #1cc88a;
+        --color-brand-600: #13a573;
+        --color-brand-700: #0f845e;
+        --color-brand-800: #0b6549;
+        --color-brand-900: #084f3a;
+        --shadow-mnc: 0 10px 30px rgba(0, 0, 0, .25);
+        --bg-heroGrad: radial-gradient(60% 80% at 80% 20%, rgba(28, 200, 138, .18) 0%, transparent 60%), radial-gradient(60% 60% at 20% 30%, rgba(78, 115, 223, .15) 0%, transparent 70%), linear-gradient(135deg, #0b132b 0%, #1b2a49 50%, #0d1f2d 100%);
+    }
+}

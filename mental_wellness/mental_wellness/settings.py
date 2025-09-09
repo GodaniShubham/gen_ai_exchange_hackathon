@@ -26,7 +26,18 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'saharathiapp',
+    'tailwind',
+    'theme',
+    'accounts',
 ]
+
+TAILWIND_APP_NAME = 'theme'
+
+AUTH_USER_MODEL = "accounts.CustomUser"
+
+if DEBUG:
+    # Add django_browser_reload only in DEBUG mode
+    INSTALLED_APPS += ['django_browser_reload']
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -37,6 +48,12 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if DEBUG:
+    # Add django_browser_reload middleware only in DEBUG mode
+    MIDDLEWARE += [
+        "django_browser_reload.middleware.BrowserReloadMiddleware",
+    ]
 
 ROOT_URLCONF = 'mental_wellness.urls'
 
@@ -89,3 +106,15 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 if not GEMINI_API_KEY:
     raise ValueError("⚠️ GEMINI_API_KEY is not set! Please check your .env file.")
+
+
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = "godanishubham30@gmail.com"
+EMAIL_HOST_PASSWORD = "zodm usky pzwx uded"   # Gmail App Password (not normal password)
+
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

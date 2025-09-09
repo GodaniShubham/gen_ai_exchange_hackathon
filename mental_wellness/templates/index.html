@@ -10,6 +10,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
   <script>
     tailwind.config = {
       theme: {
@@ -48,14 +49,7 @@
       scroll-behavior: smooth;
     }
 
-    .nav-blur {
-      backdrop-filter: saturate(180%) blur(14px);
-    }
-
-    .nav-shadow {
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.22);
-    }
-
+    /* Retained custom CSS for complex styles */
     .hero-mask {
       -webkit-mask-image: linear-gradient(to bottom,
           rgba(0, 0, 0, 1) 0%,
@@ -70,19 +64,6 @@
     .hero-art {
       opacity: calc(1 - var(--hero-fade));
       transition: opacity 0.2s linear;
-    }
-
-    .hero-cta {
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .hero-cta:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 24px rgba(28, 200, 138, 0.35);
-    }
-
-    .section-divider {
-      position: relative;
     }
 
     .section-divider:before {
@@ -118,157 +99,125 @@
         opacity: 1;
       }
     }
-
-    .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      z-index: 100;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .modal-content {
-      background: linear-gradient(180deg, #1c1c1f, #101014);
-      border-radius: 20px;
-      padding: 40px;
-      max-width: 600px;
-      width: 90%;
-      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: #fff;
-      font-family: system-ui, sans-serif;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      cursor: pointer;
-      color: #d1d1d6;
-      font-size: 18px;
-      transition: color 0.2s ease;
-    }
-
-    .modal-close:hover {
-      color: #fff;
-    }
-
-    .input-error {
-      border-color: #f87171 !important;
-    }
-
-    .error-message {
-      color: #f87171;
-      font-size: 12px;
-      margin-top: 4px;
-    }
-
-    /* Parallax Effect */
-    :root {
-      --scroll-y: 0;
-    }
-
-    .parallax-bg {
-      will-change: transform;
-      transition: transform 0.3s ease-out;
-    }
-
-    .activity-card {
-      transition: transform 0.3s ease, border-color 0.3s ease,
-        box-shadow 0.3s ease;
-    }
-
-    .activity-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(28, 200, 138, 0.5);
-    }
   </style>
 </head>
 
 <body class="font-sans bg-[#0b1320] text-white">
   <!-- NAVBAR -->
-  <header id="nav" class="fixed inset-x-0 top-0 z-50 nav-blur">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <div class="flex h-16 items-center justify-between">
-        <a href="#" class="flex items-center gap-3 group">
-          <span
-            class="relative inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-indigo-500 shadow-mnc">
-            <svg viewBox="0 0 24 24" class="h-5 w-5 text-white/90">
-              <path d="M3 12c4-6 14-6 18 0M6 16c3-4 9-4 12 0" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" />
-              <circle cx="12" cy="12" r="2" fill="currentColor" />
-            </svg>
-          </span>
-          <span class="text-lg font-bold tracking-tight">Saharathi <span class="text-brand-300">AI</span></span>
-        </a>
-        <nav class="hidden md:flex items-center gap-8 text-sm">
-          <a href="#mission" class="text-white/80 hover:text-white transition">Mission</a>
-          <a href="#how" class="text-white/80 hover:text-white transition">How it works</a>
-          <a href="#solutions" class="text-white/80 hover:text-white transition">Solutions</a>
-          <a href="#trust" class="text-white/80 hover:text-white transition">Trust & Safety</a>
-        </nav>
-        <div class="hidden md:flex items-center gap-3">
-          <select id="langSwitcher"
-            class="px-2 py-1 rounded-lg bg-transparent border border-white/20 text-white/80 text-sm hover:bg-white/10 focus:outline-none focus:ring-1 focus:ring-white/30">
-            <option value="en" class="bg-[#0b1320] text-white">EN</option>
-            <option value="hi" class="bg-[#0b1320] text-white">हिंदी</option>
-            <option value="hinglish" class="bg-[#0b1320] text-white">
-              Hinglish
-            </option>
-          </select>
+<header id="nav" class="fixed inset-x-0 top-0 z-50 backdrop-blur-md backdrop-saturate-[180%]">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="flex h-16 items-center justify-between">
+      <!-- Logo -->
+      <a href="#" class="flex items-center gap-3 group">
+        <span
+          class="relative inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-indigo-500 shadow-mnc">
+          <svg viewBox="0 0 24 24" class="h-5 w-5 text-white/90">
+            <path d="M3 12c4-6 14-6 18 0M6 16c3-4 9-4 12 0" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" />
+            <circle cx="12" cy="12" r="2" fill="currentColor" />
+          </svg>
+        </span>
+        <span class="text-lg font-bold tracking-tight">Saharathi <span class="text-brand-300">AI</span></span>
+      </a>
 
-          <a href="#" onclick="openModal('loginModal')"
+      <!-- Desktop Nav -->
+      <nav class="hidden md:flex items-center gap-8 text-sm">
+        <a href="#mission" class="text-white/80 hover:text-white transition">Mission</a>
+        <a href="#how" class="text-white/80 hover:text-white transition">How it works</a>
+        <a href="#solutions" class="text-white/80 hover:text-white transition">Solutions</a>
+        <a href="#trust" class="text-white/80 hover:text-white transition">Trust & Safety</a>
+      </nav>
+
+      <!-- Desktop Right Section -->
+      <div class="hidden md:flex items-center gap-3">
+        <!-- Language Selector -->
+        <select id="langSwitcher"
+          class="px-2 py-1 rounded-lg bg-transparent border border-white/20 text-white/80 text-sm hover:bg-white/10 focus:outline-none focus:ring-1 focus:ring-white/30">
+          <option value="en" class="bg-[#0b1320] text-white">EN</option>
+          <option value="hi" class="bg-[#0b1320] text-white">हिंदी</option>
+          <option value="hinglish" class="bg-[#0b1320] text-white">Hinglish</option>
+        </select>
+
+        <!-- Auth Section -->
+        {% if user.is_authenticated %}
+          <span class="px-4 py-2 rounded-lg border border-white/10 text-white/80">
+            👋 {{ user.username }}
+          </span>
+          <a href="{% url 'logout' %}"
+            class="px-4 py-2 rounded-lg border border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white transition">
+            Logout
+          </a>
+        {% else %}
+          <a href="{% url 'login' %}"
             class="px-4 py-2 rounded-lg border border-white/10 hover:border-white/20 text-white/80 hover:text-white transition"
             data-i18n="hero.login">Login</a>
-          <a href="{% url 'chat_page' %}"
-            class="hero-cta inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-500 text-[#0a1713] font-semibold"
-            data-i18n="hero.cta">
-            Get Started
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor">
-              <path
-                d="M13.5 5.5a1 1 0 0 1 1.5.86V10h3.64a1 1 0 0 1 .7 1.71l-7.29 7.29a1 1 0 0 1-1.71-.7V13H6.5a1 1 0 0 1-.86-1.5z" />
-            </svg>
-          </a>
-        </div>
-        <button id="menuBtn" class="md:hidden p-2 rounded-lg bg-white/5 hover:bg-white/10" aria-label="Open menu">
-          <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M4 6h16M4 12h16M4 18h16" />
+        {% endif %}
+
+        <!-- CTA -->
+        <a href="{% url 'chat_page' %}"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-500 text-[#0a1713] font-semibold transition-transform hover:-translate-y-[1px] hover:shadow-[0_10px_24px_rgba(28,200,138,0.35)]"
+          data-i18n="hero.cta">
+          Get Started
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor">
+            <path
+              d="M13.5 5.5a1 1 0 0 1 1.5.86V10h3.64a1 1 0 0 1 .7 1.71l-7.29 7.29a1 1 0 0 1-1.71-.7V13H6.5a1 1 0 0 1-.86-1.5z" />
           </svg>
-        </button>
+        </a>
       </div>
+
+      <!-- Mobile Menu Button -->
+      <button id="menuBtn" class="md:hidden p-2 rounded-lg bg-white/5 hover:bg-white/10" aria-label="Open menu">
+        <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
     </div>
-    <div id="mobileNav" class="md:hidden hidden border-t border-white/10 bg-[#0f1a2b]/95 backdrop-blur-lg">
-      <div class="mx-auto max-w-7xl px-4 py-4 flex flex-col gap-4 text-sm">
-        <div class="flex items-center justify-between">
-          <span class="text-white/70">Language</span>
-          <select id="langSwitcherMobile" class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-white/80">
-            <option value="en">EN</option>
-            <option value="hi">हिंदी</option>
-            <option value="hinglish">Hinglish</option>
-          </select>
-        </div>
-        <a href="#mission" class="text-white/90">Mission</a>
-        <a href="#how" class="text-white/90">How it works</a>
-        <a href="#solutions" class="text-white/90">Solutions</a>
-        <a href="#trust" class="text-white/90">Trust & Safety</a>
-        <a href="#mood"
-          class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-brand-500 text-[#0a1713] font-semibold"
-          data-i18n="hero.cta">Get Started</a>
-        <a href="#" onclick="openModal('loginModal')"
-          class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-white/10 text-white/90"
+  </div>
+
+  <!-- Mobile Nav -->
+  <div id="mobileNav" class="md:hidden hidden border-t border-white/10 bg-[#0f1a2b]/95 backdrop-blur-lg">
+    <div class="mx-auto max-w-7xl px-4 py-4 flex flex-col gap-4 text-sm">
+      <!-- Language Selector -->
+      <div class="flex items-center justify-between">
+        <span class="text-white/70">Language</span>
+        <select id="langSwitcherMobile" class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-white/80">
+          <option value="en">EN</option>
+          <option value="hi">हिंदी</option>
+          <option value="hinglish">Hinglish</option>
+        </select>
+      </div>
+
+      <!-- Links -->
+      <a href="#mission" class="text-white/90">Mission</a>
+      <a href="#how" class="text-white/90">How it works</a>
+      <a href="#solutions" class="text-white/90">Solutions</a>
+      <a href="#trust" class="text-white/90">Trust & Safety</a>
+
+      <!-- Auth Section Mobile -->
+      {% if user.is_authenticated %}
+        <span class="px-4 py-2 rounded-lg border border-white/10 text-white/80">
+          👋 {{ user.username }}
+        </span>
+        <a href="{% url 'logout' %}"
+          class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white transition">
+          Logout
+        </a>
+      {% else %}
+        <a href="{% url 'login' %}"
+          class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-white/10 text-white/90 hover:border-white/20"
           data-i18n="hero.login">Login</a>
-      </div>
+      {% endif %}
+
+      <!-- CTA -->
+      <a href="{% url 'chat_page' %}"
+        class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-brand-500 text-[#0a1713] font-semibold transition-transform hover:-translate-y-[1px] hover:shadow-[0_10px_24px_rgba(28,200,138,0.35)]"
+        data-i18n="hero.cta">Get Started</a>
     </div>
-  </header>
+  </div>
+</header>
 
   <!-- HERO -->
-  <section class="relative pt-28 md:pt-32 hero-mask bg-heroGrad">
+  <section class="relative pt-28 md:pt-32 bg-heroGrad hero-mask">
     <div class="absolute inset-0 pointer-events-none">
       <svg class="absolute inset-0 w-full h-full opacity-[.06]" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -293,11 +242,17 @@
           </p>
           <div class="flex flex-wrap gap-3">
             <a href="{% url 'chat_page' %}"
-              class="hero-cta inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-brand-500 text-[#0a1713] font-semibold"
+              class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-brand-500 text-[#0a1713] font-semibold transition-transform hover:-translate-y-[1px] hover:shadow-[0_10px_24px_rgba(28,200,138,0.35)]"
               data-i18n="hero.cta">Get Started</a>
-            <a href="#" onclick="openModal('loginModal')"
-              class="inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-white/15 text-white/90 hover:border-white/25"
-              data-i18n="hero.login">Login</a>
+            {% if user.is_authenticated %}
+          <span class="px-4 py-2 rounded-lg border border-white/10 text-white/80">
+            👋 {{ user.username }}
+          </span>
+        {% else %}
+          <a href="{% url 'login' %}"
+            class="px-4 py-2 rounded-lg border border-white/10 hover:border-white/20 text-white/80 hover:text-white transition"
+            data-i18n="hero.login">Login</a>
+        {% endif %}
           </div>
           <div class="flex items-center gap-6 pt-4 text-white/50 text-sm">
             <div class="flex items-center gap-2">
@@ -323,7 +278,7 @@
         </div>
       </div>
     </div>
-    <div class="section-divider mt-16">
+    <div class="section-divider mt-16 relative">
       <svg class="w-full h-14 text-[#0b1320]" preserveAspectRatio="none" viewBox="0 0 1440 60" aria-hidden="true">
         <g transform="scale(1,-1) translate(0,-60)">
           <path fill="currentColor" d="M0 0h1440v36C989 86 492 12 0 36V0Z" />
@@ -374,13 +329,12 @@
       </div>
     </div>
   </section>
-  <div style="height: 20px"></div>
+  <div class="h-5"></div>
   <!-- GUIDED ACTIVITIES SECTION -->
   <section class="relative bg-[#0b1320] py-16 overflow-hidden">
-    <!-- Subtle Parallax Background -->
     <div class="absolute inset-0 pointer-events-none">
       <div
-        class="absolute inset-0 bg-gradient-to-br from-brand-100/10 to-indigo-500/10 opacity-50 transform transition-transform duration-500"
+        class="absolute inset-0 bg-gradient-to-br from-brand-100/10 to-indigo-500/10 opacity-50 transition-transform duration-500"
         style="transform: translateY(calc(var(--scroll-y) * -0.1px))"></div>
       <svg class="absolute inset-0 w-full h-full opacity-[0.04]" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -402,11 +356,10 @@
         </p>
       </div>
       <div class="grid md:grid-cols-3 gap-6">
-        <!-- Activity Card 1: Breathing Exercise -->
         <div
           class="group relative p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-brand-300/50 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-mnc">
           <div class="breathing-circle mx-auto mb-4" style="width: 150px; height: 150px; margin-top: 15px"></div>
-          <h3 class="text-xl font-semibold text-white" style="margin-top: 35px" data-i18n="activities.breathing.title">
+          <h3 class="text-xl font-semibold text-white mt-9" data-i18n="activities.breathing.title">
             Breath & Reset
           </h3>
           <p class="mt-2 text-white/70" data-i18n="activities.breathing.desc">
@@ -414,7 +367,6 @@
             moment.
           </p>
         </div>
-        <!-- Activity Card 2: Journaling Prompt -->
         <div
           class="group relative p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-brand-300/50 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-mnc">
           <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -437,7 +389,6 @@
 
 
         </div>
-        <!-- Activity Card 3: Self-Care Guides -->
         <div
           class="group relative p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-brand-300/50 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-mnc">
           <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -459,15 +410,15 @@
             Self-Care</a>
         </div>
       </div>
-      <!-- Call to Action -->
       <div class="mt-12 text-center">
         <a href=""
-          class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-500 text-[#0a1713] font-semibold hero-cta"
+          class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-500 text-[#0a1713] font-semibold transition-transform hover:-translate-y-[1px] hover:shadow-[0_10px_24px_rgba(28,200,138,0.35)]"
           data-i18n="activities.cta">Discover More Activities</a>
       </div>
     </div>
   </section>
 
+  <!-- HOW IT WORKS -->
   <section id="how" class="relative bg-[#0b1320] mt-8">
     <div class="mx-auto max-w-7xl px-6 lg:px-8 py-12">
       <h2 class="text-3xl md:text-4xl font-bold mb-8" data-i18n="how.title">
@@ -522,6 +473,7 @@
       </div>
     </div>
   </section>
+
   <!-- SOLUTIONS -->
   <section id="solutions" class="relative bg-[#0b1320]">
     <div class="mx-auto max-w-7xl px-6 lg:px-8 py-12">
@@ -562,7 +514,7 @@
       </div>
     </div>
   </section>
-  <div class="divider-curve">
+  <div class="relative">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 200" preserveAspectRatio="none">
       <defs>
         <linearGradient id="fadeBlueDark" x1="0" y1="0" x2="0" y2="1">
@@ -675,6 +627,7 @@
       </div>
     </div>
   </section>
+
   <!-- URGENT HELP -->
   <section class="bg-[#0b1320] py-10">
     <div class="max-w-3xl mx-auto px-6">
@@ -692,6 +645,7 @@
       </div>
     </div>
   </section>
+
   <!-- FAQ Section -->
   <section class="bg-[#0b1320] py-16">
     <div class="max-w-3xl mx-auto px-6">
@@ -728,455 +682,16 @@
       </div>
     </div>
   </section>
-  <!-- LOGIN MODAL -->
-  <div id="loginModal" class="modal" role="dialog" aria-labelledby="loginModalTitle">
-    <div class="modal-content">
-      <span class="modal-close" onclick="closeModal('loginModal')" aria-label="Close">&times;</span>
-      <h2 id="loginModalTitle" class="text-center mb-8 text-3xl font-bold">Welcome Back</h2>
-      <form id="loginForm" method="post" action="{% url 'login' %}" novalidate>
-        {% csrf_token %}
-        <div class="mb-6">
-          <label for="username" class="block text-sm text-gray-300 mb-2">Username</label>
-          <input type="text" id="username" name="username" autocomplete="username" required
-            class="w-full px-5 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:border-brand-500 focus:ring-2 focus:ring-brand-300 text-white"
-            aria-describedby="usernameError">
-          <div id="usernameError" class="error-message hidden"></div>
-        </div>
-        <div class="mb-6">
-          <label for="password" class="block text-sm text-gray-300 mb-2">Password</label>
-          <input type="password" id="password" name="password" autocomplete="current-password" required
-            class="w-full px-5 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:border-brand-500 focus:ring-2 focus:ring-brand-300 text-white"
-            aria-describedby="passwordError">
-          <div id="passwordError" class="error-message hidden"></div>
-        </div>
-        <button type="submit"
-          class="w-full px-5 py-3 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold hover:from-indigo-600 hover:to-purple-700 transition duration-200 mb-4">
-          Login
-        </button>
-        <button type="button" onclick="setGuestMode(); closeModal('loginModal');"
-          class="w-full px-5 py-3 rounded-lg border border-brand-500 text-brand-500 hover:bg-brand-500 hover:text-gray-900 transition duration-200 mb-4">
-          Explore as Guest
-        </button>
-        <a href="#" onclick="openModal('signupModal'); closeModal('loginModal');"
-          class="block mt-4 text-center text-sm text-indigo-400 hover:text-indigo-300">Sign Up</a>
-        <p class="mt-6 text-center text-xs text-gray-400">
-          Forgot your password? <a href="#" class="text-indigo-400 hover:text-indigo-300">Reset here</a>
-        </p>
-      </form>
-    </div>
-  </div>
-
-  <!-- SIGNUP MODAL -->
-  <div id="signupModal" class="modal" role="dialog" aria-labelledby="signupModalTitle">
-    <div class="modal-content">
-      <span class="modal-close" onclick="closeModal('signupModal')" aria-label="Close">&times;</span>
-      <h2 id="signupModalTitle" class="text-center mb-8 text-3xl font-bold">Create Account</h2>
-      <form id="signupForm" method="post" action="{% url 'signup' %}" novalidate>
-        {% csrf_token %}
-        <div class="mb-6">
-          <label for="newUsername" class="block text-sm text-gray-300 mb-2">Username</label>
-          <input type="text" id="newUsername" name="username" autocomplete="username" required
-            class="w-full px-5 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:border-brand-500 focus:ring-2 focus:ring-brand-300 text-white"
-            aria-describedby="newUsernameError">
-          <div id="newUsernameError" class="error-message hidden"></div>
-        </div>
-        <div class="mb-6">
-          <label for="email" class="block text-sm text-gray-300 mb-2">Email</label>
-          <input type="email" id="email" name="email" autocomplete="email" required
-            class="w-full px-5 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:border-brand-500 focus:ring-2 focus:ring-brand-300 text-white"
-            aria-describedby="emailError">
-          <div id="emailError" class="error-message hidden"></div>
-        </div>
-        <div class="mb-6">
-          <label for="newPassword" class="block text-sm text-gray-300 mb-2">Password</label>
-          <input type="password" id="newPassword" name="password" autocomplete="new-password" required
-            class="w-full px-5 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:border-brand-500 focus:ring-2 focus:ring-brand-300 text-white"
-            aria-describedby="newPasswordError">
-          <div id="newPasswordError" class="error-message hidden"></div>
-        </div>
-        <div class="mb-6">
-          <label for="confirmPassword" class="block text-sm text-gray-300 mb-2">Confirm Password</label>
-          <input type="password" id="confirmPassword" name="confirm_password" autocomplete="new-password" required
-            class="w-full px-5 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:border-brand-500 focus:ring-2 focus:ring-brand-300 text-white"
-            aria-describedby="confirmPasswordError">
-          <div id="confirmPasswordError" class="error-message hidden"></div>
-        </div>
-        <button type="submit"
-          class="w-full px-5 py-3 rounded-lg bg-gradient-to-r from-green-500 to-teal-600 text-white font-semibold hover:from-green-600 hover:to-teal-700 transition duration-200 mb-4">
-          Sign Up
-        </button>
-        <button type="button" onclick="setGuestMode(); closeModal('signupModal');"
-          class="w-full px-5 py-3 rounded-lg border border-brand-500 text-brand-500 hover:bg-brand-500 hover:text-gray-900 transition duration-200 mb-4">
-          Explore as Guest
-        </button>
-        <a href="#" onclick="openModal('loginModal'); closeModal('signupModal');"
-          class="block mt-4 text-center text-sm text-indigo-400 hover:text-indigo-300">Already have an account? Log in</a>
-      </form>
-    </div>
-  </div>
 
   <footer class="border-t border-white/10 bg-[#0b1320]">
     <div class="mx-auto max-w-7xl px-6 py-6 text-center text-white/50 text-sm">
       © 2025 Saharathi AI
     </div>
   </footer>
-
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      // Check if user has previously chosen to explore as guest or is logged in
-      const hasVisited = localStorage.getItem("hasVisited");
-      const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-      if (!hasVisited && !isLoggedIn) {
-        openModal('loginModal');
-        localStorage.setItem("hasVisited", "true");
-      }
-    });
-
-    // --- User State Management ---
-    let isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-    let moods = JSON.parse(localStorage.getItem("moods")) || [];
-
-    // --- Modal Functions ---
-    function openModal(modalId) {
-      const modal = document.getElementById(modalId);
-      if (!modal) return;
-      modal.style.display = "flex";
-      modal.style.justifyContent = "center";
-      modal.style.alignItems = "center";
-    }
-    function closeModal(modalId) {
-      const modal = document.getElementById(modalId);
-      if (modal) modal.style.display = "none";
-    }
-
-    // --- Guest Mode Function ---
-    function setGuestMode() {
-      localStorage.setItem("isGuest", "true");
-      closeModal('loginModal');
-      closeModal('signupModal');
-    }
-
-    // --- Mobile Menu Toggle ---
-    const menuBtn = document.getElementById("menuBtn");
-    const mobileNav = document.getElementById("mobileNav");
-    menuBtn?.addEventListener("click", () => mobileNav.classList.toggle("hidden"));
-
-    // --- Navbar Elevation on Scroll ---
-    const nav = document.getElementById("nav");
-    const onScroll = () => {
-      if (window.scrollY > 8) nav.classList.add("nav-shadow");
-      else nav.classList.remove("nav-shadow");
-    };
-    window.addEventListener("scroll", onScroll);
-    onScroll();
-
-    // --- Hero Fade ---
-    const hero = document.querySelector("section");
-    const updateHeroFade = () => {
-      const rect = hero.getBoundingClientRect();
-      const viewportH = window.innerHeight || 1;
-      const progress = Math.min(1, Math.max(0, (viewportH - rect.top) / (rect.height * 0.85)));
-      document.documentElement.style.setProperty("--hero-fade", progress.toFixed(3));
-    };
-    window.addEventListener("scroll", updateHeroFade);
-    window.addEventListener("resize", updateHeroFade);
-    updateHeroFade();
-
-    // --- Language + i18n ---
-    const i18n = {
-      en: {
-        "hero.title": "Human support, at AI scale",
-        "hero.desc":
-          "Saharathi AI guides young minds through stress, anxiety, and uncertainty — private, 24/7 support in culturally inclusive design.",
-        "hero.cta": "Get Started",
-        "hero.login": "Login",
-        "hero.anonymous":
-          "No account needed – get started and explore all features anonymously.",
-        "hero.b1": "Secure & private",
-        "hero.b2": "Built for Gen Z",
-        "hero.b3": "Available 24/7",
-        "mood.title": "How are you feeling today?",
-        "mood.subtitle": "Slide to pick your mood, then submit.",
-        "mood.submit": "Submit",
-        "mood.saved": "Saved ✅",
-        "mood.analytics": "Mood Analytics",
-        "mission.1.title": "Proactive support",
-        "mission.1.body":
-          "Daily check-ins detect early stress and suggest steps.",
-        "mission.2.title": "Private by design",
-        "mission.2.body":
-          "Your conversations are encrypted and under your control.",
-        "mission.3.title": "Inclusive guidance",
-        "mission.3.body":
-          "Culturally aware prompts help every user feel supported.",
-        "how.title": "How it works",
-        "how.s1.title": "Share & reflect",
-        "how.s1.body":
-          "Talk in a safe space. We listen first, then guide gently.",
-        "how.s2.title": "Tailored guidance",
-        "how.s2.body":
-          "Receive exercises matching your goals — breathing, journaling, self-care.",
-        "how.s3.title": "Grow with insights",
-        "how.s3.body": "See progress trends and celebrate small wins.",
-        "trust.title": "Trust & Safety",
-        "trust.1.title": "Expert Oversight",
-        "trust.1.body":
-          "Advisors review content. Crisis escalates to human help.",
-        "trust.2.title": "Data Transparency",
-        "trust.2.body": "Transparent model. You control your data anytime.",
-        "trust.3.title": "Accessible Design",
-        "trust.3.body":
-          "Accessibility: high contrast, screen-reader friendly.",
-        "solutions.schools.title": "For schools & NGOs",
-        "solutions.schools.desc":
-          "Deploy a co-pilot for counsellors and mentors. Aggregate, anonymized insights help you support more students without burning out teams.",
-        "solutions.families.title": "For families",
-        "solutions.families.desc":
-          "Build healthy routines at home with reminders, shared check-ins, and age-aware content for teens and young adults.",
-        "modal.login.title": "Login",
-        "modal.login.email": "Email",
-        "modal.login.password": "Password",
-        "modal.login.submit": "Login",
-        "modal.analytics.title": "Mood Analytics",
-        "activities.title": "Explore Guided Activities",
-        "activities.subtitle":
-          "Discover mindfulness exercises, journaling prompts, and self-care guides to support your mental wellness journey.",
-        "activities.breathing.title": "Breath & Reset",
-        "activities.breathing.desc":
-          "Sync your breathing with a calming rhythm to find peace in the moment.",
-        "activities.journal.title": "Journal Your Thoughts",
-        "activities.journal.desc":
-          "Reflect on guided prompts to process emotions and gain clarity.",
-        "activities.selfcare.title": "Self-Care Guides",
-        "activities.selfcare.desc":
-          "Curated tips and micro-content for daily wellness and self-care routines.",
-        "activities.cta": "Discover More Activities",
-      },
-      hi: {
-        "hero.title": "मानवीय सहयोग, AI पैमाने पर",
-        "hero.desc":
-          "Saharathi AI तनाव, चिंता और अनिश्चितता में युवाओं का मार्गदर्शन करता है — निजी, 24/7 सहयोग सांस्कृतिक रूप से समावेशी डिज़ाइन के साथ।",
-        "hero.cta": "शुरू करें",
-        "hero.login": "लॉगिन",
-        "hero.anonymous":
-          "कोई खाता जरूरी नहीं – शुरू करें और सभी सुविधाएँ अनाम रूप से उपयोग करें।",
-        "hero.b1": "सुरक्षित और निजी",
-        "hero.b2": "Gen Z के लिए बनाया गया",
-        "hero.b3": "24/7 उपलब्ध",
-        "mood.title": "आज आप कैसा महसूस कर रहे हैं?",
-        "mood.subtitle": "स्लाइडर को खींचकर अपना मूड चुनें, फिर सबमिट करें।",
-        "mood.submit": "सबमिट",
-        "mood.saved": "सेव ✅",
-        "mood.analytics": "मूड एनालिटिक्स",
-        "mission.1.title": "प्रोएक्टिव सहयोग",
-        "mission.1.body":
-          "दैनिक चेक-इन शुरुआती तनाव पहचानते हैं और सुझाव देते हैं।",
-        "mission.2.title": "निजी डिज़ाइन",
-        "mission.2.body": "आपकी बातचीत एन्क्रिप्टेड और आपके नियंत्रण में है।",
-        "mission.3.title": "समावेशी मार्गदर्शन",
-        "mission.3.body":
-          "सांस्कृतिक रूप से जागरूक प्रॉम्प्ट सभी उपयोगकर्ताओं को सहयोग देते हैं।",
-        "how.title": "कैसे काम करता है",
-        "how.s1.title": "अपनी बात रखें",
-        "how.s1.body":
-          "सुरक्षित स्थान पर बात करें। हम पहले सुनते हैं फिर धीरे मार्गदर्शन करते हैं।",
-        "how.s2.title": "आपके लिए मार्गदर्शन",
-        "how.s2.body":
-          "सांस, जर्नलिंग, सेल्फ-केयर जैसी गतिविधियां आपके लक्ष्यों से मेल खाती हैं।",
-        "how.s3.title": "इनसाइट्स के साथ बढ़ें",
-        "how.s3.body":
-          "सरल एनालिटिक्स प्रगति दिखाते हैं ताकि आप जीतें मना सकें।",
-        "trust.title": "विश्वास व सुरक्षा",
-        "trust.1.title": "विशेषज्ञ निगरानी",
-        "trust.1.body":
-          "सलाहकार सामग्री की समीक्षा करते हैं। संकट में मानव सहयोग मिलता है।",
-        "trust.2.title": "डेटा पारदर्शिता",
-        "trust.2.body": "पारदर्शी मॉडल। आप अपने डेटा पर नियंत्रण रखते हैं।",
-        "trust.3.title": "सुलभ डिज़ाइन",
-        "trust.3.body": "सुलभता: उच्च कंट्रास्ट, स्क्रीन-रीडर फ्रेंडली।",
-        "solutions.schools.title": "स्कूलों और NGOs के लिए",
-        "solutions.schools.desc":
-          "काउंसलर्स और मेंटर्स के लिए एक सहायक तैनात करें। एकत्रित और गुमनाम जानकारियाँ आपकी टीम को थकाए बिना अधिक छात्रों की मदद करने में सहायक होती हैं।",
-        "solutions.families.title": "परिवारों के लिए",
-        "solutions.families.desc":
-          "घर पर स्वस्थ दिनचर्या बनाएँ—रिमाइंडर, साझा चेक-इन और किशोरों व युवाओं के लिए उपयुक्त सामग्री के साथ।",
-        "modal.login.title": "लॉगिन",
-        "modal.login.email": "ईमेल",
-        "modal.login.password": "पासवर्ड",
-        "modal.login.submit": "लॉगिन",
-        "modal.analytics.title": "मूड एनालिटिक्स",
-        "activities.title": "निर्देशित गतिविधियाँ खोजें",
-        "activities.subtitle":
-          "मानसिक स्वास्थ्य यात्रा का समर्थन करने के लिए माइंडफुलनेस व्यायाम, जर्नलिंग प्रॉम्प्ट्स और सेल्फ-केयर गाइड्स खोजें।",
-        "activities.breathing.title": "साँस लें और रीसेट करें",
-        "activities.breathing.desc":
-          "शांत लय के साथ साँस को समन्वयित करें ताकि पल में शांति मिले।",
-        "activities.journal.title": "अपने विचार लिखें",
-        "activities.journal.desc":
-          "भावनाओं को समझने और स्पष्टता पाने के लिए निर्देशित प्रॉम्प्ट्स पर विचार करें।",
-        "activities.selfcare.title": "सेल्फ-केयर गाइड्स",
-        "activities.selfcare.desc":
-          "दैनिक कल्याण और सेल्फ-केयर रूटीन के लिए क्यूरेटेड टिप्स और माइक्रो-कंटेंट।",
-        "activities.cta": "और गतिविधियाँ खोजें",
-      },
-      hinglish: {
-        "hero.title": "Human support, AI ke scale par",
-        "hero.desc":
-          "Saharathi AI young minds ko stress, anxiety aur uncertainty se guide karta hai — private, 24/7 support, culturally inclusive design ke saath.",
-        "hero.cta": "Get Started",
-        "hero.login": "Login",
-        "hero.anonymous":
-          "Koi account nahi chahiye – get started aur sab features anonymously use karo.",
-        "hero.b1": "Secure & private",
-        "hero.b2": "Gen Z ke liye banaya",
-        "hero.b3": "24/7 available",
-        "mood.title": "Aaj aap kaisa feel kar rahe ho?",
-        "mood.subtitle":
-          "Slider ko drag karo apna mood select karne ke liye, phir submit karo.",
-        "mood.submit": "Submit",
-        "mood.saved": "Saved ✅",
-        "mood.analytics": "Mood Analytics",
-        "mission.1.title": "Proactive support",
-        "mission.1.body":
-          "Daily check-ins se early stress detect hota hai aur helpful steps milte hain.",
-        "mission.2.title": "Private by design",
-        "mission.2.body":
-          "Aapki conversations encrypted hain aur aapke control mein.",
-        "mission.3.title": "Inclusive guidance",
-        "mission.3.body":
-          "Culture-aware prompts har user ko support feel karne mein madad karte hain.",
-        "how.title": "Kaise kaam karta hai",
-        "how.s1.title": "Share & reflect",
-        "how.s1.body":
-          "Safe space mein baat karo. Pehle hum sunte hain, phir softly guide karte hain.",
-        "how.s2.title": "Tailored guidance",
-        "how.s2.body":
-          "Exercises milti hain jo aapke goals ke match hoti hain — breathing, journaling, self-care.",
-        "how.s3.title": "Grow with insights",
-        "how.s3.body": "Progress trends dekho aur small wins celebrate karo.",
-        "trust.title": "Trust & Safety",
-        "trust.1.title": "Expert Oversight",
-        "trust.1.body":
-          "Advisors content check karte hain. Agar crisis ho toh human help tak escalate hota hai.",
-        "trust.2.title": "Data Transparency",
-        "trust.2.body":
-          "Model transparent hai. Aap apne data pe kabhi bhi control kar sakte ho.",
-        "trust.3.title": "Accessible Design",
-        "trust.3.body":
-          "Accessibility ensured hai: high contrast aur screen-reader friendly.",
-        "solutions.schools.title": "Schools aur NGOs ke liye",
-        "solutions.schools.desc":
-          "Counsellors aur mentors ke liye ek co-pilot deploy karo. Aggregated aur anonymized insights se aap zyada students ko support kar sakte ho bina teams ko burnout kiye.",
-        "solutions.families.title": "Families ke liye",
-        "solutions.families.desc":
-          "Ghar par healthy routines banao—reminders, shared check-ins, aur teens aur young adults ke liye age-aware content ke sath.",
-        "modal.login.title": "Login",
-        "modal.login.email": "Email",
-        "modal.login.password": "Password",
-        "modal.login.submit": "Login",
-        "modal.analytics.title": "Mood Analytics",
-        "activities.title": "Guided Activities Explore Karo",
-        "activities.subtitle":
-          "Mental wellness journey ke liye mindfulness exercises, journaling prompts, aur self-care guides discover karo.",
-        "activities.breathing.title": "Saans Lo aur Reset Karo",
-        "activities.breathing.desc":
-          "Calm rhythm ke saath saans sync karo taaki moment mein peace mile.",
-        "activities.journal.title": "Apne Thoughts Journal Karo",
-        "activities.journal.desc":
-          "Emotions process karne aur clarity pane ke liye guided prompts pe reflect karo.",
-        "activities.selfcare.title": "Self-Care Guides",
-        "activities.selfcare.desc":
-          "Daily wellness aur self-care routines ke liye curated tips aur micro-content.",
-        "activities.cta": "Aur Activities Discover Karo",
-      },
-    };
-    const MOOD_LEVELS = {
-      en: ["😣 Stressed", "😔 Sad", "😐 Okay", "🙂 Good", "😊 Great"],
-      hi: [
-        "😣 बहुत तनाव",
-        "😔 उदास",
-        "😐 ठीक-ठाक",
-        "🙂 अच्छा",
-        "😊 बहुत अच्छा",
-      ],
-      hinglish: [
-        "😣 Tension",
-        "😔 Udaas",
-        "😐 Theek-Thaak",
-        "🙂 Accha",
-        "😊 Bahut accha",
-      ],
-    };
-    const MOOD_VALUES = [0, 1, 2, 3, 4]; // Corresponding numeric values for levels
-
-    let currentLang = "en";
-    function applyLanguage(lang) {
-      currentLang = lang;
-      document.querySelectorAll("[data-i18n]").forEach(el => {
-        const key = el.getAttribute("data-i18n");
-        if (i18n[lang] && i18n[lang][key] !== undefined)
-          el.textContent = i18n[lang][key];
-      });
-      document.querySelectorAll("[data-i18n-ph]").forEach(el => {
-        const key = el.getAttribute("data-i18n-ph");
-        if (i18n[lang] && i18n[lang][key] !== undefined)
-          el.placeholder = i18n[lang][key];
-      });
-      updateMoodUI();
-    }
-
-    // Language switchers
-    const switcher = document.getElementById("langSwitcher");
-    const switcherMobile = document.getElementById("langSwitcherMobile");
-    const syncSwitchers = val => {
-      if (switcher) switcher.value = val;
-      if (switcherMobile) switcherMobile.value = val;
-    };
-    switcher?.addEventListener("change", e => { applyLanguage(e.target.value); syncSwitchers(e.target.value); });
-    switcherMobile?.addEventListener("change", e => { applyLanguage(e.target.value); syncSwitchers(e.target.value); });
-
-    // --- Mood UX ---
-    const moodSlider = document.getElementById("moodSlider");
-    const moodEmoji = document.getElementById("moodEmoji");
-    const moodLabel = document.getElementById("moodLabel");
-    const moodNotes = document.getElementById("moodNotes");
-    const moodSaved = document.getElementById("moodSaved");
-    const moodSubmit = document.getElementById("moodSubmit");
-    const moodAnalytics = document.getElementById("moodAnalytics");
-
-    function updateMoodUI() {
-      const idx = parseInt(moodSlider.value, 10);
-      const text = MOOD_LEVELS[currentLang][idx];
-      moodEmoji.textContent = text.split(" ")[0];
-      moodLabel.textContent = text.replace(/^[^\s]+\s?/, "");
-    }
-    moodSlider?.addEventListener("input", updateMoodUI);
-    moodSubmit?.addEventListener("click", () => {
-      const level = parseInt(moodSlider.value, 10);
-      const notes = moodNotes.value;
-      const date = new Date().toISOString();
-      moods.push({ date, level, notes });
-      localStorage.setItem("moods", JSON.stringify(moods));
-      moodSaved.classList.remove("hidden");
-      moodAnalytics.classList.remove("hidden");
-      setTimeout(() => moodSaved.classList.add("hidden"), 3000);
-      moodSlider.value = 3;
-      moodNotes.value = "";
-      updateMoodUI();
-    });
-
-    // --- Login Form (example placeholder) ---
-    document.querySelector("#loginModal form")?.addEventListener("submit", e => {
-      e.preventDefault();
-      isLoggedIn = true;
-      closeModal("loginModal");
-      alert("Logged in successfully!");
-    });
-
-    // Initialize
-    applyLanguage("en");
-    updateMoodUI();
-  </script>
+<script>
+  const SAVE_MOOD_URL = "{% url 'save_mood' %}";
+  const CSRF_TOKEN = "{{ csrf_token }}";
+</script>
+  <script src="{% static 'js/main.js' %}"></script>
 </body>
-
 </html>

@@ -17,10 +17,18 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('saharathiapp.urls')),     # your main app
-    path('journal/', include('journals.urls')), # /journal/ → journals app
+    path('', include('saharathiapp.urls')),
+    path('journal/', include('journals.urls')),
+    path('accounts/', include('accounts.urls')),
 ]
 
+
+if settings.DEBUG:
+    # Include django_browser_reload URLs only in DEBUG mode
+    urlpatterns += [
+        path("__reload__/", include("django_browser_reload.urls")),
+    ]

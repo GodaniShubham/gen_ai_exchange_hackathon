@@ -1,0 +1,51 @@
+# ===============================
+# Python
+# ===============================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+
+# Virtual environment
+venv/
+.env
+*.env
+
+# ===============================
+# Django
+# ===============================
+# Django media/uploads
+/media/
+
+# Django static files
+/staticfiles/
+/static/
+
+# Django logs
+*.log
+
+# Migrations (optional: ignore if you want version control)
+*/migrations/*.pyc
+*/migrations/*.py
+*/migrations/__pycache__/
+
+# ===============================
+# IDE / Editor
+# ===============================
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ===============================
+# OS Files
+# ===============================
+.DS_Store
+Thumbs.db
+
+# ===============================
+# Others
+# ===============================
+*.bak
+*.swp

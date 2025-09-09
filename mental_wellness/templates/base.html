@@ -1,142 +1,108 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{% block title %}ChatBuddy{% endblock %}</title>
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Saharathi AI{% endblock %}</title>
 
-  <!-- Bootstrap -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+    <!-- Font -->
+    <style>
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: #000; /* pure black */
+        color: #f1f5f9;
+        scroll-behavior: smooth;
+        position: relative;
+        z-index: 1;
+      }
 
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+      .navbar {
+        backdrop-filter: blur(20px);
+        background: rgba(0, 0, 0, 0.85) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
 
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #0f172a, #1e293b, #0f766e);
-      background-size: 400% 400%;
-      animation: gradientFlow 20s ease infinite;
-      color: #f8fafc;
-      scroll-behavior: smooth;
-      position: relative;
-      z-index: 1;
-    }
+      .navbar-brand {
+        font-weight: 600;
+        font-size: 1.3rem;
+      }
 
-    @keyframes gradientFlow {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
+      .nav-link {
+        transition: 0.3s ease;
+        color: #9ca3af !important;
+      }
+      .nav-link:hover, 
+      .nav-link.active {
+        color: #22d3ee !important;
+        transform: translateY(-1px);
+      }
 
-    .navbar {
-      backdrop-filter: blur(14px);
-      background: rgba(15, 23, 42, 0.85) !important;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      transition: background 0.3s ease;
-      z-index: 50;
-    }
+      footer {
+        backdrop-filter: blur(12px);
+        background: rgba(0, 0, 0, 0.9);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
 
-    .navbar-brand {
-      font-weight: 700;
-      font-size: 1.5rem;
-      letter-spacing: 1px;
-    }
+      main {
+        animation: fadeIn 0.5s ease;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    </style>
+  </head>
+  <body class="min-h-screen flex flex-col">
 
-    .nav-link {
-      transition: 0.3s ease;
-      color: #cbd5e1 !important;
-    }
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
+      <div class="container">
+        <!-- Brand -->
+        <a class="navbar-brand text-cyan-400 flex items-center gap-2" href="{% url 'index' %}">
+          <i class="fas fa-robot text-cyan-400"></i>
+          <span>Saharathi AI</span>
+        </a>
 
-    .nav-link:hover, 
-    .nav-link.active {
-      color: #22d3ee !important;
-      transform: translateY(-1px);
-    }
+        <!-- Toggle button for mobile -->
+        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
 
-    footer {
-      backdrop-filter: blur(12px);
-      background: rgba(15, 23, 42, 0.9);
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    main {
-      animation: fadeIn 0.6s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .glass-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 100%;
-      background: linear-gradient(145deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.1));
-      pointer-events: none;
-      z-index: 0;
-    }
-  </style>
-</head>
-<body class="min-h-screen flex flex-col">
-
-  <!-- Optional background glass overlay -->
-  <div class="glass-overlay"></div>
-
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
-    <div class="container">
-      <!-- Brand -->
-      <a class="navbar-brand text-cyan-400 flex items-center gap-2" href="{% url 'index' %}">
-        <i class="fas fa-robot text-cyan-400"></i>
-        <span>ChatBuddy</span>
-      </a>
-
-      <!-- Toggle button for mobile -->
-      <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <!-- Navbar Links -->
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto flex items-center gap-4">
-          <!-- Home button added here -->
-          <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}" href="{% url 'index' %}">
-              <i class="fas fa-home me-1"></i> Home
-            </a>
-          </li>
-          <!-- Add more nav-items here if needed -->
-        </ul>
+        <!-- Navbar Links -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto flex items-center gap-4">
+            <li class="nav-item">
+              <a class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}" href="{% url 'index' %}">
+                <i class="fas fa-home me-1"></i> Home
+              </a>
+            </li>
+          </ul>
+        </div>
       </div>
-    </div>
-  </nav>
+    </nav>
 
-  <!-- Main Content -->
-  <main class="container flex-grow py-6 position-relative z-10">
-    {% block content %}{% endblock %}
-  </main>
+    <!-- Main Content -->
+    <main class="container flex-grow py-6 position-relative z-10">
+      {% block content %}{% endblock %}
+    </main>
 
-  <!-- Footer -->
-  <footer class="text-center py-4 text-gray-300 text-sm mt-auto">
-    <p>
-      © 2025 <span class="text-cyan-400 font-semibold">ChatBuddy</span> | Built with 
-      <span class="text-pink-400">Django</span>, 
-      <span class="text-sky-400">Tailwind</span> & 
-      <span class="text-yellow-400">Bootstrap</span>
-    </p>
-  </footer>
+    <!-- Footer -->
+    <footer class="text-center py-4 text-gray-400 text-sm mt-auto">
+      <p>
+        © 2025 <span class="text-cyan-400 font-semibold">Saharathi AI</span> | Built with 
+        <span class="text-pink-400">Django</span>, 
+        <span class="text-sky-400">Tailwind</span> & 
+        <span class="text-yellow-400">Bootstrap</span>
+      </p>
+    </footer>
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+  </html>

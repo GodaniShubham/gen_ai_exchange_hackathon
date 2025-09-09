@@ -4,21 +4,22 @@ Django settings for mental_wellness project.
 
 from pathlib import Path
 import os
-from dotenv import load_dotenv  # ✅ for .env support
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / ".env")
 
-SECRET_KEY = os.getenv(
-    "DJANGO_SECRET_KEY",
-    "django-insecure-57et1p39%s@xk7svw_$j^zts82j!foz*)zo0952bxb2lat7t95"
-)
+# Load environment variables
+load_dotenv(dotenv_path=BASE_DIR / ".env")
 
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "django-insecure-default-key")
 DEBUG = os.getenv("DEBUG", "True").lower() in ("true", "1", "yes")
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",") if os.getenv("ALLOWED_HOSTS") else []
-
+# -------------------------
+# Installed Apps
+# -------------------------
 INSTALLED_APPS = [
+    'jazzmin',  # Jazzmin admin first
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -28,6 +29,38 @@ INSTALLED_APPS = [
     'saharathiapp',
 ]
 
+# -------------------------
+# Jazzmin Professional Settings
+# -------------------------
+JAZZMIN_SETTINGS = {
+    "site_title": "Saharathi AI Admin",
+    "site_header": "🧠 Saharathi AI",
+    "site_brand": "Saharathi AI",
+    "welcome_sign": "Welcome to Saharathi AI Dashboard",
+    "copyright": "Saharathi AI © 2025",
+    "search_model": "saharathiapp.ChatSession",
+    "topmenu_links": [
+        {"name": "Home",  "url": "/", "permissions": ["auth.view_user"]},
+        {"name": "Chat Sessions", "url": "/admin/saharathiapp/chatsession/", "permissions": ["saharathiapp.view_chatsession"]},
+    ],
+    "show_ui_builder": False,  # Professional: hide builder
+    "show_sidebar": True,
+    "related_modal_active": True,
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "theme": "flatly",  # Sleek professional theme
+    "navbar_small_text": True,
+    "footer_small_text": True,
+    "body_small_text": True,
+    "sidebar_nav_small_text": True,
+    "sidebar_nav_compact": True,
+    "button_class": "btn-primary",
+}
+
+# -------------------------
+# Middleware
+# -------------------------
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -57,6 +90,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mental_wellness.wsgi.application'
 
+# -------------------------
+# Database
+# -------------------------
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -64,6 +100,9 @@ DATABASES = {
     }
 }
 
+# -------------------------
+# Password Validation
+# -------------------------
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -82,10 +121,12 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ================================
-# 🔹 GEMINI API SETTINGS
-# ================================
+# -------------------------
+# Gemini API
+# -------------------------
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-
 if not GEMINI_API_KEY:
-    raise ValueError("⚠️ GEMINI_API_KEY is not set! Please check your .env file.")
+    raise ValueError("⚠️ GEMINI_API_KEY not found in .env!")
+
+if DEBUG:
+    print("✅ GEMINI_API_KEY loaded successfully.")

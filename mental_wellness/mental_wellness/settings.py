@@ -26,18 +26,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'saharathiapp',
+    "journals",
+    "accounts",
     'tailwind',
     'theme',
-    'accounts',
 ]
-
-TAILWIND_APP_NAME = 'theme'
-
-AUTH_USER_MODEL = "accounts.CustomUser"
-
-if DEBUG:
-    # Add django_browser_reload only in DEBUG mode
-    INSTALLED_APPS += ['django_browser_reload']
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

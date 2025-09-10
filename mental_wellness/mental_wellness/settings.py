@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'tailwind',
     'theme',
 ]
+
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
 # -------------------------
@@ -45,7 +46,7 @@ JAZZMIN_SETTINGS = {
     "copyright": "Saharathi AI © 2025",
     "search_model": "saharathiapp.ChatSession",
     "topmenu_links": [
-        {"name": "Home",  "url": "/", "permissions": ["auth.view_user"]},
+        {"name": "Home", "url": "/", "permissions": ["auth.view_user"]},
         {"name": "Chat Sessions", "url": "/admin/saharathiapp/chatsession/", "permissions": ["saharathiapp.view_chatsession"]},
     ],
     "show_ui_builder": False,  # Professional: hide builder
@@ -141,7 +142,6 @@ if not GEMINI_API_KEY:
 
 if DEBUG:
     print("✅ GEMINI_API_KEY loaded successfully.")
-
 
 # -------------------------
 # Email Settings

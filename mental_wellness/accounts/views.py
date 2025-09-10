@@ -7,11 +7,9 @@ from django.core.exceptions import ValidationError
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from django.utils import timezone
 import random
 from datetime import timedelta
-from django.utils import timezone
-
-
 
 User = get_user_model()
 
@@ -24,7 +22,7 @@ def signup_view(request):
         password1 = request.POST.get("password1")
         password2 = request.POST.get("password2")
 
-        # Password match check
+        # Passwords match check
         if password1 != password2:
             messages.error(request, "❌ Passwords do not match!", extra_tags="auth")
             return redirect("signup")
@@ -36,11 +34,10 @@ def signup_view(request):
             messages.error(request, f"⚠️ Weak Password: {' '.join(e.messages)}", extra_tags="auth")
             return redirect("signup")
 
-        # Existing user check
+        # Existing user checks
         if User.objects.filter(email=email).exists():
             messages.error(request, "⚠️ Email already registered!", extra_tags="auth")
             return redirect("signup")
-
         if User.objects.filter(username=username).exists():
             messages.error(request, "⚠️ Username already taken!", extra_tags="auth")
             return redirect("signup")
@@ -53,24 +50,24 @@ def signup_view(request):
             email=email,
             password=password1,
             otp=otp,
+            otp_created_at=timezone.now(),
             is_verified=False
         )
-        user.save()
 
-        # Send OTP email
-        subject = "Your Saharathi AI OTP Verification"
-        from_email = settings.DEFAULT_FROM_EMAIL
-        to_email = [email]
+        # Send OTP email (fallback to console if fail)
+        try:
+            subject = "Your Saharathi AI OTP Verification"
+            from_email = settings.DEFAULT_FROM_EMAIL
+            to_email = [email]
 
-        html_content = render_to_string("emails/otp_email.html", {
-            "username": username,
-            "otp": otp,
-        })
-        text_content = strip_tags(html_content)
+            html_content = render_to_string("emails/otp_email.html", {"username": username, "otp": otp})
+            text_content = strip_tags(html_content)
 
-        email_message = EmailMultiAlternatives(subject, text_content, from_email, to_email)
-        email_message.attach_alternative(html_content, "text/html")
-        email_message.send()
+            email_message = EmailMultiAlternatives(subject, text_content, from_email, to_email)
+            email_message.attach_alternative(html_content, "text/html")
+            email_message.send()
+        except Exception as e:
+            print(f"⚠️ DEBUG OTP for {email}: {otp} (Email failed: {e})")
 
         request.session["email_for_verification"] = email
         messages.success(request, "✅ Signup successful! Check your email for OTP verification.", extra_tags="auth")
@@ -87,10 +84,20 @@ def verify_otp_view(request):
 
         try:
             user = User.objects.get(email=email)
+            # Expiry check (10 min)
+            if user.otp_created_at and timezone.now() > user.otp_created_at + timedelta(minutes=10):
+                messages.error(request, "❌ OTP expired! Please sign up again.", extra_tags="auth")
+                return redirect("signup")
+
             if user.otp == otp_entered:
                 user.is_verified = True
                 user.otp = None
+                user.otp_created_at = None
                 user.save()
+
+                # cleanup session
+                request.session.pop("email_for_verification", None)
+
                 messages.success(request, "✅ OTP verified successfully! You can now login.", extra_tags="auth")
                 return redirect("login")
             else:
@@ -115,8 +122,13 @@ def login_view(request):
             messages.error(request, "❌ Invalid email or password", extra_tags="auth")
             return redirect("login")
 
-        user = authenticate(request, username=user.email, password=password)
+        # Authenticate using username field
+        user = authenticate(request, username=user.username, password=password)
         if user:
+            if not user.is_verified:
+                messages.error(request, "⚠️ Please verify your email before login.", extra_tags="auth")
+                return redirect("verify_otp")
+
             login(request, user)
             messages.success(request, f"✅ Welcome back {user.username}!", extra_tags="auth")
             return redirect("index")
@@ -133,29 +145,31 @@ def logout_view(request):
     messages.success(request, "✅ Logged out successfully", extra_tags="auth")
     return redirect("login")
 
+
+# -------------------- FORGOT PASSWORD --------------------
 def forgot_password(request):
     if request.method == "POST":
         email = request.POST.get("email")
         try:
             user = User.objects.get(email=email)
-            
-            # Generate OTP
             otp = str(random.randint(100000, 999999))
             user.otp = otp
-            user.otp_created_at = timezone.now()  # Track OTP creation time
+            user.otp_created_at = timezone.now()
             user.save()
-            
-            # Send OTP via email
-            subject = "Saharathi AI Password Reset OTP"
-            from_email = settings.DEFAULT_FROM_EMAIL
-            to_email = [email]
 
-            html_content = render_to_string("emails/reset_otp_email.html", {"username": user.username, "otp": otp})
-            text_content = strip_tags(html_content)
+            try:
+                subject = "Saharathi AI Password Reset OTP"
+                from_email = settings.DEFAULT_FROM_EMAIL
+                to_email = [email]
 
-            email_message = EmailMultiAlternatives(subject, text_content, from_email, to_email)
-            email_message.attach_alternative(html_content, "text/html")
-            email_message.send()
+                html_content = render_to_string("emails/reset_otp_email.html", {"username": user.username, "otp": otp})
+                text_content = strip_tags(html_content)
+
+                email_message = EmailMultiAlternatives(subject, text_content, from_email, to_email)
+                email_message.attach_alternative(html_content, "text/html")
+                email_message.send()
+            except Exception as e:
+                print(f"⚠️ DEBUG Reset OTP for {email}: {otp} (Email failed: {e})")
 
             messages.success(request, "✅ OTP sent to your email!")
             return redirect("reset_password", email=email)
@@ -178,22 +192,18 @@ def reset_password(request, email):
         password1 = request.POST.get("password1")
         password2 = request.POST.get("password2")
 
-        # Check OTP
         if otp_input != user.otp:
             messages.error(request, "❌ Invalid OTP!")
             return redirect("reset_password", email=email)
 
-        # Check OTP expiry (10 minutes)
         if user.otp_created_at and timezone.now() > user.otp_created_at + timedelta(minutes=10):
             messages.error(request, "❌ OTP expired! Please request a new one.")
             return redirect("forgot_password")
 
-        # Check passwords match
         if password1 != password2:
             messages.error(request, "❌ Passwords do not match!")
             return redirect("reset_password", email=email)
 
-        # Set new password
         try:
             validate_password(password1)
         except ValidationError as e:

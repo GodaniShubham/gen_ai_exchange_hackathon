@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import ChatSession, Message
+from .models import ChatSession, Message, MoodEntry
+
 
 # 🔹 Inline messages inside ChatSession
 class MessageInline(admin.TabularInline):
@@ -50,3 +51,16 @@ class MessageAdmin(admin.ModelAdmin):
     def short_text(self, obj):
         return obj.text[:100] + ("..." if len(obj.text) > 100 else "")
     short_text.short_description = "Preview"
+
+
+# 🔹 MoodEntry Admin
+@admin.register(MoodEntry)
+class MoodEntryAdmin(admin.ModelAdmin):
+    list_display = ('user', 'mood_level', 'notes_preview', 'created_at')
+    list_filter = ('mood_level', 'created_at')
+    search_fields = ('notes', 'user__username')
+    ordering = ('-created_at',)
+
+    def notes_preview(self, obj):
+        return obj.notes[:50] + ("..." if len(obj.notes) > 50 else "")
+    notes_preview.short_description = "Notes"

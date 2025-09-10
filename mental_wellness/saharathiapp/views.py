@@ -351,21 +351,20 @@ def settings_privacy(request):
 
 
 # ========== EXTRA PAGES ==========
-@login_required
+
 def breathing_page(request):
     return render(request, "breathing.html")
 
 
-@login_required
+
 def focus_page(request):
     return render(request, "focus.html")
 
 
-@login_required
+
 def selfcare_page(request):
     return render(request, "selfcare.html")
 
 
-@login_required
 def wellness_page(request):
     return render(request, "wellness.html")

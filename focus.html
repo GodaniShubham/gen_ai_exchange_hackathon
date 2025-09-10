@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Focus Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      font-family: 'Poppins', sans-serif;
+      color: white;
+    }
+    .glass {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .circle-timer {
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      border: 8px solid rgba(0,255,255,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: bold;
+      position: relative;
+      box-shadow: 0 0 30px rgba(0,255,255,0.6);
+    }
+    .circle-timer::before {
+      content: "";
+      position: absolute;
+      inset: -15px;
+      border-radius: 50%;
+      border: 4px dashed rgba(0,255,255,0.3);
+      animation: rotate 20s linear infinite;
+    }
+    @keyframes rotate {
+      100% { transform: rotate(360deg); }
+    }
+    /* Button animations */
+    .btn-anim {
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .btn-anim:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 0 20px rgba(0,255,255,0.5);
+    }
+    .btn-anim::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.4s ease, height 0.4s ease;
+    }
+    .btn-anim:active::after {
+      width: 200%;
+      height: 200%;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-6">
+
+  <!-- HEADER -->
+  <h1 class="text-4xl font-extrabold mb-6">🎯 Focus Hub</h1>
+
+  <!-- TIMER SECTION -->
+  <div class="circle-timer mb-6" id="timerDisplay">25:00</div>
+  <div class="flex gap-4 mb-6">
+    <button id="startBtn" class="btn-anim bg-green-600 hover:bg-green-700 px-6 py-3 rounded-xl">▶ Start</button>
+    <button id="pauseBtn" class="btn-anim bg-red-600 hover:bg-red-700 px-6 py-3 rounded-xl">⏸ Pause</button>
+    <button id="resetBtn" class="btn-anim bg-yellow-500 hover:bg-yellow-600 px-6 py-3 rounded-xl">🔄 Reset</button>
+  </div>
+
+  <!-- MODE OPTIONS -->
+  <div class="flex flex-wrap justify-center gap-4 mb-10">
+    <button class="btn-anim glass px-4 py-2 rounded-xl" data-time="1500">🍅 Pomodoro (25m)</button>
+    <button class="btn-anim glass px-4 py-2 rounded-xl" data-time="600">⚡ Micro (10m)</button>
+    <button class="btn-anim glass px-4 py-2 rounded-xl" data-time="3000">📘 Deep Work (50m)</button>
+    <button class="btn-anim glass px-4 py-2 rounded-xl" data-time="1800">🛠️ Custom (30m)</button>
+  </div>
+
+  <!-- GRID SECTIONS -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 w-full max-w-7xl">
+
+    <!-- Exercise -->
+    <div class="glass p-5 rounded-2xl shadow-lg">
+      <h2 class="text-2xl font-bold mb-3">💪 Quick Exercises</h2>
+      <ul class="list-disc list-inside space-y-2 text-gray-200">
+        <li>Neck rolls – 1 min</li>
+        <li>Shoulder shrugs – 15 reps</li>
+        <li>Wrist stretch – 30 sec</li>
+        <li>Stand & walk – 2 min</li>
+      </ul>
+    </div>
+
+    <!-- Tips -->
+    <div class="glass p-5 rounded-2xl shadow-lg">
+      <h2 class="text-2xl font-bold mb-3">💡 Focus Tips</h2>
+      <ul class="list-disc list-inside space-y-2 text-gray-200">
+        <li>Turn off notifications 📵</li>
+        <li>Keep water nearby 💧</li>
+        <li>Use noise-cancelling sounds 🎧</li>
+        <li>Break tasks into small chunks ✅</li>
+      </ul>
+    </div>
+
+    <!-- Guide -->
+    <div class="glass p-5 rounded-2xl shadow-lg">
+      <h2 class="text-2xl font-bold mb-3">📖 Focus Guide</h2>
+      <ul class="list-disc list-inside space-y-2 text-gray-200">
+        <li><b>Pomodoro:</b> 25m focus + 5m break</li>
+        <li><b>Deep Work:</b> 50m work + 10m break</li>
+        <li><b>2 Min Rule:</b> If <2 min → do it now</li>
+        <li><b>Time Blocking:</b> Plan your day in blocks</li>
+      </ul>
+    </div>
+
+    <!-- Focus Coach -->
+    <div class="glass p-5 rounded-2xl shadow-lg">
+      <h2 class="text-2xl font-bold mb-3">🧘 Focus Coach</h2>
+      <p id="focusCoach" class="italic text-gray-300">"Stay calm and start strong!"</p>
+    </div>
+  </div>
+
+  <script>
+    let timer;
+    let timeLeft = 1500;
+    let isRunning = false;
+
+    const timerDisplay = document.getElementById("timerDisplay");
+    const startBtn = document.getElementById("startBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const modeBtns = document.querySelectorAll("[data-time]");
+    const coachDisplay = document.getElementById("focusCoach");
+
+    const coachQuotes = [
+      "🌟 Stay focused, success is near!",
+      "💡 Small steps every day = Big results.",
+      "🔥 Eliminate distractions, win your time.",
+      "🧘 Breathe, relax, then focus.",
+      "🎯 One task at a time. Give it your best!"
+    ];
+
+    function updateDisplay() {
+      let minutes = Math.floor(timeLeft / 60);
+      let seconds = timeLeft % 60;
+      timerDisplay.textContent = 
+        `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+    }
+
+    function startTimer() {
+      if (isRunning) return;
+      isRunning = true;
+      timer = setInterval(() => {
+        if (timeLeft > 0) {
+          timeLeft--;
+          updateDisplay();
+        } else {
+          clearInterval(timer);
+          isRunning = false;
+          alert("⏰ Time’s up! Take a break.");
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      clearInterval(timer);
+      isRunning = false;
+    }
+
+    function resetTimer() {
+      clearInterval(timer);
+      isRunning = false;
+      timeLeft = 1500;
+      updateDisplay();
+    }
+
+    modeBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        timeLeft = parseInt(btn.dataset.time);
+        updateDisplay();
+      });
+    });
+
+    startBtn.addEventListener("click", startTimer);
+    pauseBtn.addEventListener("click", pauseTimer);
+    resetBtn.addEventListener("click", resetTimer);
+
+    // Coach quotes auto-change every 10s
+    setInterval(() => {
+      const randomQuote = coachQuotes[Math.floor(Math.random() * coachQuotes.length)];
+      coachDisplay.textContent = randomQuote;
+    }, 10000);
+
+    updateDisplay();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Breathing Exercises</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      color: white;
+      background: linear-gradient(-45deg, #0f172a, #1e293b, #0f766e, #2563eb);
+      background-size: 400% 400%;
+      animation: gradientMove 12s ease infinite;
+    }
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .glass-box {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(14px);
+      border-radius: 1rem;
+      padding: 2rem;
+      text-align: center;
+      box-shadow: 0 0 25px rgba(0,255,204,0.15);
+      transition: all 0.4s ease;
+    }
+    .glass-box.fade {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    .glass-box.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Custom dropdown */
+    .dropdown {
+      position: relative;
+      width: 280px;
+      margin-bottom: 1.5rem;
+    }
+    .dropdown-btn {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-weight: 600;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .dropdown-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .dropdown-menu {
+      position: absolute;
+      top: 110%;
+      left: 0;
+      width: 100%;
+      background: rgba(17, 24, 39, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(-10px);
+      pointer-events: none;
+      transition: all 0.3s ease;
+      z-index: 50;
+    }
+    .dropdown-menu.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .dropdown-item {
+      padding: 12px 16px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.25s ease;
+    }
+    .dropdown-item:hover {
+      background: rgba(34, 211, 238, 0.2);
+    }
+  </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-6">
+
+  <h1 class="text-4xl font-bold mb-8">Guided Breathing Exercises</h1>
+
+  <!-- ✅ Custom Dropdown -->
+  <div class="dropdown">
+    <div id="dropdownBtn" class="dropdown-btn">
+      4-7-8 Breathing
+      <svg id="dropdownIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-300" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.586l3.71-4.354a.75.75 0 111.14.976l-4.25 5a.75.75 0 01-1.14 0l-4.25-5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+      </svg>
+    </div>
+    <div id="dropdownMenu" class="dropdown-menu">
+      <div class="dropdown-item" data-value="478">4-7-8 Breathing</div>
+      <div class="dropdown-item" data-value="box">Box Breathing</div>
+      <div class="dropdown-item" data-value="nostril">Alternate Nostril</div>
+      <div class="dropdown-item" data-value="deep">Relaxed Deep Breathing</div>
+    </div>
+  </div>
+
+  <!-- Current Step -->
+  <div id="stepBox" class="glass-box w-full max-w-lg mb-8 fade">
+    <h2 id="stepTitle" class="text-2xl font-semibold">Inhale</h2>
+    <p id="stepDesc" class="text-lg mt-2 text-gray-300">Take a deep breath in through your nose</p>
+    <div id="timer" class="text-5xl font-bold mt-4">4</div>
+  </div>
+
+  <!-- Tips -->
+  <div id="tipsContainer" class="grid md:grid-cols-3 gap-6 max-w-5xl w-full"></div>
+
+  <!-- Back -->
+  <a href="index.html" class="mt-10 px-6 py-2 rounded-lg bg-gradient-to-r from-cyan-400 to-green-400 text-white font-semibold hover:scale-105 transition">
+    ⬅ Back to Home
+  </a>
+
+  <script>
+    // Exercise data (cleaned)
+    const exercises = {
+      "478": {
+        name: "4-7-8 Breathing",
+        steps: [
+          { title: "Inhale", desc: "Breathe in through your nose", time: 4 },
+          { title: "Hold", desc: "Hold your breath gently", time: 7 },
+          { title: "Exhale", desc: "Slowly exhale through your mouth", time: 8 },
+          { title: "Relax", desc: "Stay calm and notice your body", time: 5 },
+        ],
+        tips: [
+          { title: "Calms Anxiety", desc: "This method helps slow down stress response." },
+          { title: "Better Sleep", desc: "Practicing before bed improves sleep quality." },
+          { title: "Mind Focus", desc: "Enhances mindfulness & focus." }
+        ]
+      },
+      "box": {
+        name: "Box Breathing",
+        steps: [
+          { title: "Inhale", desc: "Inhale for 4 seconds", time: 4 },
+          { title: "Hold", desc: "Hold your breath for 4 seconds", time: 4 },
+          { title: "Exhale", desc: "Exhale for 4 seconds", time: 4 },
+          { title: "Hold", desc: "Pause again before next inhale", time: 4 },
+        ],
+        tips: [
+          { title: "Stress Relief", desc: "Popular with Navy SEALs for calmness." },
+          { title: "Mental Clarity", desc: "Boosts concentration." },
+          { title: "Balance", desc: "Brings balance to nervous system." }
+        ]
+      },
+      "nostril": {
+        name: "Alternate Nostril Breathing",
+        steps: [
+          { title: "Close Right Nostril", desc: "Inhale deeply through the left nostril", time: 5 },
+          { title: "Switch", desc: "Close left, open right", time: 1 },
+          { title: "Exhale", desc: "Exhale through the right nostril", time: 5 },
+          { title: "Repeat", desc: "Now inhale through the right", time: 5 },
+        ],
+        tips: [
+          { title: "Lung Strength", desc: "Improves lung capacity & airflow." },
+          { title: "Yoga Practice", desc: "Used in Pranayama for focus." },
+          { title: "Energy Flow", desc: "Balances left & right brain energy." }
+        ]
+      },
+      "deep": {
+        name: "Relaxed Deep Breathing",
+        steps: [
+          { title: "Inhale", desc: "Breathe in slowly for 5 seconds", time: 5 },
+          { title: "Exhale", desc: "Exhale gently for 5 seconds", time: 5 },
+        ],
+        tips: [
+          { title: "Heart Health", desc: "Lowers blood pressure & heart rate." },
+          { title: "Quick Calm", desc: "Works well for stress-relief." },
+          { title: "Relaxation", desc: "Helps body enter calm state quickly." }
+        ]
+      }
+    };
+
+    let currentExercise = "478";
+    let currentStep = 0;
+    let timeLeft = exercises[currentExercise].steps[0].time;
+
+    function updateStep() {
+      const stepBox = document.getElementById("stepBox");
+      stepBox.classList.remove("show");
+      stepBox.classList.add("fade");
+
+      setTimeout(() => {
+        const step = exercises[currentExercise].steps[currentStep];
+        document.getElementById("stepTitle").innerText = step.title;
+        document.getElementById("stepDesc").innerText = step.desc;
+        document.getElementById("timer").innerText = timeLeft;
+        stepBox.classList.remove("fade");
+        stepBox.classList.add("show");
+      }, 300);
+    }
+
+    function updateTips() {
+      const tipsContainer = document.getElementById("tipsContainer");
+      tipsContainer.innerHTML = "";
+      exercises[currentExercise].tips.forEach(tip => {
+        tipsContainer.innerHTML += `
+          <div class="p-6 rounded-xl bg-gray-800/70 hover:scale-105 transition shadow-lg shadow-cyan-500/20">
+            <h3 class="text-xl font-semibold mb-2">${tip.title}</h3>
+            <p class="text-gray-300">${tip.desc}</p>
+          </div>
+        `;
+      });
+    }
+
+    function startCycle() {
+      setInterval(() => {
+        if (timeLeft > 0) {
+          timeLeft--;
+        } else {
+          currentStep = (currentStep + 1) % exercises[currentExercise].steps.length;
+          timeLeft = exercises[currentExercise].steps[currentStep].time;
+        }
+        updateStep();
+      }, 1000);
+    }
+
+    // ✅ Dropdown functionality
+    const dropdownBtn = document.getElementById("dropdownBtn");
+    const dropdownMenu = document.getElementById("dropdownMenu");
+    const dropdownIcon = document.getElementById("dropdownIcon");
+
+    dropdownBtn.addEventListener("click", () => {
+      dropdownMenu.classList.toggle("show");
+      dropdownIcon.classList.toggle("rotate-180");
+    });
+
+    document.querySelectorAll(".dropdown-item").forEach(item => {
+      item.addEventListener("click", () => {
+        currentExercise = item.dataset.value;
+        currentStep = 0;
+        timeLeft = exercises[currentExercise].steps[0].time;
+        dropdownBtn.childNodes[0].textContent = item.textContent;
+        updateStep();
+        updateTips();
+        dropdownMenu.classList.remove("show");
+        dropdownIcon.classList.remove("rotate-180");
+      });
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+        dropdownMenu.classList.remove("show");
+        dropdownIcon.classList.remove("rotate-180");
+      }
+    });
+
+    updateStep();
+    updateTips();
+    startCycle();
+  </script>
+</body>
+</html>

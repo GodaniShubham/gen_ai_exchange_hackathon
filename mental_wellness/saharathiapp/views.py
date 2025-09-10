@@ -1,25 +1,174 @@
 import json
 import requests
+from uuid import UUID
+from datetime import datetime
+from collections import defaultdict
+
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, StreamingHttpResponse, JsonResponse
-from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.contrib import messages
-from .models import ChatSession, Message
-from uuid import UUID
+from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 
-# 🏠 Home Page
+from .models import ChatSession, Message, MoodEntry
+
+
+# ========== MAIN PAGES ==========
 def index(request):
     return render(request, "index.html")
 
 
-# 💬 Chatbot UI Page
 def chat_page(request):
     sessions = ChatSession.objects.all().order_by("-created_at")
     return render(request, "chatbot.html", {"sessions": sessions})
 
 
-# 🤖 Normal Chatbot API
+@csrf_exempt
+def save_mood(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        MoodEntry.objects.create(
+            user=request.user,
+            mood_level=data.get("mood_level"),
+            notes=data.get("notes", "")
+        )
+        return JsonResponse({"status": "success"})
+    return JsonResponse({"status": "error"}, status=400)
+
+
+# ========== MOOD ANALYTICS ==========
+@login_required
+def mood_analytics(request):
+    entries = MoodEntry.objects.filter(user=request.user).order_by("created_at")
+    data = [
+        {
+            "level": e.mood_level,
+            "notes": e.notes,
+            "date": e.created_at.isoformat()
+        }
+        for e in entries
+    ]
+    return render(request, "mood_analytics.html", {"moods_json": json.dumps(data)})
+
+
+@login_required
+def mood_insights(request):
+    mode = request.GET.get('mode', 'daily')
+    entries = MoodEntry.objects.filter(user=request.user).order_by("-created_at")[:30]
+    if not entries:
+        return JsonResponse({"insights": "Log some moods to get your first insights ✨"})
+
+    # Aggregate mood history
+    mood_history = ""
+    if mode == 'daily':
+        mood_history = "\n".join(
+            [f"{e.created_at.strftime('%Y-%m-%d')} - Level {e.mood_level}, Notes: {e.notes or 'None'}"
+             for e in entries]
+        )
+    elif mode == 'weekly':
+        weekly_data = defaultdict(list)
+        for e in entries:
+            week_key = e.created_at.strftime('%Y-W%W')
+            weekly_data[week_key].append(e)
+        mood_history = "\n".join(
+            [f"Week {wk.split('-W')[1]} ({datetime.strptime(wk + '-1', '%Y-W%W-%w').strftime('%Y-%m-%d')}) - "
+             f"Avg Level {sum(e.mood_level for e in data) / len(data):.1f}, "
+             f"Notes: {', '.join(e.notes or 'None' for e in data)}"
+             for wk, data in weekly_data.items()]
+        )
+    elif mode == 'monthly':
+        monthly_data = defaultdict(list)
+        for e in entries:
+            month_key = e.created_at.strftime('%Y-%m')
+            monthly_data[month_key].append(e)
+        mood_history = "\n".join(
+            [f"{mk} - Avg Level {sum(e.mood_level for e in data) / len(data):.1f}, "
+             f"Notes: {', '.join(e.notes or 'None' for e in data)}"
+             for mk, data in monthly_data.items()]
+        )
+    elif mode == 'heatmap':
+        weekly_data = defaultdict(list)
+        for e in entries:
+            week_key = e.created_at.strftime('%Y-W%W')
+            weekly_data[week_key].append(e)
+        mood_history = "\n".join(
+            [f"Week {wk.split('-W')[1]} ({datetime.strptime(wk + '-1', '%Y-W%W-%w').strftime('%Y-%m-%d')}) - "
+             f"Avg Level {sum(e.mood_level for e in data) / len(data):.1f}"
+             for wk, data in weekly_data.items()]
+        )
+
+    # Latest mood
+    last_entry = entries.first()
+    last_mood = last_entry.mood_level
+    mood_labels = ["Stressed", "Sad", "Okay", "Good", "Great"]
+    last_mood_label = mood_labels[last_mood]
+
+    # Prompt for Gemini
+    prompt = f"""
+You are an empathetic, creative wellness coach.
+User's most recent mood was **{last_mood_label} (level {last_mood})** based on {mode} data.
+Recent history:
+{mood_history}
+
+Write <6 sentences: trends, 1–2 patterns, 2–3 creative suggestions.
+Keep it warm, uplifting, and fresh each time.
+"""
+
+    try:
+        url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={settings.GEMINI_API_KEY}"
+        payload = {
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {"temperature": 0.7, "maxOutputTokens": 250},
+        }
+        response = requests.post(url, headers={"Content-Type": "application/json"}, json=payload)
+        response.raise_for_status()
+        data = response.json()
+        insights = data["candidates"][0]["content"]["parts"][0]["text"]
+        return JsonResponse({"insights": insights})
+    except Exception as e:
+        return JsonResponse({"insights": f"⚠️ Error generating insights: {str(e)}"})
+
+
+# ========== AUTH ==========
+def login_view(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            auth_login(request, user)
+            return redirect("index")
+        messages.error(request, "Invalid username or password", extra_tags="login")
+    return redirect("index")
+
+
+def signup_view(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        confirm_password = request.POST.get("confirm_password")
+
+        if password != confirm_password:
+            messages.error(request, "Passwords do not match", extra_tags="signup")
+            return redirect("index")
+
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Username already taken", extra_tags="signup")
+            return redirect("index")
+        if User.objects.filter(email=email).exists():
+            messages.error(request, "Email already registered", extra_tags="signup")
+            return redirect("index")
+
+        User.objects.create_user(username=username, email=email, password=password)
+        messages.success(request, "Signup successful! Please log in.", extra_tags="login")
+    return redirect("index")
+
+
+# ========== CHATBOT API ==========
 @csrf_exempt
 def chatbot_api(request):
     if request.method != "POST":
@@ -29,11 +178,10 @@ def chatbot_api(request):
     session_id = request.POST.get("session_id")
     if not user_message:
         return JsonResponse({"reply": "⚠️ Please say something!"})
-
     if not settings.GEMINI_API_KEY:
-        return JsonResponse({"reply": "⚠️ Gemini API key missing! Set GEMINI_API_KEY in .env"})
+        return JsonResponse({"reply": "⚠️ Gemini API key missing!"})
 
-    # ✅ Get or create session using UUID
+    # Get/create session
     session = None
     if session_id:
         try:
@@ -43,17 +191,17 @@ def chatbot_api(request):
     else:
         session = ChatSession.objects.create()
 
-    # Save user message
+    # Save user msg
     Message.objects.create(session=session, sender="user", text=user_message)
     if not session.title:
         session.title = user_message[:50]
         session.save()
 
-    # Gemini API request
+    # Gemini API call
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={settings.GEMINI_API_KEY}"
     payload = {
         "contents": [{"parts": [{"text": f"You are a supportive Mental Wellness Chatbot. User asked: {user_message}"}]}],
-        "generationConfig": {"temperature": 0.7, "maxOutputTokens": 500}
+        "generationConfig": {"temperature": 0.7, "maxOutputTokens": 500},
     }
 
     try:
@@ -68,7 +216,6 @@ def chatbot_api(request):
                 reply = parts[0].get("text", reply)
 
         Message.objects.create(session=session, sender="bot", text=reply)
-
         return JsonResponse({
             "reply": reply,
             "session_id": str(session.session_id),
@@ -78,7 +225,6 @@ def chatbot_api(request):
         return JsonResponse({"reply": f"⚠️ API Error: {str(e)}"})
 
 
-# 📜 Fetch Chat Messages
 def get_chat_messages(request, session_id):
     try:
         session = ChatSession.objects.get(session_id=UUID(session_id))
@@ -91,7 +237,7 @@ def get_chat_messages(request, session_id):
     })
 
 
-# 🤖 Streaming Chatbot API
+# ========== STREAMING CHAT ==========
 @csrf_exempt
 def chatbot_stream(request):
     if request.method != "POST":
@@ -119,7 +265,7 @@ def chatbot_stream(request):
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:streamGenerateContent?key={settings.GEMINI_API_KEY}"
     payload = {
         "contents": [{"parts": [{"text": f"You are a supportive Mental Wellness Chatbot. User asked: {user_message}"}]}],
-        "generationConfig": {"temperature": 0.7, "maxOutputTokens": 500}
+        "generationConfig": {"temperature": 0.7, "maxOutputTokens": 500},
     }
 
     def event_stream():
@@ -155,16 +301,8 @@ def chatbot_stream(request):
     return StreamingHttpResponse(event_stream(), content_type="text/event-stream")
 
 
-# ⚙️ Settings & Privacy
-
-
+# ========== SETTINGS ==========
 def settings_privacy(request):
-    """
-    ⚙️ Handles Settings & Privacy:
-    - Clear all chat data
-    - Set preferred language
-    - Export chat data (TXT or JSON)
-    """
     if request.method == "POST":
         action = request.POST.get("action")
 
@@ -197,7 +335,7 @@ def settings_privacy(request):
                 response['Content-Disposition'] = 'attachment; filename="chat_data.json"'
                 return response
 
-            # Default: TXT export
+            # TXT export
             export_text = ""
             for s in sessions:
                 export_text += f"--- {s.title or 'Chat'} ({s.created_at.strftime('%Y-%m-%d %H:%M')}) ---\n"
@@ -208,6 +346,26 @@ def settings_privacy(request):
             response['Content-Disposition'] = 'attachment; filename="chat_data.txt"'
             return response
 
-    # GET request
     saved_lang = request.session.get("lang", "Auto")
     return render(request, "settings_privacy.html", {"saved_lang": saved_lang})
+
+
+# ========== EXTRA PAGES ==========
+@login_required
+def breathing_page(request):
+    return render(request, "breathing.html")
+
+
+@login_required
+def focus_page(request):
+    return render(request, "focus.html")
+
+
+@login_required
+def selfcare_page(request):
+    return render(request, "selfcare.html")
+
+
+@login_required
+def wellness_page(request):
+    return render(request, "wellness.html")

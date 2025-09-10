@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+</head>
+<body class="flex items-center justify-center min-h-screen bg-black text-white">
+
+    <div class="w-full max-w-md p-8 bg-gray-900 rounded-xl shadow-lg">
+        <h1 class="text-2xl font-bold text-center mb-4">OTP Verification</h1>
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+            <input type="text" name="otp" placeholder="Enter OTP"
+            class="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-indigo-400 outline-none text-white" required>
+            <button type="submit"
+            class="w-full py-3 bg-indigo-600 rounded-lg font-semibold hover:bg-indigo-700">Verify</button>
+        </form>
+    </div>
+
+    {% for message in messages %}
+    {% if "auth" in message.tags %}
+        <script>
+        Toastify({
+            text: "{{ message|escapejs }}",
+            duration: 4000,
+            gravity: "top",
+            position: "right",
+            backgroundColor: "{% if 'success' in message.tags %}linear-gradient(to right, #00b09b, #96c93d){% else %}linear-gradient(to right, #ff416c, #ff4b2b){% endif %}",
+            stopOnFocus: true,
+            style: { borderRadius: "8px", fontSize: "14px", padding: "12px 16px" }
+        }).showToast();
+        </script>
+    {% endif %}
+    {% endfor %}
+
+
+</body>
+</html>

@@ -1,0 +1,439 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Saharathi AI · Resources / Self-Care</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Bootstrap CSS & JS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      color: white;
+      overflow-x: hidden;
+    }
+
+    /* 🔥 Animated Gradient Background */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(270deg, #0a0f2c, #0f1e3a, #10274a, #1a1f5c);
+      background-size: 600% 600%;
+      animation: gradientShift 20s ease infinite;
+      z-index: -1;
+    }
+
+    @keyframes gradientShift {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-glow {
+      background: linear-gradient(90deg, #00e5ff, #00ff94);
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 4px rgba(0, 255, 204, 0.3);
+      /* halka sa base glow */
+    }
+
+    .btn-glow:hover {
+      transform: scale(1.03);
+      background: linear-gradient(90deg, #00d4ff, #00e684);
+      /* hover pe thoda deeper shade */
+      box-shadow: 0 0 12px rgba(0, 255, 204, 0.45);
+      /* soft glow, jyada bright nahi */
+    }
+
+
+
+
+
+    .card-hover:hover {
+      transform: translateY(-8px);
+      border-color: #00e5ff;
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+    }
+
+    .fab {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: linear-gradient(90deg, #00e5ff, #00ff94);
+      color: #0a0f2c;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: 0.3s;
+      z-index: 50;
+    }
+
+    .fab:hover {
+      box-shadow: 0 0 20px #00ffcc;
+      transform: scale(1.1);
+    }
+
+    /* 🔥 Fix for Dropdown background */
+    .dropdown-menu {
+      background: rgba(15, 25, 50, 0.9) !important;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .dropdown-menu .dropdown-item {
+      color: white !important;
+      transition: 0.3s;
+    }
+
+    .dropdown-menu .dropdown-item:hover {
+      background: rgba(0, 229, 255, 0.2) !important;
+      color: #00ffcc !important;
+    }
+
+    /* Breathing Circle Animation */
+    .breathing-circle {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: rgba(0, 229, 255, 0.2);
+      margin: auto;
+      animation: breathe 6s infinite;
+    }
+
+    @keyframes breathe {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.5);
+      }
+    }
+
+    /* ✅ Fix mobile navbar disappearing */
+    @media (max-width: 991px) {
+      .navbar-collapse {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: rgba(15, 25, 50, 0.95);
+        backdrop-filter: blur(12px);
+        border-radius: 0 0 12px 12px;
+        padding: 1rem 0;
+        z-index: 9999;
+      }
+
+      .navbar-collapse .nav-link {
+        color: white !important;
+        padding: 0.75rem 1rem;
+        text-align: center;
+        border-radius: 8px;
+        transition: 0.3s;
+      }
+
+      .navbar-collapse .nav-link:hover {
+        background: rgba(0, 229, 255, 0.15);
+        color: #00ffcc !important;
+      }
+    }
+
+    /* ✅ Fix mobile navbar disappearing */
+    @media (max-width: 991px) {
+      .navbar-collapse {
+        position: fixed;
+        /* absolute → fixed */
+        top: 70px;
+        /* navbar height ke niche */
+        left: 0;
+        width: 100%;
+        background: rgba(15, 25, 50, 0.95);
+        backdrop-filter: blur(12px);
+        border-radius: 0 0 12px 12px;
+        padding: 1rem 0;
+        z-index: 9999;
+      }
+
+      .navbar-collapse.show {
+        display: block;
+        /* force visible */
+      }
+
+      .navbar-collapse .nav-link {
+        color: white !important;
+        padding: 0.75rem 1rem;
+        text-align: center;
+        border-radius: 8px;
+        transition: 0.3s;
+      }
+
+      .navbar-collapse .nav-link:hover {
+        background: rgba(0, 229, 255, 0.15);
+        color: #00ffcc !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <!-- Navbar -->
+  <nav class="glass navbar navbar-expand-lg navbar-dark px-4 py-3 fixed-top">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold text-xl" href="#">Saharathi AI</a>
+
+      <!-- Toggle -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Collapse -->
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav gap-3 ms-auto">
+          <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="#resources">Resources</a></li>
+          <li class="nav-item"><a class="nav-link" href="#profile">Profile</a></li>
+          <!-- Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+              More
+            </a>
+            <ul class="dropdown-menu glass">
+              <li><a class="dropdown-item" href="#">About Us</a></li>
+              <li><a class="dropdown-item" href="#">Community</a></li>
+              <li><a class="dropdown-item" href="#">Support</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="text-center py-16">
+    <h1 class="text-4xl md:text-6xl font-bold mb-6">Take a mindful break ✨</h1>
+    <p class="text-lg md:text-xl mb-8 opacity-90">Discover resources designed to improve your focus, breathing, and
+      overall well-being.</p>
+    <div class="flex justify-center gap-4">
+      <a href="{% url 'breathing' %}" class="btn btn-glow px-6 py-3 rounded-xl">
+        Start Breathing Exercise
+      </a>
+
+      <a href="{% url 'wellness' %}" class="btn btn-outline-light px-6 py-3 rounded-xl hover:scale-105">
+        Explore Wellness
+      </a>
+
+    </div>
+  </section>
+
+  <!-- Resources Grid -->
+  <section id="resources" class="max-w-6xl mx-auto px-4 grid gap-8 md:grid-cols-3">
+    <!-- Existing 3 -->
+    <div class="glass card-hover p-6 rounded-2xl text-center">
+      <div class="text-4xl mb-4"><i class="bi bi-wind text-cyan-400"></i></div>
+      <h3 class="text-xl font-semibold mb-2">Breathing Guide</h3>
+      <p class="text-sm opacity-80 mb-4">A quick exercise to reduce stress in 3 minutes.</p>
+      <a href="{% url 'breathing' %}" class="btn btn-glow w-full py-2 rounded-xl">
+        Start
+      </a>
+
+    </div>
+
+    <div class="glass card-hover p-6 rounded-2xl text-center">
+      <div class="text-4xl mb-4"><i class="bi bi-bullseye text-green-400"></i></div>
+      <h3 class="text-xl font-semibold mb-2">Focus Booster</h3>
+      <p class="text-sm opacity-80 mb-4">Pomodoro-style short focus sessions.</p>
+      <a href="{% url 'focus' %}" class="btn btn-glow w-full py-2 rounded-xl">
+        Try Now
+      </a>
+
+    </div>
+
+    <div class="glass card-hover p-6 rounded-2xl text-center">
+      <div class="text-4xl mb-4"><i class="bi bi-heart-pulse text-pink-400"></i></div>
+      <h3 class="text-xl font-semibold mb-2">Wellness Tips</h3>
+      <p class="text-sm opacity-80 mb-4">Micro-content for healthier daily habits.</p>
+      <a href="{% url 'wellness' %}" class="btn btn-glow w-full py-2 rounded-xl">
+        Learn
+      </a>
+
+    </div>
+
+    <!-- Extra Options -->
+    <div class="glass card-hover p-6 rounded-2xl text-center">
+      <div class="text-4xl mb-4"><i class="bi bi-journal-text text-yellow-400"></i></div>
+      <h3 class="text-xl font-semibold mb-2">Mood Journal</h3>
+      <p class="text-sm opacity-80 mb-4">Track your emotions and reflect daily.</p>
+      <a href="{% url 'journals:journal_page' %}" class="btn btn-glow w-full py-2 rounded-xl">
+        Write
+      </a>
+
+    </div>
+
+    <div class="glass card-hover p-6 rounded-2xl text-center">
+      <div class="text-4xl mb-4"><i class="bi bi-moon-stars text-indigo-400"></i></div>
+      <h3 class="text-xl font-semibold mb-2">Sleep Tracker</h3>
+      <p class="text-sm opacity-80 mb-4">Monitor sleep cycles & improve rest.</p>
+      <button class="btn btn-glow w-full py-2 rounded-xl" data-bs-toggle="modal"
+        data-bs-target="#sleepModal">Track</button>
+    </div>
+
+
+
+    <div class="glass card-hover p-6 rounded-2xl text-center">
+      <div class="text-4xl mb-4"><i class="bi bi-music-note-beamed text-purple-400"></i></div>
+      <h3 class="text-xl font-semibold mb-2">Music Therapy</h3>
+      <p class="text-sm opacity-80 mb-4">Relax with calming soundtracks.</p>
+      <button class="btn btn-glow w-full py-2 rounded-xl" data-bs-toggle="modal"
+        data-bs-target="#musicModal">Play</button>
+    </div>
+  </section>
+
+  <!-- Extra Modals -->
+
+  <div class="modal fade" id="sleepModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content glass p-6 text-center">
+      <h2 class="text-2xl font-bold mb-3">Sleep Tracker 😴</h2>
+      <p class="mb-3 opacity-80">Set your bedtime and wake-up alarm ⏰</p>
+
+      <!-- Bedtime & Wakeup -->
+      <label class="d-block mb-2">Bedtime</label>
+      <input id="bedtime" type="time" class="form-control mb-3">
+
+      <label class="d-block mb-2">Wake-up Time</label>
+      <input id="wakeup" type="time" class="form-control mb-3">
+
+      <button id="setAlarmBtn" class="btn btn-glow">Set Alarm</button>
+      <p id="alarmStatus" class="mt-3 text-sm opacity-80"></p>
+    </div>
+  </div>
+</div>
+
+<!-- 🔔 Alarm Sound -->
+<audio id="alarmSound" preload="auto" loop>
+  <source src="{% static 'sounds/loud_alarm.mp3' %}" type="audio/mpeg">
+</audio>
+
+  <div class="modal fade" id="affirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content glass p-6 text-center">
+        <h2 class="text-2xl font-bold mb-3">Daily Affirmations 🌞</h2>
+        <p>“I am focused, calm, and positive.”</p>
+        <p>“I can achieve great things.”</p>
+        <p>“I am grateful for today.”</p><button class="btn btn-glow mt-3" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="musicModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content glass p-6 text-center">
+        <h2 class="text-2xl font-bold mb-3">Music Therapy 🎵</h2>
+        <iframe width="100%" height="200" src="https://www.youtube.com/embed/Umqb9KENgmk" title="Arijit Singh Song"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen>
+        </iframe>
+        <button class="btn btn-glow mt-3" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+  <!-- (Old Modals for breathing/focus/wellness remain same from your code) -->
+
+  <footer class="mt-16 py-6 text-center text-sm opacity-70">
+    <div class="border-t border-white/20 pt-4">
+      © 2025 Saharathi AI — <a href="#" class="hover:text-cyan-400">Privacy</a> · <a href="#"
+        class="hover:text-cyan-400">Contact</a>
+    </div>
+  </footer>
+</body>
+<div id="alarmPopup" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
+  <div class="bg-white text-black rounded-lg shadow-lg p-6 text-center max-w-sm">
+    <h2 class="text-2xl font-bold mb-4">⏰ WAKE UP!</h2>
+    <p class="mb-4">Your alarm is ringing. Time to rise and shine 🌞</p>
+    <button onclick="stopAlarm()" class="px-6 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition">
+      🛑 Stop Alarm
+    </button>
+  </div>
+</div>
+<script>
+  let alarmTime = null;
+  let alarmTimeout = null;
+  const alarm = document.getElementById("alarmSound");
+  const popup = document.getElementById("alarmPopup");
+
+  document.getElementById("setAlarmBtn").addEventListener("click", () => {
+    const wakeupInput = document.getElementById("wakeup").value;
+
+    if (!wakeupInput) {
+      alert("Please select a wake-up time ⏰");
+      return;
+    }
+
+    alarmTime = wakeupInput;
+    document.getElementById("alarmStatus").innerText = "✅ Alarm set for " + alarmTime;
+
+    if (alarmTimeout) clearInterval(alarmTimeout);
+
+    alarmTimeout = setInterval(() => {
+      const now = new Date();
+      const currentTime = now.toTimeString().slice(0, 5); // HH:MM
+
+      if (currentTime === alarmTime) {
+        alarm.volume = 1.0; 
+        alarm.play();
+
+        popup.classList.remove("hidden"); 
+        document.getElementById("alarmStatus").innerText = "🚨 Alarm ringing!";
+        clearInterval(alarmTimeout);
+      }
+    }, 1000);
+  });
+
+  function stopAlarm() {
+    alarm.pause();
+    alarm.currentTime = 0;
+    popup.classList.add("hidden"); 
+    document.getElementById("alarmStatus").innerText = "🛑 Alarm stopped";
+  }
+</script>
+
+</html>

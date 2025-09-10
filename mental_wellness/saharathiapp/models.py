@@ -1,6 +1,8 @@
 from django.db import models
 import uuid
 from django.utils import timezone
+from accounts.models import CustomUser 
+
 
 # 🔹 ChatSession model
 class ChatSession(models.Model):
@@ -24,6 +26,7 @@ class Message(models.Model):
         ('user', 'User'),
         ('bot', 'Bot'),
     )
+
     session = models.ForeignKey(ChatSession, on_delete=models.CASCADE, related_name="messages")
     sender = models.CharField(max_length=10, choices=SENDER_CHOICES)
     text = models.TextField()
@@ -42,4 +45,24 @@ class Message(models.Model):
         return f"{self.sender}: {self.text[:50]}"
 
     def short_text(self):
+        """Short preview of message"""
         return self.text[:50] + ("..." if len(self.text) > 50 else "")
+
+
+# 🔹 MoodEntry model
+class MoodEntry(models.Model):
+    MOOD_CHOICES = [
+        (0, "Stressed"),
+        (1, "Sad"),
+        (2, "Okay"),
+        (3, "Good"),
+        (4, "Great"),
+    ]
+
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="mood_entries")
+    mood_level = models.IntegerField(choices=MOOD_CHOICES)
+    notes = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.get_mood_level_display()} ({self.created_at.date()})"

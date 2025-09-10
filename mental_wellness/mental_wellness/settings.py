@@ -27,7 +27,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'saharathiapp',
+    "journals",
+    "accounts",
+    'tailwind',
+    'theme',
 ]
+AUTH_USER_MODEL = 'accounts.CustomUser'
 
 # -------------------------
 # Jazzmin Professional Settings
@@ -70,6 +75,12 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if DEBUG:
+    # Add django_browser_reload middleware only in DEBUG mode
+    MIDDLEWARE += [
+        "django_browser_reload.middleware.BrowserReloadMiddleware",
+    ]
 
 ROOT_URLCONF = 'mental_wellness.urls'
 
@@ -130,3 +141,17 @@ if not GEMINI_API_KEY:
 
 if DEBUG:
     print("✅ GEMINI_API_KEY loaded successfully.")
+
+
+# -------------------------
+# Email Settings
+# -------------------------
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "your-email@gmail.com")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")  # Use App Password, not raw Gmail password
+
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

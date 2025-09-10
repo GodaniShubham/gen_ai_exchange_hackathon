@@ -14,4 +14,9 @@ urlpatterns = [
 
     # Chat API (backend endpoint for AI reply)
     path("chatbot_api/", views.chatbot_api, name="chatbot_api"),
+
+    path("breathing/", views.breathing_page, name="breathing"),
+    path("focus/", views.focus_page, name="focus"),
+    path("selfcare/", views.selfcare_page, name="selfcare"),
+    path("wellness/", views.wellness_page, name="wellness"),
 ]

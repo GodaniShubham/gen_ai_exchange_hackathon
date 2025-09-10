@@ -4,7 +4,7 @@ from django.utils.timezone import now
 
 class JournalEntry(models.Model):
     content = models.TextField()
-    summary = models.TextField(blank=True)
+    summary = models.TextField(default="No summary provided")
     # Store highlights and coping as lists
     highlights = models.JSONField(default=list, blank=True)  # works on all DBs with Django 4+
     coping = models.JSONField(default=list, blank=True)

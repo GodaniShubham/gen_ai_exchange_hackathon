@@ -1,110 +1,414 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container max-w-3xl mx-auto mt-10">
+<div class="h-[90vh] flex bg-gray-950 text-white font-[system-ui]">
 
-  <!-- Title -->
-  <h2 class="text-center text-4xl font-bold mb-8 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent animate__animated animate__fadeInDown">
-    💬 Chat with AI
-  </h2>
-
-  <!-- Chat Window -->
-  <div id="chat_area"
-       class="rounded-3xl p-5 mb-6 h-[500px] overflow-y-auto space-y-4 shadow-2xl border border-gray-700 bg-gray-900/70 backdrop-blur-xl scroll-smooth animate__animated animate__fadeIn"
-       style="scrollbar-width: thin; scrollbar-color: #4ade80 transparent;">
-    <div class="text-center text-gray-400 italic">👋 Start a conversation with ChatBuddy...</div>
+ <!-- 📜 Sidebar / History -->
+<div class="w-64 bg-black/90 border-r border-gray-800 flex flex-col">
+  <div class="p-4 flex items-center justify-end border-b border-gray-800">
+    <button onclick="newChat()" 
+            class="px-3 py-1 text-sm font-semibold rounded-md bg-gradient-to-r from-green-400 to-teal-500 hover:from-teal-500 hover:to-green-400 transition shadow-lg">
+      + New
+    </button>
   </div>
 
-  <!-- Input Area -->
-  <div class="flex gap-3 items-center animate__animated animate__fadeInUp">
-    <input type="text" id="user_input"
-           class="flex-grow px-5 py-3 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-400 shadow-inner transition duration-300"
-           placeholder="Type your message..." />
+ 
+ <!-- 🔘 Top Buttons -->
+<div class="flex flex-col p-2 space-y-2 border-b border-gray-800">
+  <button onclick="openGuide()" class="w-full text-sm px-2 py-1 rounded-md bg-gray-800 hover:bg-green-600 transition">Self Care Guides</button>
+  <button onclick="openMoodAnalytics()" class="w-full text-sm px-2 py-1 rounded-md bg-gray-800 hover:bg-green-600 transition">Mood Analytics</button>
+  <button onclick="openJournal()" class="w-full text-sm px-2 py-1 rounded-md bg-gray-800 hover:bg-green-600 transition">Journal</button>
+  
+  <!-- 🆕 Settings & Privacy -->
+  <button onclick="openSettings()" class="w-full text-sm px-2 py-1 rounded-md bg-gray-800 hover:bg-green-600 transition">⚙ Settings & Privacy</button>
+</div>
 
-    <button onclick="sendMessage()" 
-            class="p-4 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg transition-all duration-300 transform hover:scale-110 hover:-translate-y-1">
-      <i class="fas fa-paper-plane"></i>
-    </button>
+
+  <div id="chat_history" class="flex-1 overflow-y-auto p-3 space-y-2 text-sm scrollbar-thin scrollbar-thumb-gray-700">
+    <div class="text-gray-500 italic">No chats yet...</div>
+  </div>
+
+  <div class="p-3 border-t border-gray-800 text-xs text-gray-400">
+    <button onclick="clearHistory()" class="hover:text-red-400">🗑 Clear all</button>
   </div>
 </div>
 
-<!-- JS Logic -->
+
+  <!-- 💬 Main Chat Area -->
+  <div class="flex-1 flex flex-col">
+    
+    <!-- Header -->
+    <div class="p-4 border-b border-gray-800 bg-black/80 backdrop-blur-lg flex justify-between items-center">
+      <h1 class="text-xl font-bold bg-gradient-to-r from-green-400 to-teal-500 bg-clip-text text-transparent">
+        💬 Chat with Saharathi AI
+      </h1>
+
+      <!-- 🎙️ Voice Controls -->
+      <div class="flex items-center gap-2 text-sm">
+        <span class="text-gray-400">Voice:</span>
+        <button onclick="setVoice('male')" id="maleBtn" class="px-2 py-1 rounded-md bg-gray-800 hover:bg-green-600 transition">👨 Male</button>
+        <button onclick="setVoice('female')" id="femaleBtn" class="px-2 py-1 rounded-md bg-gray-800 hover:bg-green-600 transition">👩 Female</button>
+        <button onclick="speakBotReply()" class="px-3 py-1 rounded-md bg-green-600 hover:bg-green-700 transition">🔊 Speak</button>
+      </div>
+    </div>
+
+    <!-- 🌱 Daily Tip Widget -->
+    <div id="daily_tip" class="p-3 text-sm bg-gradient-to-r from-green-500 to-teal-600 text-white text-center">
+      🌱 Daily Tip: Stay hydrated and take deep breaths!
+    </div>
+
+<!-- 🌈 Mood Selector -->
+<div class="flex gap-3 p-4 bg-black/70 border-b border-gray-700 text-sm text-gray-300 items-center">
+  <span class="font-semibold">How are you feeling today?</span>
+  <div class="flex gap-2" id="moodButtons">
+    <button onclick="setMood('😊 Happy')" id="mood_happy" 
+      class="px-3 py-1 rounded-full bg-gray-700 hover:scale-110 hover:bg-green-600 transition-all shadow-md">😊 Happy</button>
+    <button onclick="setMood('😟 Stressed')" id="mood_stressed" 
+      class="px-3 py-1 rounded-full bg-gray-700 hover:scale-110 hover:bg-green-600 transition-all shadow-md">😟 Stressed</button>
+    <button onclick="setMood('😔 Sad')" id="mood_sad" 
+      class="px-3 py-1 rounded-full bg-gray-700 hover:scale-110 hover:bg-green-600 transition-all shadow-md">😔 Sad</button>
+    <button onclick="setMood('😐 Neutral')" id="mood_neutral" 
+      class="px-3 py-1 rounded-full bg-gray-700 hover:scale-110 hover:bg-green-600 transition-all shadow-md">😐 Neutral</button>
+  </div>
+  <span id="selectedMood" class="ml-3 text-green-400 italic"></span>
+</div>
+
+
+    <!-- Chat Window -->
+    <div id="chat_area" 
+         class="flex-1 overflow-y-auto p-6 space-y-4 scroll-smooth bg-gray-900/60">
+      <div class="text-center text-gray-500 italic">👋 Start a conversation...</div>
+    </div>
+
+    <!-- Typing Indicator -->
+    <div id="typing" class="hidden px-6 pb-2 text-gray-400 italic flex gap-2 items-center">
+      <span class="dot w-2 h-2 bg-green-400 rounded-full animate-bounce"></span>
+      <span class="dot w-2 h-2 bg-green-400 rounded-full animate-bounce delay-200"></span>
+      <span class="dot w-2 h-2 bg-green-400 rounded-full animate-bounce delay-400"></span>
+      <span>Typing...</span>
+    </div>
+
+    <!-- Input Box -->
+    <div class="p-4 border-t border-gray-800 bg-black/80 backdrop-blur-lg space-y-3">
+
+      <!-- Quick Suggestions -->
+      <div class="flex gap-2">
+        <button onclick="sendQuick('I feel stressed')" class="px-3 py-1 bg-gray-800 hover:bg-green-600 rounded-full text-sm">I feel stressed</button>
+        <button onclick="sendQuick('Give me meditation tips')" class="px-3 py-1 bg-gray-800 hover:bg-green-600 rounded-full text-sm">Meditation Tips</button>
+        <button onclick="sendQuick('Help me with sleep')" class="px-3 py-1 bg-gray-800 hover:bg-green-600 rounded-full text-sm">Sleep Help</button>
+      </div>
+
+      <div class="flex items-center gap-3 bg-gray-900 px-4 py-2 rounded-2xl border border-gray-700 shadow-inner">
+
+        <!-- File -->
+        <label for="file_input" class="cursor-pointer text-gray-400 hover:text-green-400 transition">
+          <i class="fas fa-paperclip"></i>
+        </label>
+        <input type="file" id="file_input" class="hidden" />
+
+        <!-- Mic 🎤 -->
+        <button onclick="startVoice()" class="text-gray-400 hover:text-green-400 transition">
+          <i class="fas fa-microphone"></i>
+        </button>
+
+        <!-- Text -->
+        <input type="text" id="user_input"
+               class="flex-grow bg-transparent outline-none px-2 text-white placeholder-gray-500"
+               placeholder="Type your message..." />
+
+        <!-- Send -->
+        <button onclick="sendMessage()" 
+                class="p-2 rounded-full bg-green-600 hover:bg-green-700 transition">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JS -->
 <script>
-async function sendMessage() {
-  const inputEl = document.getElementById("user_input");
-  const userMessage = inputEl.value.trim();
-  const chatBox = document.getElementById("chat_area");
+let currentChatId = null;
+let userMood = "😐 Neutral";  
+let synth = window.speechSynthesis;
+let lastBotReply = "";
+let selectedVoice = "male"; // default
+let voices = [];
 
-  if (userMessage === "") return;
+// 🔊 Load Voices (browser se)
+function loadVoices(){
+  voices = synth.getVoices();
+}
+window.speechSynthesis.onvoiceschanged = loadVoices;
 
-  // User bubble
-  chatBox.innerHTML += `
-    <div class="flex justify-end animate__animated animate__fadeInRight">
-      <div class="max-w-md px-5 py-3 rounded-3xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-md">
-        ${userMessage}
-      </div>
-    </div>
-  `;
-  inputEl.value = "";
-  chatBox.scrollTop = chatBox.scrollHeight;
+// ✅ Voice Select Button
+function setVoice(type){
+  selectedVoice = type;
+  document.getElementById("maleBtn").classList.remove("bg-green-600");
+  document.getElementById("femaleBtn").classList.remove("bg-green-600");
+  if(type==="male") document.getElementById("maleBtn").classList.add("bg-green-600");
+  else document.getElementById("femaleBtn").classList.add("bg-green-600");
+}
 
-  // Typing bubble
-  const typingBubble = document.createElement("div");
-  typingBubble.id = "typing";
-  typingBubble.className = "flex justify-start animate__animated animate__fadeInLeft";
-  typingBubble.innerHTML = `
-    <div class="px-5 py-3 rounded-3xl bg-gray-700 text-gray-300 animate-pulse">
-      Typing<span class="dot">...</span>
-    </div>
-  `;
-  chatBox.appendChild(typingBubble);
-  chatBox.scrollTop = chatBox.scrollHeight;
+// ✅ Mood Selector
+function setMood(mood){
+  userMood = mood;
 
+  document.querySelectorAll("#moodButtons button").forEach(btn => {
+    btn.classList.remove("bg-green-600");
+    btn.classList.add("bg-gray-700");
+  });
+
+  if (mood.includes("Happy")) document.getElementById("mood_happy").classList.add("bg-green-600");
+  if (mood.includes("Stressed")) document.getElementById("mood_stressed").classList.add("bg-green-600");
+  if (mood.includes("Sad")) document.getElementById("mood_sad").classList.add("bg-green-600");
+  if (mood.includes("Neutral")) document.getElementById("mood_neutral").classList.add("bg-green-600");
+
+  document.getElementById("selectedMood").innerText = `Selected: ${mood}`;
+}
+
+// ✅ Daily Tips
+const tips = [
+  "🌱 Drink at least 8 glasses of water.",
+  "🧘 Practice meditation for 5 mins daily.",
+  "😴 Get 7-8 hours of quality sleep.",
+  "🚶 Take a 15-minute walk outdoors."
+];
+let i=0;
+setInterval(()=>{
+  document.getElementById("daily_tip").innerText = tips[i];
+  i = (i+1) % tips.length;
+}, 5000);
+
+// ✅ CSRF helper
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + "=")) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+const csrftoken = getCookie("csrftoken");
+
+// 🆕 Allowed mental-health-related topics
+const allowedTopics = [
+  "stress", "anxiety", "sleep", "mood", "depression",
+  "self care", "meditation", "wellness", "focus", "relax",
+  "happy", "sad", "tired", "mental health"
+];
+
+// 🆕 Create new chat
+function newChat(){
+  currentChatId = null;
+  document.getElementById("chat_area").innerHTML = `<div class="text-center text-gray-500 italic">🆕 New conversation...</div>`;
+}
+
+// 📥 Load messages
+async function loadChat(id, title){
+  currentChatId = id;
   try {
-    const response = await fetch("/chatbot_api/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "X-CSRFToken": "{{ csrf_token }}"
-      },
-      body: "message=" + encodeURIComponent(userMessage)
-    });
-
-    const data = await response.json();
-
-    // Remove typing bubble
-    typingBubble.remove();
-
-    // Bot bubble
-    chatBox.innerHTML += `
-      <div class="flex justify-start animate__animated animate__fadeInLeft">
-        <div class="max-w-md px-5 py-3 rounded-3xl bg-gray-800/90 border border-gray-700 text-white shadow-md">
-          ${data.reply}
-        </div>
-      </div>
-    `;
-    chatBox.scrollTop = chatBox.scrollHeight;
-
-  } catch (error) {
-    typingBubble.remove();
-    chatBox.innerHTML += `
-      <div class="flex justify-start">
-        <div class="max-w-md px-5 py-3 rounded-3xl bg-red-700 text-white shadow-md">
-          ⚠️ Error: Could not connect to the server.
-        </div>
-      </div>
-    `;
-    chatBox.scrollTop = chatBox.scrollHeight;
+    const resp = await fetch(`/get_chat_messages/${id}/`);
+    const data = await resp.json();
+    renderMessages(data.messages || []);
+  } catch(err){
+    console.error(err);
   }
 }
 
-// Send on Enter
-document.getElementById("user_input").addEventListener("keypress", function (e) {
-  if (e.key === "Enter") {
-    sendMessage();
+// 📤 Send Message
+async function sendMessage() {
+  const inputEl = document.getElementById("user_input");
+  const userMessage = inputEl.value.trim();
+  if (!userMessage) return;
+
+  // ✅ Always show user message
+  renderMessages([{sender:"user", text:userMessage}], true);
+  inputEl.value = "";
+  document.getElementById("typing").classList.remove("hidden");
+
+  // ✅ Check if message contains allowed keywords
+  const isAllowed = allowedTopics.some(topic => 
+    userMessage.toLowerCase().includes(topic)
+  );
+
+  if (!isAllowed) {
+    document.getElementById("typing").classList.add("hidden");
+    renderMessages([{sender:"bot", text:"⚠️ I only respond to mental health, mood, or wellness questions."}], true);
+    return;
   }
+
+  // ✅ Normal processing for allowed topics
+  try {
+    const resp = await fetch("/chatbot_api/", {
+      method: "POST",
+      headers: { "X-CSRFToken": csrftoken },
+      body: new URLSearchParams({
+        message: userMessage,
+        mood: userMood,
+        session_id: currentChatId || ""
+      })
+    });
+
+    const data = await resp.json();
+    currentChatId = data.session_id;
+    document.getElementById("typing").classList.add("hidden");
+    renderMessages([{sender:"bot", text:data.reply}], true);
+
+    if (!document.getElementById("chat_item_"+currentChatId)){
+      const historyBox = document.getElementById("chat_history");
+      if (historyBox.innerText.includes("No chats yet")) historyBox.innerHTML = "";
+      historyBox.innerHTML = `<div onclick="loadChat('${currentChatId}', '${data.title}')"
+                               id="chat_item_${currentChatId}"
+                               class="p-2 rounded-md hover:bg-gray-800 cursor-pointer">${data.title}</div>` + historyBox.innerHTML;
+    }
+  } catch (err) {
+    console.error(err);
+    document.getElementById("typing").classList.add("hidden");
+  }
+}
+
+
+// 💬 Render messages
+function renderMessages(messages, append=false){
+  const chatBox = document.getElementById("chat_area");
+  if (!append) chatBox.innerHTML = "";
+  messages.forEach(msg => {
+    if (msg.sender === "user") {
+      chatBox.innerHTML += `<div class="flex justify-end"><div class="px-4 py-2 rounded-2xl bg-green-600 text-white max-w-md">${msg.text}</div></div>`;
+    } else {
+      lastBotReply = msg.text;
+      chatBox.innerHTML += `<div class="flex justify-start"><div class="px-4 py-2 rounded-2xl bot-bubble">${msg.text}</div></div>`;
+    }
+  });
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// ✅ Voice Reply
+let isSpeaking = false;
+function speakBotReply(){
+  if (!lastBotReply) return;
+
+  if (isSpeaking && synth.speaking) {
+    synth.cancel();
+    isSpeaking = false;
+    return;
+  }
+
+  if (synth.speaking) synth.cancel();
+  const utterance = new SpeechSynthesisUtterance(lastBotReply);
+  utterance.lang = "en-US";
+
+  if (voices.length > 0) {
+    let voice = null;
+    if (selectedVoice === "male") {
+      voice = voices.find(v => v.name.toLowerCase().includes("male")) || voices[0];
+    } else {
+      voice = voices.find(v => v.name.toLowerCase().includes("female")) || voices[voices.length - 1];
+    }
+    utterance.voice = voice;
+  }
+
+  utterance.onstart = () => { isSpeaking = true; };
+  utterance.onend = () => { isSpeaking = false; };
+  synth.speak(utterance);
+}
+
+// ✅ Voice Input 🎤
+function startVoice(){
+  if (!('webkitSpeechRecognition' in window)) {
+    alert("❌ Voice recognition not supported in this browser.");
+    return;
+  }
+  const recognition = new webkitSpeechRecognition();
+  recognition.lang = "en-US"; 
+  recognition.start();
+
+  recognition.onresult = function(event){
+    let transcript = event.results[0][0].transcript;
+
+    // ✅ Check allowed topic
+    const isAllowed = allowedTopics.some(topic => transcript.toLowerCase().includes(topic));
+    if (!isAllowed) {
+      renderMessages([{sender:"bot", text:"⚠️ I can only respond to mental health, mood, or wellness related questions."}], true);
+      return;
+    }
+
+    document.getElementById("user_input").value = transcript;
+    sendMessage();
+  };
+}
+
+// 🗑 Clear All
+function clearHistory(){
+  document.getElementById("chat_history").innerHTML = `<div class="text-gray-500 italic">No chats yet...</div>`;
+  document.getElementById("chat_area").innerHTML = `<div class="text-center text-gray-500 italic">👋 Start a conversation...</div>`;
+  currentChatId = null;
+}
+
+document.getElementById("user_input").addEventListener("keypress", function (e) {
+  if (e.key === "Enter") sendMessage();
 });
+
+// ✅ Quick buttons
+function sendQuick(msg){
+  // ✅ Check allowed topic
+  const isAllowed = allowedTopics.some(topic => msg.toLowerCase().includes(topic));
+  if (!isAllowed) {
+    renderMessages([{sender:"bot", text:"⚠️ I can only respond to mental health, mood, or wellness related questions."}], true);
+    return;
+  }
+  document.getElementById("user_input").value = msg;
+  sendMessage();
+}
+
+// ✅ Top buttons
+function openGuide() { alert("Self Care Guides clicked!"); }
+function openMoodAnalytics() { alert("Mood Analytics clicked!"); }
+function openJournal() { alert("Journal clicked!"); }
+function openSettings() { alert("⚙ Settings & Privacy clicked!"); }
+
 </script>
 
-<!-- Animate.css for animations -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<!-- Styles -->
+<style>
+.bot-bubble {
+  background: linear-gradient(135deg, #1f4037, #99f2c8);
+  color: white;
+  border-radius: 20px;
+  padding: 10px 15px;
+  max-width: 80%;
+  box-shadow: 0px 2px 6px rgba(0,0,0,0.3);
+}
+.dot { display:inline-block; }
+/* Chat Bot typing animation */
+.typing-bubble {
+  display: inline-block;
+  background: #2d2d2d;
+  border-radius: 12px;
+  padding: 6px 10px;
+}
+.typing-bubble span {
+  display:inline-block;
+  width:6px; height:6px;
+  background:#66ffcc;
+  border-radius:50%;
+  margin:0 2px;
+  animation: bounce 1.2s infinite;
+}
+.typing-bubble span:nth-child(2){ animation-delay:0.2s }
+.typing-bubble span:nth-child(3){ animation-delay:0.4s }
+@keyframes bounce {
+  0%,80%,100% { transform:scale(0.6); }
+  40% { transform:scale(1.2); }
+}
+
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 {% endblock %}

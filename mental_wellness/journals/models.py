@@ -11,7 +11,7 @@ class JournalEntry(models.Model):
     is_pinned = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
+    def _str_(self):
         return f"{self.created_at}: {self.content[:30]}"
 
 class WeeklyReflection(models.Model):

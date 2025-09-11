@@ -1,17 +1,16 @@
 import requests
 import json
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from .models import MoodEntry
-from django.utils import timezone
-from datetime import datetime
+from .models import ChatSession, MoodEntry
 from collections import defaultdict
+from datetime import datetime
 
 # ========== MAIN PAGES ==========
 def index(request):
@@ -20,6 +19,7 @@ def index(request):
 def chat_page(request):
     return render(request, "chatbot.html")
 
+# ========== MOOD TRACKING ==========
 @csrf_exempt
 def save_mood(request):
     if request.method == "POST":
@@ -35,59 +35,27 @@ def save_mood(request):
 @login_required
 def mood_analytics(request):
     entries = MoodEntry.objects.filter(user=request.user).order_by("created_at")
-
     data = [
         {
             "level": e.mood_level,
             "notes": e.notes,
             "date": e.created_at.isoformat()
-        }
-        for e in entries
+        } for e in entries
     ]
     return render(request, "mood_analytics.html", {"moods_json": json.dumps(data)})
 
 @login_required
 def mood_insights(request):
-    mode = request.GET.get('mode', 'daily')  # Default to 'daily' if mode not provided
+    mode = request.GET.get('mode', 'daily')
     entries = MoodEntry.objects.filter(user=request.user).order_by("-created_at")[:30]
     if not entries:
         return JsonResponse({"insights": "Log some moods to get your first insights ✨"})
 
-    # Aggregate mood history based on mode
-    mood_history = ""
-    if mode == 'daily':
-        mood_history = "\n".join(
-            [f"{e.created_at.strftime('%Y-%m-%d')} - Level {e.mood_level}, Notes: {e.notes or 'None'}"
-             for e in entries]
-        )
-    elif mode == 'weekly':
-        weekly_data = defaultdict(list)
-        for e in entries:
-            week_key = e.created_at.strftime('%Y-W%W')  # ISO week format (e.g., 2025-W36)
-            weekly_data[week_key].append(e)
-        mood_history = "\n".join(
-            [f"Week {week_key.split('-W')[1]} ({datetime.strptime(week_key + '-1', '%Y-W%W-%w').strftime('%Y-%m-%d')}) - Avg Level {sum(e.mood_level for e in data) / len(data):.1f}, Notes: {', '.join(e.notes or 'None' for e in data)}"
-             for week_key, data in weekly_data.items()]
-        )
-    elif mode == 'monthly':
-        monthly_data = defaultdict(list)
-        for e in entries:
-            month_key = e.created_at.strftime('%Y-%m')
-            monthly_data[month_key].append(e)
-        mood_history = "\n".join(
-            [f"{month_key} - Avg Level {sum(e.mood_level for e in data) / len(data):.1f}, Notes: {', '.join(e.notes or 'None' for e in data)}"
-             for month_key, data in monthly_data.items()]
-        )
-    elif mode == 'heatmap':
-        # For heatmap, we can use daily data but summarize by week
-        weekly_data = defaultdict(list)
-        for e in entries:
-            week_key = e.created_at.strftime('%Y-W%W')
-            weekly_data[week_key].append(e)
-        mood_history = "\n".join(
-            [f"Week {week_key.split('-W')[1]} ({datetime.strptime(week_key + '-1', '%Y-W%W-%w').strftime('%Y-%m-%d')}) - Avg Level {sum(e.mood_level for e in data) / len(data):.1f}"
-             for week_key, data in weekly_data.items()]
-        )
+    # Aggregate mood history
+    mood_history = "\n".join(
+        [f"{e.created_at.strftime('%Y-%m-%d')} - Level {e.mood_level}, Notes: {e.notes or 'None'}"
+         for e in entries]
+    )
 
     last_entry = entries.first()
     last_mood = last_entry.mood_level
@@ -95,43 +63,23 @@ def mood_insights(request):
     last_mood_label = mood_labels[last_mood]
 
     prompt = f"""
-You are an enthusiastic, empathetic, and creative wellness coach, always infusing your advice with warmth, humor, and originality to make users feel seen and inspired. Vary your language, metaphors, and suggestions each time to keep things fresh—never repeat phrases like "take a walk" or "breathe deeply" without twisting them creatively based on the history.
-
-The user's most recent mood was **{last_mood_label} (level {last_mood})** based on {mode} data.
-- If it's Great/Good: Explode with joy! Use fun, vivid imagery (like "You're on fire like a shooting star!") to celebrate their vibe, highlight progress from {mode} history, and spark ideas to amplify it further with exciting, unique twists.
-- If it's Okay/Sad/Stressed: Respond with gentle compassion, like a close friend wrapping them in a hug. Draw from their {mode} history for personalized encouragement, offering fresh, actionable micro-steps (e.g., if patterns show weekend dips, suggest a quirky ritual like "dance to one song from your childhood"). Focus on empowerment and small wins without clichés.
-
-Analyze their recent mood history (up to 30 entries) for trends based on {mode} view:
+You are a creative wellness coach. The user's most recent mood was {last_mood_label} (level {last_mood}) based on {mode} data.
+Analyze recent mood history (up to 30 entries):
 {mood_history}
-
-Craft a response with:
-1. A vibrant, 1-2 sentence summary of overall trends, tying into their latest mood with personality.
-2. 1-2 intriguing patterns (e.g., "Your moods soar mid-week like a caffeine boost, but dip on Sundays—perhaps post-weekend recharge?").
-3. 2-3 tailored, inventive suggestions that build on patterns and current mood, making them feel achievable and fun.
-
-Keep the tone uplifting, motivational, and human—like chatting with a wise, fun buddy. Limit to under 6 sentences total, ending on a high note of hope or excitement.
+Craft a short, uplifting response with insights and suggestions.
 """
 
     try:
-        url = (
-            f"https://generativelanguage.googleapis.com/v1/models/"
-            f"gemini-1.5-flash:generateContent?key={settings.GEMINI_API_KEY}"
-        )
-
+        url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={settings.GEMINI_API_KEY}"
         payload = {
             "contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {"temperature": 0.7, "maxOutputTokens": 250},
         }
-
-        response = requests.post(
-            url, headers={"Content-Type": "application/json"}, json=payload
-        )
+        response = requests.post(url, headers={"Content-Type": "application/json"}, json=payload)
         response.raise_for_status()
         data = response.json()
-
         insights = data["candidates"][0]["content"]["parts"][0]["text"]
         return JsonResponse({"insights": insights})
-
     except Exception as e:
         return JsonResponse({"insights": f"⚠️ Error generating insights: {str(e)}"})
 
@@ -141,14 +89,10 @@ def login_view(request):
         username = request.POST.get("username")
         password = request.POST.get("password")
         user = authenticate(request, username=username, password=password)
-
-        if user is not None:
+        if user:
             auth_login(request, user)
             return redirect("index")
-        else:
-            messages.error(request, "Invalid username or password", extra_tags="login")
-            return redirect("index")
-
+        messages.error(request, "Invalid username or password", extra_tags="login")
     return redirect("index")
 
 def signup_view(request):
@@ -161,7 +105,6 @@ def signup_view(request):
         if password != confirm_password:
             messages.error(request, "Passwords do not match", extra_tags="signup")
             return redirect("index")
-
         if User.objects.filter(username=username).exists():
             messages.error(request, "Username already taken", extra_tags="signup")
             return redirect("index")
@@ -171,41 +114,31 @@ def signup_view(request):
 
         User.objects.create_user(username=username, email=email, password=password)
         messages.success(request, "Signup successful! Please log in.", extra_tags="login")
-        return redirect("index")
+    return redirect("index")
 
 # ========== CHATBOT API ==========
 @csrf_exempt
 def chatbot_api(request):
     if request.method != "POST":
         return JsonResponse({"reply": "⚠️ Only POST requests are allowed."})
-
     user_message = request.POST.get("message", "").strip()
     if not user_message:
         return JsonResponse({"reply": "⚠️ Please say something!"})
 
     try:
-        url = (
-            f"https://generativelanguage.googleapis.com/v1/models/"
-            f"gemini-1.5-flash:generateContent?key={settings.GEMINI_API_KEY}"
-        )
-
+        url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={settings.GEMINI_API_KEY}"
         payload = {
             "contents": [{"parts": [{"text": user_message}]}],
             "generationConfig": {"temperature": 0.7, "maxOutputTokens": 200},
         }
-
-        response = requests.post(
-            url, headers={"Content-Type": "application/json"}, json=payload
-        )
+        response = requests.post(url, headers={"Content-Type": "application/json"}, json=payload)
         response.raise_for_status()
         data = response.json()
-
         bot_reply = data["candidates"][0]["content"]["parts"][0]["text"]
         return JsonResponse({"reply": bot_reply})
-
     except Exception as e:
         return JsonResponse({"reply": f"⚠️ Error: {str(e)}"})
-    
+
 # ========== EXTRA PAGES ==========
 @login_required
 def breathing_page(request):
@@ -222,3 +155,67 @@ def selfcare_page(request):
 @login_required
 def wellness_page(request):
     return render(request, "wellness.html")
+
+def settings_privacy(request):
+    """
+    ⚙️ Handles Settings & Privacy:
+    - Clear all chat data
+    - Set preferred language
+    - Export chat data (TXT or JSON)
+    """
+    if request.method == "POST":
+        action = request.POST.get("action")
+
+        if action == "clear":
+            ChatSession.objects.all().delete()
+            request.session.flush()
+            messages.success(request, "✅ All your chat data has been cleared successfully.")
+            return redirect("settings_privacy")
+
+        elif action == "set_language":
+            lang = request.POST.get("language", "Auto")
+            request.session["lang"] = lang
+            messages.success(request, f"🌐 Language set to '{lang}'.")
+            return redirect("settings_privacy")
+
+        elif action == "export":
+            export_format = request.POST.get("format", "txt")
+            sessions = ChatSession.objects.all().order_by("created_at")
+
+            if export_format == "json":
+                data = []
+                for s in sessions:
+                    session_data = {
+                        "title": s.title or str(s.session_id),
+                        "created_at": s.created_at.isoformat(),
+                        "messages": [{"sender": m.sender, "text": m.text, "timestamp": m.timestamp.isoformat()} for m in s.messages.all().order_by("timestamp")]
+                    }
+                    data.append(session_data)
+                response = JsonResponse(data, safe=False)
+                response['Content-Disposition'] = 'attachment; filename="chat_data.json"'
+                return response
+
+            # Default: TXT export
+            export_text = ""
+            for s in sessions:
+                export_text += f"--- {s.title or 'Chat'} ({s.created_at.strftime('%Y-%m-%d %H:%M')}) ---\n"
+                for m in s.messages.all().order_by("timestamp"):
+                    export_text += f"{m.sender.upper()}: {m.text}\n"
+                export_text += "\n"
+            response = HttpResponse(export_text, content_type="text/plain")
+            response['Content-Disposition'] = 'attachment; filename="chat_data.txt"'
+            return response
+
+    # GET request
+    saved_lang = request.session.get("lang", "Auto")
+    return render(request, "settings_privacy.html", {"saved_lang": saved_lang})
+
+
+@login_required
+def get_chat_messages(request, session_id):
+    # Replace this with your actual logic
+    messages = [
+        {"sender": "bot", "text": "Hello!"},
+        {"sender": "user", "text": "Hi there!"}
+    ]
+    return JsonResponse({"session_id": str(session_id), "messages": messages})

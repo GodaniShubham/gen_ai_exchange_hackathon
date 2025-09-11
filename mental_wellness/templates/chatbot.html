@@ -2,142 +2,149 @@
 {% block content %}
 
 <!-- Offline Banner -->
-<div id="offlineBanner" class="hidden fixed top-0 left-0 w-full bg-red-700 text-white py-3 flex items-center justify-center gap-3 shadow-xl z-50">
+<div id="offlineBanner" class="hidden fixed top-0 left-0 w-full bg-red-600 text-white py-4 flex items-center justify-center gap-3 shadow-lg z-50 rounded-b-3xl">
   <i class="fas fa-wifi-slash fa-lg"></i>
-  <span class="font-semibold text-sm md:text-base">🔴 You are offline. Some features may not work.</span>
+  <span class="font-medium text-base">🔴 You are offline. Some features may not work.</span>
 </div>
 
-<div class="h-[90vh] flex bg-gray-950 text-white font-[system-ui]">
+<div class="h-screen flex bg-gradient-to-br from-gray-900 to-black text-white font-[system-ui,-apple-system,BlinkMacSystemFont] antialiased overflow-hidden">
 
- <!-- 📜 Sidebar / History -->
-<div class="w-64 bg-black/90 border-r border-gray-800 flex flex-col">
-  <div class="p-4 flex items-center justify-end border-b border-gray-800">
-    <button onclick="newChat()" 
-            class="px-3 py-1 text-sm font-semibold rounded-md bg-gradient-to-r from-green-400 to-teal-500 hover:from-teal-500 hover:to-green-400 transition shadow-lg">
-      + New
-    </button>
+  <!-- 📜 Sidebar / History -->
+  <div class="w-72 bg-black/95 border-r border-gray-800/50 flex flex-col shadow-2xl transition-all duration-300 md:w-72 sm:w-64 xs:w-full xs:absolute xs:z-10 xs:translate-x-[-100%] xs:transition-transform" id="sidebar">
+    <div class="p-6 flex items-center justify-between border-b border-gray-800/50">
+      <h2 class="text-lg font-semibold text-gray-300">Chats</h2>
+      <button onclick="newChat()" 
+              class="px-4 py-2 text-sm font-medium rounded-full bg-gradient-to-r from-green-500 to-teal-600 hover:from-teal-600 hover:to-green-500 transition shadow-md">
+        + New
+      </button>
+    </div>
+
+    <!-- Sidebar Buttons -->
+    <div class="flex flex-col p-4 space-y-3 border-b border-gray-800/50">
+      <a href="{% url 'selfcare' %}" class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-gray-800/50 hover:bg-green-600/20 transition shadow-sm text-sm">
+        <i class="fas fa-heart text-green-400"></i> Self Care Guides
+      </a>
+      <a href="{% url 'analysis' %}" class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-gray-800/50 hover:bg-green-600/20 transition shadow-sm text-sm">
+        <i class="fas fa-chart-line text-green-400"></i> Mood Analytics
+      </a>
+      <a href="{% url 'journals:journal_page' %}" class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-gray-800/50 hover:bg-green-600/20 transition shadow-sm text-sm">
+        <i class="fas fa-book text-green-400"></i> Journal
+      </a>
+      <a href="{% url 'settings_privacy' %}" class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-gray-800/50 hover:bg-green-600/20 transition shadow-sm text-sm">
+        <i class="fas fa-cog text-green-400"></i> Settings & Privacy
+      </a>
+      <button onclick="downloadChat()" class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-gray-800/50 hover:bg-green-600/20 transition shadow-sm text-sm">
+        <i class="fas fa-download text-green-400"></i> Export Chat
+      </button>
+    </div>
+
+    <!-- Chat History -->
+    <div id="chat_history" class="flex-1 overflow-y-auto p-4 space-y-3 text-sm scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-900">
+      <div class="text-gray-500 italic text-center">No chats yet...</div>
+    </div>
+
+    <div class="p-4 border-t border-gray-800/50 text-xs text-gray-400 flex justify-center">
+      <button onclick="clearHistory()" class="hover:text-red-400 transition">🗑 Clear all</button>
+    </div>
   </div>
 
- 
-<!-- Sidebar Buttons -->
-<div class="flex flex-col p-2 space-y-2 border-b border-gray-800">
-  <a href="{% url 'selfcare' %}" class="w-full text-sm px-3 py-2 rounded-xl bg-gray-800 hover:bg-green-600 transition shadow-md text-center">Self Care Guides</a>
-
-  <a href="{% url 'analysis' %}" class="w-full text-sm px-3 py-2 rounded-xl bg-gray-800 hover:bg-green-600 transition shadow-md text-center">Mood Analytics</a>
-
- <a href="{% url 'journals:journal_page' %}" 
-   class="w-full text-sm px-3 py-2 rounded-xl bg-gray-800 hover:bg-green-600 transition shadow-md text-center">
-   Journal
-</a>
-
-
-  <a href="{% url 'settings_privacy' %}" class="w-full text-sm px-3 py-2 rounded-xl bg-gray-800 hover:bg-green-600 transition shadow-md text-center">⚙ Settings & Privacy</a>
-
-  <button onclick="downloadChat()" class="w-full text-sm px-3 py-2 rounded-xl bg-gray-800 hover:bg-green-600 transition shadow-md">⬇ Export Chat</button>
-</div>
-
-
-<!-- Chat History -->
-<div id="chat_history" class="flex-1 overflow-y-auto p-3 space-y-2 text-sm scrollbar-thin scrollbar-thumb-gray-700">
-  <div class="text-gray-500 italic">No chats yet...</div>
-</div>
-
-
-  <div class="p-3 border-t border-gray-800 text-xs text-gray-400">
-    <button onclick="clearHistory()" class="hover:text-red-400">🗑 Clear all</button>
-  </div>
-</div>
-
+  <!-- Sidebar Toggle for Mobile -->
+  <button id="sidebarToggle" class="absolute top-4 left-4 z-20 md:hidden p-2 rounded-full bg-gray-800/50 hover:bg-green-600/30 transition shadow-sm">
+    <i class="fas fa-bars text-xl text-gray-300"></i>
+  </button>
 
   <!-- 💬 Main Chat Area -->
-  <div class="flex-1 flex flex-col">
+  <div class="flex-1 flex flex-col relative">
     
     <!-- Header -->
-    <div class="p-4 border-b border-gray-800 bg-black/80 backdrop-blur-lg flex justify-between items-center">
-      <h1 class="text-xl font-bold bg-gradient-to-r from-green-400 to-teal-500 bg-clip-text text-transparent">
+    <div class="p-6 border-b border-gray-800/50 bg-black/70 backdrop-blur-xl flex justify-between items-center shadow-sm">
+      <h1 class="text-2xl font-bold bg-gradient-to-r from-green-400 to-teal-500 bg-clip-text text-transparent">
         💬 Chat with Saharathi AI
       </h1>
 
       <!-- 🎙️ Voice Controls -->
-      <div class="flex items-center gap-2 text-sm">
-        <span class="text-gray-400">Voice:</span>
-        <button onclick="setVoice('male')" id="maleBtn" class="px-2 py-1 rounded-md bg-gray-800 hover:bg-green-600 transition">👨 Male</button>
-        <button onclick="setVoice('female')" id="femaleBtn" class="px-2 py-1 rounded-md bg-gray-800 hover:bg-green-600 transition">👩 Female</button>
-        <button onclick="speakBotReply()" class="px-3 py-1 rounded-md bg-green-600 hover:bg-green-700 transition">🔊 Speak</button>
+      <div class="flex items-center gap-3 text-sm">
+        <span class="text-gray-300">Voice:</span>
+        <button onclick="setVoice('male')" id="maleBtn" class="px-3 py-1.5 rounded-full bg-gray-800/50 hover:bg-green-600/30 transition shadow-sm">👨 Male</button>
+        <button onclick="setVoice('female')" id="femaleBtn" class="px-3 py-1.5 rounded-full bg-gray-800/50 hover:bg-green-600/30 transition shadow-sm">👩 Female</button>
+        <button onclick="speakBotReply()" class="px-4 py-1.5 rounded-full bg-green-600 hover:bg-green-700 transition shadow-md">🔊 Speak</button>
       </div>
     </div>
 
     <!-- 🌱 Daily Tip Widget -->
-    <div id="daily_tip" class="p-3 text-sm bg-gradient-to-r from-green-500 to-teal-600 text-white text-center">
+    <div id="daily_tip" class="p-4 text-sm bg-gradient-to-r from-green-500/80 to-teal-600/80 text-white text-center rounded-b-3xl shadow-md animate-slideDown">
       🌱 Daily Tip: Stay hydrated and take deep breaths!
     </div>
 
-<!-- 🌈 Mood Selector -->
-<div class="flex gap-3 p-4 bg-black/70 border-b border-gray-700 text-sm text-gray-300 items-center">
-  <span class="font-semibold">How are you feeling today?</span>
-  <div class="flex gap-2" id="moodButtons">
-    <button onclick="setMood('😊 Happy')" id="mood_happy" 
-      class="px-3 py-1 rounded-full bg-gray-700 hover:scale-110 hover:bg-green-600 transition-all shadow-md">😊 Happy</button>
-    <button onclick="setMood('😟 Stressed')" id="mood_stressed" 
-      class="px-3 py-1 rounded-full bg-gray-700 hover:scale-110 hover:bg-green-600 transition-all shadow-md">😟 Stressed</button>
-    <button onclick="setMood('😔 Sad')" id="mood_sad" 
-      class="px-3 py-1 rounded-full bg-gray-700 hover:scale-110 hover:bg-green-600 transition-all shadow-md">😔 Sad</button>
-    <button onclick="setMood('😐 Neutral')" id="mood_neutral" 
-      class="px-3 py-1 rounded-full bg-gray-700 hover:scale-110 hover:bg-green-600 transition-all shadow-md">😐 Neutral</button>
-  </div>
-  <span id="selectedMood" class="ml-3 text-green-400 italic"></span>
-</div>
-
+    <!-- 🌈 Mood Selector -->
+    <div class="flex flex-wrap gap-4 p-6 bg-black/50 border-b border-gray-800/50 text-sm text-gray-300 items-center shadow-inner">
+      <span class="font-medium text-base">How are you feeling today?</span>
+      <div class="flex gap-3" id="moodButtons">
+        <button onclick="setMood('😊 Happy')" id="mood_happy" 
+          class="px-4 py-2 rounded-full bg-gray-800/50 hover:scale-105 hover:bg-green-600/30 transition-all shadow-md text-lg">😊 Happy</button>
+        <button onclick="setMood('😟 Stressed')" id="mood_stressed" 
+          class="px-4 py-2 rounded-full bg-gray-800/50 hover:scale-105 hover:bg-green-600/30 transition-all shadow-md text-lg">😟 Stressed</button>
+        <button onclick="setMood('😔 Sad')" id="mood_sad" 
+          class="px-4 py-2 rounded-full bg-gray-800/50 hover:scale-105 hover:bg-green-600/30 transition-all shadow-md text-lg">😔 Sad</button>
+        <button onclick="setMood('😐 Neutral')" id="mood_neutral" 
+          class="px-4 py-2 rounded-full bg-gray-800/50 hover:scale-105 hover:bg-green-600/30 transition-all shadow-md text-lg">😐 Neutral</button>
+      </div>
+      <span id="selectedMood" class="ml-4 text-green-400 italic text-base"></span>
+    </div>
 
     <!-- Chat Window -->
     <div id="chat_area" 
-         class="flex-1 overflow-y-auto p-6 space-y-4 scroll-smooth bg-gray-900/60">
-      <div class="text-center text-gray-500 italic">👋 Start a conversation...</div>
+         class="flex-1 overflow-y-auto p-8 space-y-6 scroll-smooth bg-gradient-to-b from-gray-900/80 to-black/80 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent">
+      <div class="text-center text-gray-400 italic animate-fadeIn">👋 Start a conversation...</div>
     </div>
 
-      <!-- 🆕 Smart Suggestions -->
-    <div id="suggestions" class="flex flex-wrap gap-2 px-6 pb-2"></div>
+    <!-- 🆕 Smart Suggestions -->
+    <div id="suggestions" class="flex flex-wrap gap-3 px-8 pb-3"></div>
 
     <!-- Typing Indicator -->
-    <div id="typing" class="hidden px-6 pb-2 text-gray-400 italic flex gap-2 items-center">
-      <span class="dot w-2 h-2 bg-green-400 rounded-full animate-bounce"></span>
-      <span class="dot w-2 h-2 bg-green-400 rounded-full animate-bounce delay-200"></span>
-      <span class="dot w-2 h-2 bg-green-400 rounded-full animate-bounce delay-400"></span>
+    <div id="typing" class="hidden px-8 pb-3 text-gray-300 italic flex gap-3 items-center">
+      <span class="dot w-3 h-3 bg-green-400 rounded-full animate-bounce"></span>
+      <span class="dot w-3 h-3 bg-green-400 rounded-full animate-bounce delay-200"></span>
+      <span class="dot w-3 h-3 bg-green-400 rounded-full animate-bounce delay-400"></span>
       <span>Typing...</span>
     </div>
 
-    <!-- Input Box -->
-    <div class="p-4 border-t border-gray-800 bg-black/80 backdrop-blur-lg space-y-3">
+    <!-- Error Message -->
+    <div id="errorMessage" class="hidden px-8 pb-3 text-red-400 italic flex gap-3 items-center">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span>Error occurred. Please try again.</span>
+    </div>
 
+    <!-- Input Box -->
+    <div class="p-6 border-t border-gray-800/50 bg-black/70 backdrop-blur-xl space-y-4 shadow-lg">
       <!-- Quick Suggestions -->
-      <div class="flex gap-2">
-        <button onclick="sendQuick('I feel stressed')" class="px-3 py-1 bg-gray-800 hover:bg-green-600 rounded-full text-sm">I feel stressed</button>
-        <button onclick="sendQuick('Give me meditation tips')" class="px-3 py-1 bg-gray-800 hover:bg-green-600 rounded-full text-sm">Meditation Tips</button>
-        <button onclick="sendQuick('Help me with sleep')" class="px-3 py-1 bg-gray-800 hover:bg-green-600 rounded-full text-sm">Sleep Help</button>
+      <div class="flex flex-wrap gap-3">
+        <button onclick="sendQuick('I feel stressed')" class="px-4 py-2 bg-gray-800/50 hover:bg-green-600/30 rounded-full text-sm shadow-sm transition">I feel stressed</button>
+        <button onclick="sendQuick('Give me meditation tips')" class="px-4 py-2 bg-gray-800/50 hover:bg-green-600/30 rounded-full text-sm shadow-sm transition">Meditation Tips</button>
+        <button onclick="sendQuick('Help me with sleep')" class="px-4 py-2 bg-gray-800/50 hover:bg-green-600/30 rounded-full text-sm shadow-sm transition">Sleep Help</button>
       </div>
 
-      <div class="flex items-center gap-3 bg-gray-900 px-4 py-2 rounded-2xl border border-gray-700 shadow-inner">
-
+      <div class="flex items-center gap-4 bg-gray-900/50 px-5 py-3 rounded-3xl border border-gray-700/50 shadow-md">
         <!-- File -->
-        <label for="file_input" class="cursor-pointer text-gray-400 hover:text-green-400 transition">
-          <i class="fas fa-paperclip"></i>
+        <label for="file_input" class="cursor-pointer text-gray-300 hover:text-green-400 transition" aria-label="Attach file">
+          <i class="fas fa-paperclip text-xl"></i>
         </label>
         <input type="file" id="file_input" class="hidden" />
 
         <!-- Mic 🎤 -->
-        <button onclick="startVoice()" class="text-gray-400 hover:text-green-400 transition">
-          <i class="fas fa-microphone"></i>
+        <button onclick="startVoice()" class="text-gray-300 hover:text-green-400 transition" aria-label="Voice input">
+          <i class="fas fa-microphone text-xl"></i>
         </button>
 
         <!-- Text -->
         <input type="text" id="user_input"
-               class="flex-grow bg-transparent outline-none px-2 text-white placeholder-gray-500"
-               placeholder="Type your message..." />
+               class="flex-grow bg-transparent outline-none px-3 text-white placeholder-gray-400 text-base"
+               placeholder="Type your message..." aria-label="Message input" />
 
         <!-- Send -->
         <button onclick="sendMessage()" 
-                class="p-2 rounded-full bg-green-600 hover:bg-green-700 transition">
-          <i class="fas fa-paper-plane"></i>
+                class="p-3 rounded-full bg-gradient-to-r from-green-500 to-teal-600 hover:from-teal-600 hover:to-green-500 transition shadow-md" aria-label="Send message">
+          <i class="fas fa-paper-plane text-lg"></i>
         </button>
       </div>
     </div>
@@ -148,416 +155,485 @@
 <script>
 
   // 🌐 Offline / Online Detection
-window.addEventListener("online", () => {
-  const banner = document.getElementById("offlineBanner");
-  banner.classList.remove("show");
-  banner.classList.add("hidden");
-  renderMessages([{sender:"bot", text:"🟢 You are back online!"}], true);
-});
-
-window.addEventListener("offline", () => {
-  const banner = document.getElementById("offlineBanner");
-  banner.classList.remove("hidden");
-  banner.classList.add("show");
-  renderMessages([{sender:"bot", text:"🔴 You went offline. Don’t worry, I’ll save your thoughts until we reconnect."}], true);
-});
-
-
-let currentChatId = null;
-let userMood = "😐 Neutral";  
-let synth = window.speechSynthesis;
-let lastBotReply = "";
-let selectedVoice = "male"; // default
-let voices = [];
-
-// 🔊 Load Voices (browser se)
-function loadVoices(){
-  voices = synth.getVoices();
-}
-window.speechSynthesis.onvoiceschanged = loadVoices;
-
-// 🟢 Step 1: First-time Welcome Message
-document.addEventListener("DOMContentLoaded", function() {
-  if (!localStorage.getItem("visitedBefore")) {
-    setTimeout(() => {
-      renderMessages([
-        {
-          sender: "bot",
-          text: "👋 Welcome! I’m Saharathi AI 🌱 I can help you with stress, sleep, meditation and mental wellness. How are you feeling today?"
-        }
-      ], true);
-    }, 800); // thoda delay taki UI load ho jaye
-
-    localStorage.setItem("visitedBefore", "yes");
-  }
-});
-
-// 🟢 Step 2: Download Chat History
-function downloadChat() {
-  const chatText = document.getElementById("chat_area").innerText;
-  if (!chatText.trim()) {
-    alert("⚠️ No chat available to export!");
-    return;
-  }
-
-  const blob = new Blob([chatText], { type: "text/plain" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "chat_history.txt";
-  link.click();
-}
-
-// 💡 Smart Suggestions
-function showSuggestions(userMessage){
-  const suggestionBox = document.getElementById("suggestions");
-  suggestionBox.innerHTML = ""; // clear old
-
-  let suggestions = [];
-  if (userMessage.includes("stress")) {
-    suggestions = ["Any quick stress relief tips?", "Guide me for breathing exercise"];
-  } else if (userMessage.includes("sleep")) {
-    suggestions = ["How to sleep faster?", "Tell me a bedtime meditation"];
-  } else if (userMessage.includes("sad") || userMessage.includes("depress")) {
-    suggestions = ["Motivate me 🙏", "Any self-care tips?"];
-  } else {
-    suggestions = ["Give me a tip", "Suggest meditation", "Show mood analytics"];
-  }
-
-  suggestions.forEach(sug => {
-    const btn = document.createElement("button");
-    btn.className = "px-3 py-1 m-1 rounded-lg bg-gray-700 hover:bg-green-600 transition";
-    btn.innerText = sug;
-    btn.onclick = ()=> sendQuick(sug);
-    suggestionBox.appendChild(btn);
-  });
-}
-
-
-// ✅ Voice Select Button
-function setVoice(type){
-  selectedVoice = type;
-  document.getElementById("maleBtn").classList.remove("bg-green-600");
-  document.getElementById("femaleBtn").classList.remove("bg-green-600");
-  if(type==="male") document.getElementById("maleBtn").classList.add("bg-green-600");
-  else document.getElementById("femaleBtn").classList.add("bg-green-600");
-}
-
-// ✅ Mood Selector
-function setMood(mood){
-  userMood = mood;
-
-  document.querySelectorAll("#moodButtons button").forEach(btn => {
-    btn.classList.remove("bg-green-600");
-    btn.classList.add("bg-gray-700");
+  window.addEventListener("online", () => {
+    const banner = document.getElementById("offlineBanner");
+    banner.classList.add("hidden");
+    renderMessages([{sender:"bot", text:"🟢 You are back online!"}], true);
   });
 
-  if (mood.includes("Happy")) document.getElementById("mood_happy").classList.add("bg-green-600");
-  if (mood.includes("Stressed")) document.getElementById("mood_stressed").classList.add("bg-green-600");
-  if (mood.includes("Sad")) document.getElementById("mood_sad").classList.add("bg-green-600");
-  if (mood.includes("Neutral")) document.getElementById("mood_neutral").classList.add("bg-green-600");
+  window.addEventListener("offline", () => {
+    const banner = document.getElementById("offlineBanner");
+    banner.classList.remove("hidden");
+    renderMessages([{sender:"bot", text:"🔴 You went offline. Don’t worry, I’ll save your thoughts until we reconnect."}], true);
+  });
 
-  document.getElementById("selectedMood").innerText = `Selected: ${mood}`;
-}
+  let currentChatId = null;
+  let userMood = "😐 Neutral";  
+  let synth = window.speechSynthesis;
+  let lastBotReply = "";
+  let selectedVoice = "male"; // default
+  let voices = [];
+  let isSpeaking = false;
 
-// ✅ Daily Tips
-const tips = [
-  "🌱 Drink at least 8 glasses of water.",
-  "🧘 Practice meditation for 5 mins daily.",
-  "😴 Get 7-8 hours of quality sleep.",
-  "🚶 Take a 15-minute walk outdoors."
-];
-let i=0;
-setInterval(()=>{
-  document.getElementById("daily_tip").innerText = tips[i];
-  i = (i+1) % tips.length;
-}, 5000);
+  // 🔊 Load Voices
+  function loadVoices(){
+    voices = synth.getVoices();
+  }
+  window.speechSynthesis.onvoiceschanged = loadVoices;
 
-// ✅ CSRF helper
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== "") {
-        const cookies = document.cookie.split(";");
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + "=")) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
+  // 🟢 First-time Welcome Message
+  document.addEventListener("DOMContentLoaded", function() {
+    loadVoices(); // Load voices early
+    if (!localStorage.getItem("visitedBefore")) {
+      setTimeout(() => {
+        renderMessages([
+          {
+            sender: "bot",
+            text: "👋 Welcome! I’m Saharathi AI 🌱 I can help you with stress, sleep, meditation and mental wellness. How are you feeling today?"
+          }
+        ], true);
+      }, 800);
+
+      localStorage.setItem("visitedBefore", "yes");
     }
-    return cookieValue;
-}
-const csrftoken = getCookie("csrftoken");
+    updateDailyTip(); // Initialize daily tip
+  });
 
-// 🆕 Allowed mental-health-related topics
-const allowedTopics = [
-  "stress", "anxiety", "sleep", "mood", "depression",
-  "self care", "meditation", "wellness", "focus", "relax",
-  "happy", "sad", "tired", "mental health"
-];
+  // 🟢 Download Chat History
+  function downloadChat() {
+    const chatText = Array.from(document.querySelectorAll("#chat_area > div")).map(div => {
+      const bubble = div.querySelector('.bot-bubble, .user-bubble');
+      const sender = bubble.classList.contains('bot-bubble') ? 'Bot' : 'User';
+      return `${sender}: ${bubble.innerText}`;
+    }).join('\n\n');
+    if (!chatText.trim()) {
+      showError("⚠️ No chat available to export!");
+      return;
+    }
 
-// 🆕 Create new chat
-function newChat(){
-  currentChatId = null;
-  document.getElementById("chat_area").innerHTML = `<div class="text-center text-gray-500 italic">🆕 New conversation...</div>`;
-}
-
-// 📥 Load messages
-async function loadChat(id, title){
-  currentChatId = id;
-  try {
-    const resp = await fetch(`/get_chat_messages/${id}/`);
-    const data = await resp.json();
-    renderMessages(data.messages || []);
-  } catch(err){
-    console.error(err);
-  }
-}
-
-// 📤 Send Message
-async function sendMessage() {
-  const inputEl = document.getElementById("user_input");
-  const userMessage = inputEl.value.trim();
-  if (!userMessage) return;
-
-  renderMessages([{sender:"user", text:userMessage}], true);
-  inputEl.value = "";
-  document.getElementById("typing").classList.remove("hidden");
-
-  const isAllowed = allowedTopics.some(topic => 
-    userMessage.toLowerCase().includes(topic)
-  );
-
-  if (!isAllowed) {
-    document.getElementById("typing").classList.add("hidden");
-    renderMessages([{sender:"bot", text:"⚠️ I only respond to mental health, mood, or wellness questions."}], true);
-    return;
+    const blob = new Blob([chatText], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "chat_history.txt";
+    link.click();
   }
 
-  try {
-    const resp = await fetch("/chatbot_api/", {
-      method: "POST",
-      headers: { "X-CSRFToken": csrftoken },
-      body: new URLSearchParams({
-        message: userMessage,
-        mood: userMood,
-        session_id: currentChatId || ""
-      })
+  // 💡 Smart Suggestions
+  function showSuggestions(userMessage){
+    const suggestionBox = document.getElementById("suggestions");
+    suggestionBox.innerHTML = ""; // clear old
+
+    let suggestions = [];
+    if (userMessage.toLowerCase().includes("stress")) {
+      suggestions = ["Any quick stress relief tips?", "Guide me for breathing exercise"];
+    } else if (userMessage.toLowerCase().includes("sleep")) {
+      suggestions = ["How to sleep faster?", "Tell me a bedtime meditation"];
+    } else if (userMessage.toLowerCase().includes("sad") || userMessage.toLowerCase().includes("depress")) {
+      suggestions = ["Motivate me 🙏", "Any self-care tips?"];
+    } else {
+      suggestions = ["Give me a tip", "Suggest meditation", "Show mood analytics"];
+    }
+
+    suggestions.forEach(sug => {
+      const btn = document.createElement("button");
+      btn.className = "px-4 py-2 rounded-full bg-gray-800/50 hover:bg-green-600/30 transition shadow-sm text-sm";
+      btn.innerText = sug;
+      btn.onclick = ()=> sendQuick(sug);
+      suggestionBox.appendChild(btn);
+    });
+  }
+
+  // ✅ Voice Select Button
+  function setVoice(type){
+    selectedVoice = type;
+    document.getElementById("maleBtn").classList.remove("bg-green-600/30");
+    document.getElementById("femaleBtn").classList.remove("bg-green-600/30");
+    if(type==="male") document.getElementById("maleBtn").classList.add("bg-green-600/30");
+    else document.getElementById("femaleBtn").classList.add("bg-green-600/30");
+  }
+
+  // ✅ Mood Selector
+  function setMood(mood){
+    userMood = mood;
+
+    document.querySelectorAll("#moodButtons button").forEach(btn => {
+      btn.classList.remove("bg-green-600/30");
+      btn.classList.add("bg-gray-800/50");
     });
 
-    const data = await resp.json();
-    currentChatId = data.session_id;
-    document.getElementById("typing").classList.add("hidden");
+    if (mood.includes("Happy")) document.getElementById("mood_happy").classList.add("bg-green-600/30");
+    if (mood.includes("Stressed")) document.getElementById("mood_stressed").classList.add("bg-green-600/30");
+    if (mood.includes("Sad")) document.getElementById("mood_sad").classList.add("bg-green-600/30");
+    if (mood.includes("Neutral")) document.getElementById("mood_neutral").classList.add("bg-green-600/30");
 
-    renderMessages([{sender:"bot", text:data.reply}], true);
-    showSuggestions(userMessage);
-
-    if (!document.getElementById("chat_item_"+currentChatId)){
-      const historyBox = document.getElementById("chat_history");
-      if (historyBox.innerText.includes("No chats yet")) historyBox.innerHTML = "";
-      historyBox.innerHTML = `<div onclick="loadChat('${currentChatId}', '${data.title}')"
-                               id="chat_item_${currentChatId}"
-                               class="p-2 rounded-md hover:bg-gray-800 cursor-pointer">${data.title}</div>` + historyBox.innerHTML;
-    }
-  } catch (err) {
-    console.error("⚠️ Network error / offline mode:", err);
-    document.getElementById("typing").classList.add("hidden");
-
-    // 🆕 Offline fallback reply
-    renderMessages([{
-      sender: "bot",
-      text: "🌐 It looks like you are offline. Don’t worry, I’m still here for you 💚. Try some deep breathing or write your thoughts in the journal until we reconnect."
-    }], true);
-
-    // Smart suggestions even offline
-    showSuggestions(userMessage);
+    document.getElementById("selectedMood").innerText = `Selected: ${mood}`;
   }
-}
 
+  // ✅ Daily Tips
+  const tips = [
+    "🌱 Drink at least 8 glasses of water.",
+    "🧘 Practice meditation for 5 mins daily.",
+    "😴 Get 7-8 hours of quality sleep.",
+    "🚶 Take a 15-minute walk outdoors."
+  ];
+  let tipIndex = 0;
+  function updateDailyTip(){
+    document.getElementById("daily_tip").innerText = tips[tipIndex];
+    tipIndex = (tipIndex + 1) % tips.length;
+  }
+  setInterval(updateDailyTip, 10000); // Change every 10 seconds
 
-
-
-
-// 💬 Render messages
-function renderMessages(messages, append=false){
-  const chatBox = document.getElementById("chat_area");
-  if (!append) chatBox.innerHTML = "";
-  messages.forEach(msg => {
-    if (msg.sender === "user") {
-      chatBox.innerHTML += `<div class="flex justify-end"><div class="px-4 py-2 rounded-2xl bg-green-600 text-white max-w-md">${msg.text}</div></div>`;
-    } else {
-      lastBotReply = msg.text;
-      chatBox.innerHTML += `<div class="flex justify-start"><div class="px-4 py-2 rounded-2xl bot-bubble">${msg.text}</div></div>`;
+  // ✅ CSRF helper
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + "=")) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
     }
+    return cookieValue;
+  }
+  const csrftoken = getCookie("csrftoken");
+
+  // 🆕 Allowed mental-health-related topics
+  const allowedTopics = [
+    "stress", "anxiety", "sleep", "mood", "depression",
+    "self care", "meditation", "wellness", "focus", "relax",
+    "happy", "sad", "tired", "mental health"
+  ];
+
+  // 🆕 Create new chat
+  function newChat(){
+    currentChatId = null;
+    document.getElementById("chat_area").innerHTML = `<div class="text-center text-gray-400 italic animate-fadeIn">🆕 New conversation...</div>`;
+    hideSidebarOnMobile();
+  }
+
+  // 📥 Load messages
+  async function loadChat(id, title){
+    currentChatId = id;
+    try {
+      const resp = await fetch(`/get_chat_messages/${id}/`);
+      const data = await resp.json();
+      renderMessages(data.messages || []);
+      hideSidebarOnMobile();
+    } catch(err){
+      console.error(err);
+      showError("Failed to load chat history.");
+    }
+  }
+
+  // 📤 Send Message
+  async function sendMessage() {
+    const inputEl = document.getElementById("user_input");
+    const userMessage = inputEl.value.trim();
+    if (!userMessage) return;
+
+    renderMessages([{sender:"user", text:userMessage}], true);
+    inputEl.value = "";
+    document.getElementById("typing").classList.remove("hidden");
+    hideError();
+
+    const isAllowed = allowedTopics.some(topic => 
+      userMessage.toLowerCase().includes(topic)
+    );
+
+    if (!isAllowed) {
+      document.getElementById("typing").classList.add("hidden");
+      renderMessages([{sender:"bot", text:"⚠️ I only respond to mental health, mood, or wellness questions."}], true);
+      return;
+    }
+
+    try {
+      const resp = await fetch("/chatbot_api/", {
+        method: "POST",
+        headers: { 
+          "X-CSRFToken": csrftoken,
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: new URLSearchParams({
+          message: userMessage,
+          mood: userMood,
+          session_id: currentChatId || ""
+        })
+      });
+
+      if (!resp.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await resp.json();
+      currentChatId = data.session_id;
+      document.getElementById("typing").classList.add("hidden");
+
+      renderMessages([{sender:"bot", text:data.reply}], true);
+      showSuggestions(userMessage);
+
+      if (!document.getElementById("chat_item_"+currentChatId)){
+        const historyBox = document.getElementById("chat_history");
+        if (historyBox.innerText.includes("No chats yet")) historyBox.innerHTML = "";
+        const chatItem = document.createElement("div");
+        chatItem.onclick = () => loadChat(currentChatId, data.title);
+        chatItem.id = "chat_item_" + currentChatId;
+        chatItem.className = "p-3 rounded-xl hover:bg-gray-800/50 cursor-pointer transition shadow-sm";
+        chatItem.innerText = data.title;
+        historyBox.insertBefore(chatItem, historyBox.firstChild);
+      }
+    } catch (err) {
+      console.error("⚠️ Error:", err);
+      document.getElementById("typing").classList.add("hidden");
+      showError("Network error or offline. Please check your connection.");
+
+      // Offline fallback
+      renderMessages([{
+        sender: "bot",
+        text: "🌐 It looks like you are offline. Don’t worry, I’m still here for you 💚. Try some deep breathing or write your thoughts in the journal until we reconnect."
+      }], true);
+
+      showSuggestions(userMessage);
+    }
+  }
+
+  // 💬 Render messages
+  function renderMessages(messages, append=false){
+    const chatBox = document.getElementById("chat_area");
+    if (!append) chatBox.innerHTML = "";
+    messages.forEach(msg => {
+      const div = document.createElement("div");
+      div.className = msg.sender === "user" ? "flex justify-end" : "flex justify-start";
+      const bubble = document.createElement("div");
+      bubble.className = msg.sender === "user" ? "user-bubble" : "bot-bubble";
+      bubble.innerText = msg.text;
+      div.appendChild(bubble);
+      chatBox.appendChild(div);
+    });
+    chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: "smooth" });
+  }
+
+  // ✅ Voice Reply
+  function speakBotReply(){
+    if (!lastBotReply) return;
+
+    if (isSpeaking) {
+      synth.cancel();
+      isSpeaking = false;
+      return;
+    }
+
+    if (synth.speaking) synth.cancel();
+    const utterance = new SpeechSynthesisUtterance(lastBotReply);
+    utterance.lang = "en-US";
+
+    if (voices.length > 0) {
+      let voice = voices.find(v => v.name.toLowerCase().includes(selectedVoice)) || voices[0];
+      utterance.voice = voice;
+    }
+
+    utterance.onstart = () => { isSpeaking = true; };
+    utterance.onend = () => { isSpeaking = false; };
+    synth.speak(utterance);
+  }
+
+  // ✅ Voice Input 🎤
+  function startVoice(){
+    if (!('webkitSpeechRecognition' in window)) {
+      showError("❌ Voice recognition not supported in this browser.");
+      return;
+    }
+    const recognition = new webkitSpeechRecognition();
+    recognition.lang = "en-US"; 
+    recognition.start();
+
+    recognition.onresult = function(event){
+      let transcript = event.results[0][0].transcript;
+
+      const isAllowed = allowedTopics.some(topic => transcript.toLowerCase().includes(topic));
+      if (!isAllowed) {
+        renderMessages([{sender:"bot", text:"⚠️ I can only respond to mental health, mood, or wellness related questions."}], true);
+        return;
+      }
+
+      document.getElementById("user_input").value = transcript;
+      sendMessage();
+    };
+
+    recognition.onerror = function(event) {
+      showError("Voice recognition error: " + event.error);
+    };
+  }
+
+  // 🗑 Clear All
+  function clearHistory(){
+    if (!confirm("Are you sure you want to clear all chats?")) return;
+    document.getElementById("chat_history").innerHTML = `<div class="text-gray-500 italic text-center">No chats yet...</div>`;
+    document.getElementById("chat_area").innerHTML = `<div class="text-center text-gray-400 italic animate-fadeIn">👋 Start a conversation...</div>`;
+    currentChatId = null;
+  }
+
+  // Error Handling
+  function showError(message) {
+    const errorEl = document.getElementById("errorMessage");
+    errorEl.querySelector("span").innerText = message;
+    errorEl.classList.remove("hidden");
+  }
+
+  function hideError() {
+    document.getElementById("errorMessage").classList.add("hidden");
+  }
+
+  // Sidebar Toggle for Mobile
+  const sidebar = document.getElementById("sidebar");
+  const toggleBtn = document.getElementById("sidebarToggle");
+  toggleBtn.addEventListener("click", () => {
+    sidebar.classList.toggle("xs:translate-x-[-100%]");
+    sidebar.classList.toggle("xs:translate-x-0");
   });
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
 
-// ✅ Voice Reply
-let isSpeaking = false;
-function speakBotReply(){
-  if (!lastBotReply) return;
-
-  if (isSpeaking && synth.speaking) {
-    synth.cancel();
-    isSpeaking = false;
-    return;
-  }
-
-  if (synth.speaking) synth.cancel();
-  const utterance = new SpeechSynthesisUtterance(lastBotReply);
-  utterance.lang = "en-US";
-
-  if (voices.length > 0) {
-    let voice = null;
-    if (selectedVoice === "male") {
-      voice = voices.find(v => v.name.toLowerCase().includes("male")) || voices[0];
-    } else {
-      voice = voices.find(v => v.name.toLowerCase().includes("female")) || voices[voices.length - 1];
+  function hideSidebarOnMobile() {
+    if (window.innerWidth < 768) {
+      sidebar.classList.add("xs:translate-x-[-100%]");
+      sidebar.classList.remove("xs:translate-x-0");
     }
-    utterance.voice = voice;
   }
 
-  utterance.onstart = () => { isSpeaking = true; };
-  utterance.onend = () => { isSpeaking = false; };
-  synth.speak(utterance);
-}
-
-// ✅ Voice Input 🎤
-function startVoice(){
-  if (!('webkitSpeechRecognition' in window)) {
-    alert("❌ Voice recognition not supported in this browser.");
-    return;
-  }
-  const recognition = new webkitSpeechRecognition();
-  recognition.lang = "en-US"; 
-  recognition.start();
-
-  recognition.onresult = function(event){
-    let transcript = event.results[0][0].transcript;
-
-    // ✅ Check allowed topic
-    const isAllowed = allowedTopics.some(topic => transcript.toLowerCase().includes(topic));
+  // Quick buttons
+  function sendQuick(msg){
+    const isAllowed = allowedTopics.some(topic => msg.toLowerCase().includes(topic));
     if (!isAllowed) {
       renderMessages([{sender:"bot", text:"⚠️ I can only respond to mental health, mood, or wellness related questions."}], true);
       return;
     }
-
-    document.getElementById("user_input").value = transcript;
+    document.getElementById("user_input").value = msg;
     sendMessage();
-  };
-}
-
-// 🗑 Clear All
-function clearHistory(){
-  document.getElementById("chat_history").innerHTML = `<div class="text-gray-500 italic">No chats yet...</div>`;
-  document.getElementById("chat_area").innerHTML = `<div class="text-center text-gray-500 italic">👋 Start a conversation...</div>`;
-  currentChatId = null;
-}
-
-document.getElementById("user_input").addEventListener("keypress", function (e) {
-  if (e.key === "Enter") sendMessage();
-});
-
-// ✅ Quick buttons
-function sendQuick(msg){
-  // ✅ Check allowed topic
-  const isAllowed = allowedTopics.some(topic => msg.toLowerCase().includes(topic));
-  if (!isAllowed) {
-    renderMessages([{sender:"bot", text:"⚠️ I can only respond to mental health, mood, or wellness related questions."}], true);
-    return;
   }
-  document.getElementById("user_input").value = msg;
-  sendMessage();
-}
 
-// ✅ Top buttons
-function openGuide() { alert("Self Care Guides clicked!"); }
-function openMoodAnalytics() { alert("Mood Analytics clicked!"); }
-function openJournal() { alert("Journal clicked!"); }
-function openSettings() { alert("⚙ Settings & Privacy clicked!"); }
+  // Enter key send
+  document.getElementById("user_input").addEventListener("keypress", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
 
 </script>
 
 <!-- Styles -->
 <style>
+/* Enhanced Production-Level Styles */
+
+/* ===== General ===== */
+body {
+  background: black;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 /* ===== Bot Bubble ===== */
 .bot-bubble {
-  background: linear-gradient(135deg, #1f4037, #99f2c8);
+  background: linear-gradient(135deg, rgba(31,64,55,0.95), rgba(153,242,200,0.95));
   color: white;
-  border-radius: 25px;
-  padding: 14px 18px;
-  max-width: 75%;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  border-radius: 28px;
+  padding: 16px 20px;
+  max-width: 80%;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.4);
   word-wrap: break-word;
-  font-size: 0.95rem;
-  line-height: 1.4;
-  transition: transform 0.2s;
+  font-size: 1rem;
+  line-height: 1.5;
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation: fadeInUp 0.4s ease-out;
 }
 .bot-bubble:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
 }
 
 /* ===== User Bubble ===== */
 .user-bubble {
-  background: linear-gradient(135deg, #38ef7d, #11998e);
+  background: linear-gradient(135deg, rgba(56,239,125,0.95), rgba(17,153,142,0.95));
   color: white;
-  border-radius: 25px;
-  padding: 14px 18px;
-  max-width: 75%;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  border-radius: 28px;
+  padding: 16px 20px;
+  max-width: 80%;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.4);
   word-wrap: break-word;
-  font-size: 0.95rem;
-  line-height: 1.4;
-  transition: transform 0.2s;
+  font-size: 1rem;
+  line-height: 1.5;
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation: fadeInUp 0.4s ease-out;
 }
 .user-bubble:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
 }
 
 /* ===== Typing Indicator ===== */
 .dot {
-  display: inline-block;
-}
-
-/* Chat Bot typing animation */
-.typing-bubble {
-  display: inline-flex;
-  gap: 4px;
-  background: rgba(50,50,50,0.8);
-  border-radius: 15px;
-  padding: 8px 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-}
-.typing-bubble span {
-  width: 8px;
-  height: 8px;
-  background: #66ffcc;
-  border-radius: 50%;
-  animation: bounce 1s infinite ease-in-out;
-}
-.typing-bubble span:nth-child(2){ animation-delay:0.15s; }
-.typing-bubble span:nth-child(3){ animation-delay:0.3s; }
-
-@keyframes bounce {
-  0%, 80%, 100% { transform: scale(0.6); opacity:0.6; }
-  40% { transform: scale(1.2); opacity:1; }
+  animation-duration: 1.2s;
+  animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 /* ===== Offline Banner ===== */
 #offlineBanner {
-  border-bottom-left-radius: 15px;
-  border-bottom-right-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-  font-weight: 600;
-  letter-spacing: 0.5px;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+  letter-spacing: 0.02em;
+  animation: slideDown 0.6s ease-out forwards;
+}
+
+/* ===== Animations ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 @keyframes slideDown {
-  0% { transform: translateY(-120%); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
-#offlineBanner.show {
-  animation: slideDown 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out;
+}
+.animate-slideDown {
+  animation: slideDown 0.5s ease-out;
+}
+
+/* ===== Scrollbar ===== */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.15);
+  border-radius: 3px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .xs\:absolute { position: absolute; }
+  .xs\:z-10 { z-index: 10; }
+  .xs\:translate-x-\[-100\%\] { transform: translateX(-100%); }
+  .xs\:transition-transform { transition: transform 0.3s ease-in-out; }
+  #chat_area { padding: 4rem 1rem 1rem; }
+  .p-6 { padding: 1.5rem; }
+  .p-4 { padding: 1rem; }
+  .p-8 { padding: 2rem 1rem; }
+  .gap-4 { gap: 1rem; }
+  .gap-3 { gap: 0.75rem; }
+  .text-2xl { font-size: 1.5rem; }
+  .text-lg { font-size: 1rem; }
+  .text-base { font-size: 0.875rem; }
+  .text-sm { font-size: 0.75rem; }
 }
 
 </style>

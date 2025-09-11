@@ -53,7 +53,7 @@
     <!-- Recent Entries -->
     <section>
       <h2 class="text-2xl font-bold mb-6">📖 Recent Entries</h2>
-      <div class="space-y-6">
+      <div class="space-y-6" id="entriesContainer">
         {% for e in entries %}
         <div id="entry-{{ e.id }}" class="bg-slate-800 p-6 rounded-2xl shadow-lg hover:shadow-xl transition relative">
 
@@ -69,16 +69,16 @@
           <p class="text-slate-400 text-xs mb-2">{{ e.created_at|date:"D, M d Y H:i" }}</p>
 
           <!-- Content -->
-          <p class="text-slate-200 mb-4 italic">"{{ e.content }}"</p>
+          <p class="text-slate-200 mb-4 italic" data-content="{{ e.content }}">"{{ e.content }}"</p>
 
           <!-- Summary -->
-          <div class="bg-emerald-700/20 p-4 rounded-xl mb-3">
+          <div class="bg-emerald-700/20 p-4 rounded-xl mb-3" data-summary>
             <h3 class="text-lg font-semibold text-emerald-400 mb-2">✨ Summary</h3>
             <p class="text-slate-100 text-sm">{{ e.summary }}</p>
           </div>
 
           <!-- Highlights -->
-          <div class="bg-sky-700/20 p-4 rounded-xl mb-3">
+          <div class="bg-sky-700/20 p-4 rounded-xl mb-3" data-highlights>
             <h3 class="text-lg font-semibold text-sky-400 mb-2">🌟 Highlights</h3>
             <div class="flex flex-wrap gap-2">
               {% for h in e.highlights %}
@@ -88,7 +88,7 @@
           </div>
 
           <!-- Coping Suggestions -->
-          <div class="bg-pink-700/20 p-4 rounded-xl">
+          <div class="bg-pink-700/20 p-4 rounded-xl" data-coping>
             <h3 class="text-lg font-semibold text-pink-400 mb-2">💡 Coping Suggestions</h3>
             <ul class="list-disc list-inside text-slate-100 text-sm space-y-1">
               {% for c in e.coping %}
@@ -99,15 +99,14 @@
 
           <!-- Edit & Delete Buttons -->
           <div class="flex gap-2 mt-4">
-            <button onclick="editEntry({{ e.id }})"
+            <button onclick="openEditModal('{{ e.id }}')"
               class="px-4 py-2 rounded-xl bg-blue-600/20 text-blue-400 font-medium hover:bg-blue-600 hover:text-white transition shadow-md hover:shadow-lg">
               ✏️ Edit
             </button>
 
             <form action="{% url 'journals:delete_entry' e.id %}" method="post" class="inline">
               {% csrf_token %}
-              <button 
-                type="submit"
+              <button type="submit"
                 class="px-4 py-2 rounded-xl bg-red-600/20 text-red-400 font-medium hover:bg-red-600 hover:text-white transition shadow-md hover:shadow-lg"
                 onclick="return confirm('Are you sure you want to delete this entry?');">
                 🗑️ Delete
@@ -146,73 +145,122 @@ const highlightsArea = document.getElementById("highlightsArea");
 const copingArea = document.getElementById("copingArea");
 const resultsArea = document.getElementById("resultsArea");
 
-// Submit new journal entry
-submitBtn.addEventListener("click", async () => {
-  const text = contentEl.value.trim();
-  if (!text) { alert("Please write something before reflecting."); return; }
-  spinner.classList.remove("hidden"); submitBtn.disabled = true;
+let editingId = null;
 
-  try {
-    const resp = await fetch("{% url 'journals:submit' %}", {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: text }),
+// ------------------- Reflect / Submit -------------------
+async function reflectAction(id=null){
+  const text = id ? document.getElementById("editContent").value.trim() : contentEl.value.trim();
+  if(!text){ alert("Content cannot be empty"); return; }
+
+  // Show main spinner if new entry, or entry-specific spinner if editing
+  if(id){
+    const entryEl = document.getElementById(`entry-${id}`);
+    let spinnerEl = entryEl.querySelector('.updating-spinner');
+    if(!spinnerEl){
+      spinnerEl = document.createElement('div');
+      spinnerEl.className = 'updating-spinner text-slate-400 mb-2';
+      spinnerEl.textContent = '⏳ Updating AI reflection...';
+      entryEl.prepend(spinnerEl);
+    }
+  } else {
+    spinner.classList.remove("hidden");
+    submitBtn.disabled = true;
+  }
+
+  try{
+    const url = id ? "{% url 'journals:edit_entry' 0 %}".replace("/0/", "/" + id + "/") : "{% url 'journals:submit' %}";
+    const resp = await fetch(url,{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "X-CSRFToken":"{{ csrf_token }}"
+      },
+      body: JSON.stringify({ content: text })
     });
-    if (!resp.ok) throw new Error("Network response was not ok");
+
+    if(!resp.ok) throw new Error("Failed to submit");
 
     const data = await resp.json();
 
+    // Update main reflection
     resultsArea.classList.remove("hidden");
     summaryArea.textContent = data.summary || "No summary";
+    highlightsArea.innerHTML = (data.highlights || []).map(h=>`<span class="px-3 py-1 rounded-full bg-sky-600 text-slate-100 text-sm">${h}</span>`).join('');
+    copingArea.innerHTML = (data.coping || []).map(c=>`<div class="px-3 py-1 rounded bg-pink-600 text-slate-100 text-sm">${c}</div>`).join('');
 
-    // ✅ Update highlights correctly (full sentences)
-    highlightsArea.innerHTML = "";
-    (data.highlights || []).forEach(h => {
-      const span = document.createElement("span");
-      span.className = "px-3 py-1 rounded-full bg-sky-600 text-slate-100 text-sm";
-      span.textContent = h;
-      highlightsArea.appendChild(span);
-    });
+    if(id){
+      // Update the edited entry in DOM
+      updateEntryInDOM(id, data, text);
+      closeEditModal();
+    } else {
+      contentEl.value = "";
+      setTimeout(()=>location.reload(),2000);
+    }
 
-    // ✅ Update coping correctly (full sentences)
-    copingArea.innerHTML = "";
-    (data.coping || []).forEach(c => {
-      const div = document.createElement("div");
-      div.className = "px-3 py-1 rounded bg-pink-600 text-slate-100 text-sm";
-      div.textContent = c;
-      copingArea.appendChild(div);
-    });
+  }catch(err){ console.error(err); alert(err.message); }
+  finally{
+    if(id){
+      const entryEl = document.getElementById(`entry-${id}`);
+      const spinnerEl = entryEl.querySelector('.updating-spinner');
+      if(spinnerEl) spinnerEl.remove();
+    } else {
+      spinner.classList.add("hidden");
+      submitBtn.disabled = false;
+    }
+  }
+}
 
-    contentEl.value = "";
-    setTimeout(() => location.reload(), 2000);
+// Click submit button
+submitBtn.addEventListener("click",()=>reflectAction());
 
-  } catch (err) { console.error(err); alert("Error submitting journal: " + err.message); }
-  finally { spinner.classList.add("hidden"); submitBtn.disabled = false; }
+// Press Enter in textarea (Shift+Enter for newline)
+contentEl.addEventListener("keydown",function(e){
+  if(e.key==="Enter" && !e.shiftKey){
+    e.preventDefault();
+    reflectAction();
+  }
 });
 
-// Edit modal
-let editingId = null;
-function editEntry(id){
+// ------------------- Edit Modal -------------------
+function openEditModal(id){
   editingId = id;
-  const entryContent = document.querySelector(`#entry-${id} p`).textContent.replace(/^"|"$/g,'');
+  const entryContentEl = document.querySelector(`#entry-${id} p[data-content]`);
+  const entryContent = entryContentEl ? entryContentEl.dataset.content : '';
   document.getElementById("editContent").value = entryContent;
   document.getElementById("editModal").classList.remove("hidden");
 }
+
 function closeEditModal(){
   editingId = null;
   document.getElementById("editModal").classList.add("hidden");
 }
-async function saveEdit(){
-  const content = document.getElementById("editContent").value.trim();
-  if(!content){ alert("Content cannot be empty"); return; }
-  try{
-    const resp = await fetch("{% url 'journals:edit_entry' 0 %}".replace("/0/", "/" + editingId + "/"), {
-      method: "POST",
-      headers:{ "Content-Type":"application/json", "X-CSRFToken":"{{ csrf_token }}" },
-      body: JSON.stringify({ content })
-    });
-    if(!resp.ok) throw new Error("Failed to save edit");
-    closeEditModal();
-    location.reload();
-  }catch(err){ console.error(err); alert(err); }
+
+function saveEdit(){
+  if(!editingId) return;
+  reflectAction(editingId);
+}
+
+// ------------------- Update Entry in DOM -------------------
+function updateEntryInDOM(id, data, newContent){
+  const entryEl = document.getElementById(`entry-${id}`);
+  if(!entryEl) return;
+
+  // Update content text
+  const contentEl = entryEl.querySelector('p[data-content]');
+  contentEl.textContent = `"${newContent}"`;
+  contentEl.dataset.content = newContent;
+
+  // Update summary
+  const summaryEl = entryEl.querySelector('[data-summary] p');
+  summaryEl.textContent = data.summary;
+
+  // Update highlights
+  const highlightsDiv = entryEl.querySelector('[data-highlights] div');
+  highlightsDiv.innerHTML = (data.highlights || []).map(h => `<span class="px-3 py-1 rounded-full bg-sky-600 text-slate-100 text-xs">${h}</span>`).join('');
+
+  // Update coping
+  const copingUl = entryEl.querySelector('[data-coping] ul');
+  copingUl.innerHTML = (data.coping || []).map(c => `<li>${c}</li>`).join('');
 }
 </script>
 {% endblock %}

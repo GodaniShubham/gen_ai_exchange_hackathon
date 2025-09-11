@@ -48,26 +48,43 @@ def generate_ai_reflection(content):
         - Reach out to a friend
         """
 
-    # Parse
+    # --- Parse Summary ---
     summary_match = re.search(r"Summary:\s*(.*)", text, re.IGNORECASE)
     summary = summary_match.group(1).strip() if summary_match else "Here’s a gentle reflection."
 
-    highlights_match = re.search(r"Highlights:\s*((?:\s*[-*].*)+?)\n(?:Coping:|$)", text, re.IGNORECASE | re.DOTALL)
-    highlights = [h.strip().lstrip("-* ").strip() for h in highlights_match.group(1).strip().splitlines()] if highlights_match else ["N/A"]
+    # --- Parse Highlights ---
+    highlights_match = re.search(
+        r"Highlights:\s*((?:\s*[-*].*?\n)+)(?=\s*Coping:|$)",
+        text,
+        re.IGNORECASE | re.DOTALL
+    )
+    highlights = [
+        h.strip().lstrip("-* ").strip()
+        for h in highlights_match.group(1).strip().splitlines()
+    ] if highlights_match else ["N/A"]
 
-    coping_match = re.search(r"Coping:\s*((?:\s*[-*].*)+)", text, re.IGNORECASE | re.DOTALL)
-    coping = [c.strip().lstrip("-* ").strip() for c in coping_match.group(1).strip().splitlines()] if coping_match else ["Take a deep breath"]
+    # --- Parse Coping ---
+    coping_match = re.search(
+        r"Coping:\s*((?:\s*[-*].*)+)",
+        text,
+        re.IGNORECASE | re.DOTALL
+    )
+    coping = [
+        c.strip().lstrip("-* ").strip()
+        for c in coping_match.group(1).strip().splitlines()
+    ] if coping_match else ["Take a deep breath"]
 
     return summary, highlights, coping
 
+
 def journal_page(request):
     entries = JournalEntry.objects.all().order_by("-is_pinned", "-created_at")
-    # Weekly reflection (optional)
     today = now().date()
     start_week = today - datetime.timedelta(days=today.weekday())
     end_week = start_week + datetime.timedelta(days=6)
     reflection = WeeklyReflection.objects.filter(week_start=start_week, week_end=end_week).first()
     return render(request, "journals/journal_page.html", {"entries": entries, "reflection": reflection})
+
 
 @csrf_exempt
 def submit_entry(request):
@@ -80,7 +97,36 @@ def submit_entry(request):
 
     summary, highlights, coping = generate_ai_reflection(content)
     entry = JournalEntry.objects.create(content=content, summary=summary, highlights=highlights, coping=coping)
-    return JsonResponse({"summary": summary, "highlights": highlights, "coping": coping}, status=200)
+    return JsonResponse({
+        "content": entry.content,
+        "summary": summary,
+        "highlights": highlights,
+        "coping": coping
+    }, status=200)
+
+
+@csrf_exempt
+def edit_entry(request, entry_id):
+    entry = get_object_or_404(JournalEntry, id=entry_id)
+    if request.method == "POST":
+        data = json.loads(request.body)
+        content = data.get("content", "").strip()
+        if content:
+            entry.content = content
+            # Regenerate AI reflections
+            summary, highlights, coping = generate_ai_reflection(content)
+            entry.summary = summary
+            entry.highlights = highlights
+            entry.coping = coping
+            entry.save()
+            return JsonResponse({
+                "success": True,
+                "summary": summary,
+                "highlights": highlights,
+                "coping": coping
+            })
+    return JsonResponse({"success": False, "error": "Invalid request"})
+
 
 def delete_entry(request, entry_id):
     entry = get_object_or_404(JournalEntry, id=entry_id)
@@ -88,17 +134,6 @@ def delete_entry(request, entry_id):
         entry.delete()
     return redirect("journals:journal_page")
 
-@csrf_exempt
-def edit_entry(request, entry_id):
-    entry = get_object_or_404(JournalEntry, id=entry_id)
-    if request.method == "POST":
-        data = json.loads(request.body)
-        content = data.get("content","").strip()
-        if content:
-            entry.content = content
-            entry.save()
-            return JsonResponse({"success": True})
-    return JsonResponse({"success": False, "error": "Invalid request"})
 
 def toggle_pin(request, entry_id):
     entry = get_object_or_404(JournalEntry, id=entry_id)

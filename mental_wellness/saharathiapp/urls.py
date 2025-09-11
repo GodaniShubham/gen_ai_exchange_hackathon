@@ -20,9 +20,7 @@ urlpatterns = [
     # 🤖 Chat API (backend endpoint for AI reply)
     path("chatbot_api/", views.chatbot_api, name="chatbot_api"),
 
-    # ⌨️ Streaming Chat API (typing effect)
-    path("chatbot_api/", views.chatbot_api, name="chatbot_api"),
-
+   
 
     # ⚙️ Settings & Privacy
     path("settings/", views.settings_privacy, name="settings_privacy"),

@@ -1,8 +1,14 @@
-{% extends "base.html" %}
-{% block title %}Journal — Reflect & Grow{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Journal — Reflect & Grow</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100">
 
-{% block content %}
-<div class="min-h-screen bg-slate-900 text-slate-100 py-12 px-6">
+<div class="min-h-screen py-12 px-6">
   <div class="max-w-5xl mx-auto space-y-12">
 
     <!-- Header -->
@@ -137,6 +143,7 @@
 </div>
 
 <script>
+// --- JS code same as your existing script ---
 const submitBtn = document.getElementById("submitBtn");
 const spinner = document.getElementById("spinner");
 const contentEl = document.getElementById("journalContent");
@@ -147,12 +154,10 @@ const resultsArea = document.getElementById("resultsArea");
 
 let editingId = null;
 
-// ------------------- Reflect / Submit -------------------
 async function reflectAction(id=null){
   const text = id ? document.getElementById("editContent").value.trim() : contentEl.value.trim();
   if(!text){ alert("Content cannot be empty"); return; }
 
-  // Show main spinner if new entry, or entry-specific spinner if editing
   if(id){
     const entryEl = document.getElementById(`entry-${id}`);
     let spinnerEl = entryEl.querySelector('.updating-spinner');
@@ -185,7 +190,6 @@ async function reflectAction(id=null){
 
     const data = await resp.json();
 
-    // Update main reflection
     resultsArea.classList.remove("hidden");
     summaryArea.textContent = data.summary || "No summary";
     highlightsArea.innerHTML = (data.highlights || [])
@@ -196,7 +200,6 @@ async function reflectAction(id=null){
       .join('');
 
     if(id){
-      // Update the edited entry in DOM
       updateEntryInDOM(id, data, text);
       closeEditModal();
     } else {
@@ -220,10 +223,8 @@ async function reflectAction(id=null){
   }
 }
 
-// Click submit button
 submitBtn.addEventListener("click",()=>reflectAction());
 
-// Press Enter in textarea (Shift+Enter for newline)
 contentEl.addEventListener("keydown",function(e){
   if(e.key==="Enter" && !e.shiftKey){
     e.preventDefault();
@@ -231,7 +232,6 @@ contentEl.addEventListener("keydown",function(e){
   }
 });
 
-// ------------------- Edit Modal -------------------
 function openEditModal(id){
   editingId = id;
   const entryContentEl = document.querySelector(`#entry-${id} p[data-content]`);
@@ -250,27 +250,22 @@ function saveEdit(){
   reflectAction(editingId);
 }
 
-// ------------------- Update Entry in DOM -------------------
 function updateEntryInDOM(id, data, newContent){
   const entryEl = document.getElementById(`entry-${id}`);
   if(!entryEl) return;
 
-  // Update content text
   const contentEl = entryEl.querySelector('p[data-content]');
   contentEl.textContent = `"${newContent}"`;
   contentEl.dataset.content = newContent;
 
-  // Update summary
   const summaryEl = entryEl.querySelector('[data-summary] p');
   summaryEl.textContent = data.summary || "No summary";
 
-  // Update highlights
   const highlightsDiv = entryEl.querySelector('[data-highlights] div');
   highlightsDiv.innerHTML = (data.highlights || [])
     .map(h => `<span class="px-3 py-1 rounded-full bg-sky-600 text-slate-100 text-xs">${h}</span>`)
     .join('');
 
-  // Update coping
   const copingUl = entryEl.querySelector('[data-coping] ul');
   copingUl.innerHTML = (data.coping || [])
     .map(c => `<li>${c}</li>`)
@@ -278,4 +273,5 @@ function updateEntryInDOM(id, data, newContent){
 }
 </script>
 
-{% endblock %}
+</body>
+</html>

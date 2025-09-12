@@ -162,6 +162,35 @@ window.addEventListener("offline", () => {
   renderMessages([{sender:"bot", text:"🔴 You went offline. Don’t worry, I’ll save your thoughts until we reconnect."}], true);
 });
 
+// 🆕 Predefined Suggestion Responses
+const suggestionResponses = {
+  "Any quick stress relief tips?": "😌 Quick Tip: Take a short walk, stretch, or close your eyes and breathe deeply 5 times to reset your mind.",
+  "Guide me for breathing exercise": "🌬️ Breathing Exercise: Sit comfortably, inhale deeply for 4 counts, hold for 4 counts, exhale slowly for 6 counts. Repeat 5 times and notice your stress melting away.",
+  "How to sleep faster?": "🌙 Try: Dim lights, avoid screens, do 4-7-8 breathing, and relax each body part gradually.",
+  "Tell me a bedtime meditation": "🧘‍♂️ Bedtime Meditation: Sit or lie down, focus on your breath, slowly release tension from head to toe for 5 minutes.",
+  "Motivate me 🙏": "💪 Remember: You’ve overcome challenges before. Take a deep breath and tackle one thing at a time.",
+  "Any self-care tips?": "🛁 Self-care tip: Take a warm shower, drink water, journal your thoughts, or do something you enjoy for 15 minutes."
+};
+
+// Modified sendSuggestionMessage to use predefined responses
+function sendSuggestionMessage(message){
+  renderMessages([{sender:"user", text:message}], true);
+
+  // Clear old suggestions
+  document.getElementById("suggestions").innerHTML = "";
+
+  document.getElementById("user_input").value = message;
+
+  // If predefined response exists, show it instantly
+  if(suggestionResponses[message]){
+    renderMessages([{sender:"bot", text:suggestionResponses[message]}], true);
+    lastBotReply = suggestionResponses[message]; // for voice
+  } else {
+    // fallback to normal API call
+    sendMessage(true); // bypass allowedTopics
+  }
+}
+
 
 let currentChatId = null;
 let userMood = "😐 Neutral";  
@@ -207,6 +236,7 @@ function downloadChat() {
   link.click();
 }
 
+
 // 💡 Smart Suggestions
 function showSuggestions(userMessage){
   const suggestionBox = document.getElementById("suggestions");
@@ -227,10 +257,50 @@ function showSuggestions(userMessage){
     const btn = document.createElement("button");
     btn.className = "px-3 py-1 m-1 rounded-lg bg-gray-700 hover:bg-green-600 transition";
     btn.innerText = sug;
-    btn.onclick = ()=> sendQuick(sug);
+    btn.onclick = () => sendSuggestionMessage(sug); // NEW function
     suggestionBox.appendChild(btn);
   });
 }
+
+// Modified sendSuggestionMessage
+function sendSuggestionMessage(message){
+  // Render user message
+  renderMessages([{sender:"user", text:message}], true);
+
+  // Clear old suggestions
+  document.getElementById("suggestions").innerHTML = "";
+
+  // Set user input (optional)
+  document.getElementById("user_input").value = message;
+
+  // Send the message to bot API
+  sendMessage(true); // pass true to bypass allowedTopics
+}
+
+// Updated sendMessage function to handle suggestions
+async function sendMessage(isSuggestion=false) {
+  const inputEl = document.getElementById("user_input");
+  const userMessage = inputEl.value.trim();
+  if (!userMessage) return;
+
+  renderMessages([{sender:"user", text:userMessage}], true);
+  inputEl.value = "";
+  document.getElementById("typing").classList.remove("hidden");
+
+  if (!isSuggestion) { // only block normal user messages
+    const isAllowed = allowedTopics.some(topic => 
+      userMessage.toLowerCase().includes(topic)
+    );
+    if (!isAllowed) {
+      document.getElementById("typing").classList.add("hidden");
+      renderMessages([{sender:"bot", text:"⚠️ I only respond to mental health, mood, or wellness questions."}], true);
+      return;
+    }
+  }
+
+  // ...rest of your existing API call code
+}
+
 
 
 // ✅ Voice Select Button

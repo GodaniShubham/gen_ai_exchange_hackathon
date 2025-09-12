@@ -11,6 +11,9 @@ from django.contrib.auth.decorators import login_required
 from .models import ChatSession, MoodEntry
 from collections import defaultdict
 from datetime import datetime
+from django.utils import timezone
+import requests
+import json
 
 # ========== MAIN PAGES ==========
 def index(request):
@@ -23,54 +26,128 @@ def chat_page(request):
 @csrf_exempt
 def save_mood(request):
     if request.method == "POST":
-        data = json.loads(request.body)
-        MoodEntry.objects.create(
-            user=request.user,
-            mood_level=data.get("mood_level"),
-            notes=data.get("notes", "")
-        )
-        return JsonResponse({"status": "success"})
-    return JsonResponse({"status": "error"}, status=400)
+        try:
+            data = json.loads(request.body)
+            mood_level = data.get("mood_level")
+            notes = data.get("notes", "")
 
-@login_required
+            # Ensure session exists for anonymous users
+            session_key = request.session.session_key
+            if not session_key:
+                request.session.create()
+                session_key = request.session.session_key
+
+            MoodEntry.objects.create(
+                user=request.user if request.user.is_authenticated else None,
+                session_id=None if request.user.is_authenticated else session_key,
+                mood_level=mood_level,
+                notes=notes
+            )
+
+            return JsonResponse({"status": "success"})
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=400)
+
+    return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
+
 def mood_analytics(request):
-    entries = MoodEntry.objects.filter(user=request.user).order_by("created_at")
+    if request.user.is_authenticated:
+        entries = MoodEntry.objects.filter(user=request.user).order_by("created_at")
+    else:
+        session_key = request.session.session_key
+        if not session_key:
+            request.session.create()
+            session_key = request.session.session_key
+        entries = MoodEntry.objects.filter(session_id=session_key).order_by("created_at")
+
     data = [
         {
             "level": e.mood_level,
             "notes": e.notes,
             "date": e.created_at.isoformat()
-        } for e in entries
+        }
+        for e in entries
     ]
     return render(request, "mood_analytics.html", {"moods_json": json.dumps(data)})
 
-@login_required
 def mood_insights(request):
-    mode = request.GET.get('mode', 'daily')
-    entries = MoodEntry.objects.filter(user=request.user).order_by("-created_at")[:30]
+    mode = request.GET.get("mode", "daily")
+
+    # ✅ Handle logged-in OR guest (session_id based) users
+    if request.user.is_authenticated:
+        entries = MoodEntry.objects.filter(user=request.user).order_by("-created_at")[:30]
+    else:
+        session_key = request.session.session_key
+        if not session_key:
+            request.session.create()
+            session_key = request.session.session_key
+        entries = MoodEntry.objects.filter(session_id=session_key).order_by("-created_at")[:30]
+
     if not entries:
         return JsonResponse({"insights": "Log some moods to get your first insights ✨"})
 
-    # Aggregate mood history
-    mood_history = "\n".join(
-        [f"{e.created_at.strftime('%Y-%m-%d')} - Level {e.mood_level}, Notes: {e.notes or 'None'}"
-         for e in entries]
-    )
+    # =========================
+    # 📊 Build mood history text
+    # =========================
+    mood_history = ""
+    if mode == "daily":
+        mood_history = "\n".join(
+            [f"{e.created_at.strftime('%Y-%m-%d')} - Level {e.mood_level}, Notes: {e.notes or 'None'}"
+             for e in entries]
+        )
+    elif mode == "weekly":
+        weekly_data = defaultdict(list)
+        for e in entries:
+            week_key = e.created_at.strftime("%Y-W%W")
+            weekly_data[week_key].append(e)
+        mood_history = "\n".join(
+            [f"Week {week_key.split('-W')[1]} ({datetime.strptime(week_key + '-1', '%Y-W%W-%w').strftime('%Y-%m-%d')}) - "
+             f"Avg Level {sum(e.mood_level for e in data) / len(data):.1f}, Notes: {', '.join(e.notes or 'None' for e in data)}"
+             for week_key, data in weekly_data.items()]
+        )
+    elif mode == "monthly":
+        monthly_data = defaultdict(list)
+        for e in entries:
+            month_key = e.created_at.strftime("%Y-%m")
+            monthly_data[month_key].append(e)
+        mood_history = "\n".join(
+            [f"{month_key} - Avg Level {sum(e.mood_level for e in data) / len(data):.1f}, "
+             f"Notes: {', '.join(e.notes or 'None' for e in data)}"
+             for month_key, data in monthly_data.items()]
+        )
+    elif mode == "heatmap":
+        weekly_data = defaultdict(list)
+        for e in entries:
+            week_key = e.created_at.strftime("%Y-W%W")
+            weekly_data[week_key].append(e)
+        mood_history = "\n".join(
+            [f"Week {week_key.split('-W')[1]} ({datetime.strptime(week_key + '-1', '%Y-W%W-%w').strftime('%Y-%m-%d')}) - "
+             f"Avg Level {sum(e.mood_level for e in data) / len(data):.1f}"
+             for week_key, data in weekly_data.items()]
+        )
 
+    # =========================
+    # 🎭 Prepare AI prompt
+    # =========================
     last_entry = entries.first()
     last_mood = last_entry.mood_level
     mood_labels = ["Stressed", "Sad", "Okay", "Good", "Great"]
     last_mood_label = mood_labels[last_mood]
 
     prompt = f"""
-You are a creative wellness coach. The user's most recent mood was {last_mood_label} (level {last_mood}) based on {mode} data.
-Analyze recent mood history (up to 30 entries):
+You are an enthusiastic, empathetic, and creative wellness coach...
+(reuse your original prompt text)
 {mood_history}
-Craft a short, uplifting response with insights and suggestions.
 """
 
+    # =========================
+    # 🤖 Call Gemini API
+    # =========================
     try:
-        url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={settings.GEMINI_API_KEY}"
+        url = (
+            f"https://generativelanguage.googleapis.com/v1/models/"
+            f"gemini-1.5-flash:generateContent?key={settings.GEMINI_API_KEY}"
+        )
         payload = {
             "contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {"temperature": 0.7, "maxOutputTokens": 250},
@@ -78,81 +155,116 @@ Craft a short, uplifting response with insights and suggestions.
         response = requests.post(url, headers={"Content-Type": "application/json"}, json=payload)
         response.raise_for_status()
         data = response.json()
+
         insights = data["candidates"][0]["content"]["parts"][0]["text"]
         return JsonResponse({"insights": insights})
+
     except Exception as e:
         return JsonResponse({"insights": f"⚠️ Error generating insights: {str(e)}"})
-
-# ========== AUTH VIEWS ==========
-def login_view(request):
-    if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        user = authenticate(request, username=username, password=password)
-        if user:
-            auth_login(request, user)
-            return redirect("index")
-        messages.error(request, "Invalid username or password", extra_tags="login")
-    return redirect("index")
-
-def signup_view(request):
-    if request.method == "POST":
-        username = request.POST.get("username")
-        email = request.POST.get("email")
-        password = request.POST.get("password")
-        confirm_password = request.POST.get("confirm_password")
-
-        if password != confirm_password:
-            messages.error(request, "Passwords do not match", extra_tags="signup")
-            return redirect("index")
-        if User.objects.filter(username=username).exists():
-            messages.error(request, "Username already taken", extra_tags="signup")
-            return redirect("index")
-        if User.objects.filter(email=email).exists():
-            messages.error(request, "Email already registered", extra_tags="signup")
-            return redirect("index")
-
-        User.objects.create_user(username=username, email=email, password=password)
-        messages.success(request, "Signup successful! Please log in.", extra_tags="login")
-    return redirect("index")
 
 # ========== CHATBOT API ==========
 @csrf_exempt
 def chatbot_api(request):
     if request.method != "POST":
         return JsonResponse({"reply": "⚠️ Only POST requests are allowed."})
-    user_message = request.POST.get("message", "").strip()
+
+    user_message_raw = request.POST.get("message", "")
+    user_message = user_message_raw.strip()
     if not user_message:
         return JsonResponse({"reply": "⚠️ Please say something!"})
 
+    lm = user_message.lower()
+
+    # -----------------------
+    # 1) Crisis / suicide check (highest priority)
+    # -----------------------
+    crisis_indicators = [
+        "suicide", "kill myself", "i want to die", "i'll kill myself",
+        "i want to end my life", "ending my life", "die"
+    ]
+    if any(ind in lm for ind in crisis_indicators):
+        return JsonResponse({"reply": (
+            "💙 I'm really concerned by what you said. If you're thinking about ending your life, "
+            "please reach out to someone you trust or contact emergency services right now.\n\n"
+            "🇮🇳 India Helpline (AASRA): +91-98204 66726\n"
+            "🌍 If you are elsewhere, please look up your local suicide prevention hotline.\n\n"
+            "🙏 You are not alone — please talk to someone you trust. 💙"
+        )})
+
+    # -----------------------
+    # 2) Wellness keyword detection (allow only wellness topics)
+    # -----------------------
+    wellness_keywords = [
+        "stress", "anxiety", "sleep", "mood", "depression", "self care",
+        "meditation", "wellness", "focus", "relax", "happy", "sad", "tired",
+        "mental health", "panic", "lonely", "anger", "fear", "overthinking"
+    ]
+    contains_wellness = any(keyword in lm for keyword in wellness_keywords)
+
+    if not contains_wellness:
+        # ❌ Reject if not wellness related
+        return JsonResponse({
+            "reply": (
+                "⚠️ I only provide information and support about mental health, mood, and wellness topics.\n\n"
+                "🙏 कृपया केवल मानसिक स्वास्थ्य, मूड या वेलनेस से जुड़े सवाल पूछें।\n\n"
+                "⚠️ હું ફક્ત માનસિક સ્વાસ્થ્ય, મૂડ અને વેલનેસ વિષયક પ્રશ્નોના જવાબ આપી શકું છું."
+            )
+        })
+
+    # -----------------------
+    # 3) Build system prompt (multilingual)
+    # -----------------------
+    system_prompt = (
+        "You are a compassionate, multilingual Mental Wellness Assistant. "
+        "You can reply in English, Hindi, or Gujarati depending on the user's input language. "
+        "Always answer kindly and empathetically, give practical coping tips (breathing, grounding, sleep hygiene, small routines). "
+        "Never give medical diagnoses or prescriptions. "
+        "If the user appears in crisis, remind them to seek emergency help and provide helpline information. "
+    )
+
+    full_prompt = f"{system_prompt}\n\nUser: {user_message}\nAssistant:"
+
+    # -----------------------
+    # 4) Call Gemini API
+    # -----------------------
     try:
         url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={settings.GEMINI_API_KEY}"
         payload = {
-            "contents": [{"parts": [{"text": user_message}]}],
-            "generationConfig": {"temperature": 0.7, "maxOutputTokens": 200},
+            "contents": [{"parts": [{"text": full_prompt}]}],
+            "generationConfig": {"temperature": 0.7, "maxOutputTokens": 300},
         }
-        response = requests.post(url, headers={"Content-Type": "application/json"}, json=payload)
-        response.raise_for_status()
-        data = response.json()
-        bot_reply = data["candidates"][0]["content"]["parts"][0]["text"]
-        return JsonResponse({"reply": bot_reply})
+        resp = requests.post(url, headers={"Content-Type": "application/json"}, json=payload, timeout=30)
+        resp.raise_for_status()
+        data = resp.json()
+
+        reply = "⚠️ No reply received."
+        candidates = data.get("candidates", [])
+        if candidates and candidates[0].get("content"):
+            parts = candidates[0]["content"].get("parts", [])
+            if parts:
+                reply = parts[0].get("text", reply)
+
+        return JsonResponse({"reply": reply})
+    except requests.exceptions.RequestException as e:
+        return JsonResponse({"reply": f"⚠️ API Error: {str(e)}"})
     except Exception as e:
-        return JsonResponse({"reply": f"⚠️ Error: {str(e)}"})
+        return JsonResponse({"reply": f"⚠️ Unexpected Error: {str(e)}"})
+
+
 
 # ========== EXTRA PAGES ==========
-@login_required
+
 def breathing_page(request):
     return render(request, "breathing.html")
 
-@login_required
+
 def focus_page(request):
     return render(request, "focus.html")
 
-@login_required
 def selfcare_page(request):
     return render(request, "selfcare.html")
 
-@login_required
+
 def wellness_page(request):
     return render(request, "wellness.html")
 
@@ -211,7 +323,7 @@ def settings_privacy(request):
     return render(request, "settings_privacy.html", {"saved_lang": saved_lang})
 
 
-@login_required
+
 def get_chat_messages(request, session_id):
     # Replace this with your actual logic
     messages = [

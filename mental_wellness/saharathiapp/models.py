@@ -22,14 +22,20 @@ class MoodEntry(models.Model):
         (4, "Great"),
     ]
 
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="mood_entries")
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name="mood_entries",
+        null=True,
+        blank=True
+    )
+    session_id = models.CharField(max_length=50, null=True, blank=True)
     mood_level = models.IntegerField(choices=MOOD_CHOICES)
     notes = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    
     def __str__(self):
         return f"{self.user.username} - {self.get_mood_level_display()} ({self.created_at.date()})"
-
 
 
 # 🔹 ChatSession model

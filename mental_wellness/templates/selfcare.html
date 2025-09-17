@@ -33,7 +33,6 @@
       background-size: 600% 600%;
       animation: gradientShift 20s ease infinite;
       z-index: -1;
-      
     }
 
     @keyframes gradientShift {
@@ -208,6 +207,33 @@
         color: #00ffcc !important;
       }
     }
+    /* 🎨 Custom Range (Seek + Volume) */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  border-radius: 6px;
+  background: linear-gradient(to right, #3b82f6 0%, #3b82f6 0%, #374151 0%, #374151 100%);
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(0,0,0,0.5);
+}
+input[type="range"]::-moz-range-thumb {
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(0,0,0,0.5);
+}
   </style>
 </head>
 
@@ -248,7 +274,7 @@
   </nav>
 
   <!-- Hero Section -->
-  <section class="text-center py-16 mt-16">
+  <section class="text-center py-16">
     <h1 class="text-4xl md:text-6xl font-bold mb-6">Take a mindful break ✨</h1>
     <p class="text-lg md:text-xl mb-8 opacity-90">Discover resources designed to improve your focus, breathing, and
       overall well-being.</p>
@@ -312,8 +338,10 @@
       <div class="text-4xl mb-4"><i class="bi bi-moon-stars text-indigo-400"></i></div>
       <h3 class="text-xl font-semibold mb-2">Sleep Tracker</h3>
       <p class="text-sm opacity-80 mb-4">Monitor sleep cycles & improve rest.</p>
-      <button class="btn btn-glow w-full py-2 rounded-xl" data-bs-toggle="modal"
-        data-bs-target="#sleepModal">Track</button>
+      <a href="{% url 'sleep_tracker' %}" class="btn btn-glow w-full py-2 rounded-xl">
+  Track
+</a>
+
     </div>
 
 
@@ -348,10 +376,7 @@
   </div>
 </div>
 
-<!-- 🔔 Alarm Sound -->
-<audio id="alarmSound" preload="auto" loop>
-  <source src="{% static 'sounds/loud_alarm.mp3' %}" type="audio/mpeg">
-</audio>
+
 
   <div class="modal fade" id="affirmModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
@@ -363,20 +388,54 @@
       </div>
     </div>
   </div>
-
+  
   <div class="modal fade" id="musicModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content glass p-6 text-center">
-        <h2 class="text-2xl font-bold mb-3">Music Therapy 🎵</h2>
-        <iframe width="100%" height="200" src="https://www.youtube.com/embed/Umqb9KENgmk" title="Arijit Singh Song"
-          frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowfullscreen>
-        </iframe>
-        <button class="btn btn-glow mt-3" data-bs-dismiss="modal">Close</button>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content glass p-6 text-center">
+      <h2 class="text-2xl font-bold mb-3">Music Therapy 🎵</h2>
+
+      <!-- Hidden Audio -->
+      <audio id="therapyMusic" src="{% static 'sounds/mental peace.mp3' %}"></audio>
+
+      <!-- 🎛️ Controls -->
+      <div class="flex justify-center gap-6 mt-4">
+        <button id="playBtn" class="p-4 rounded-full bg-gradient-to-r from-green-400 to-green-600 text-white shadow-lg hover:scale-110 hover:shadow-2xl transition duration-200">
+          ▶
+        </button>
+        <button id="pauseBtn" class="p-4 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 text-white shadow-lg hover:scale-110 hover:shadow-2xl transition duration-200">
+          ⏸
+        </button>
+        <button id="restartBtn" class="p-4 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg hover:scale-110 hover:shadow-2xl transition duration-200">
+          🔄
+        </button>
       </div>
+
+      <!-- 📊 Playbar -->
+      <div class="mt-6">
+        <input type="range" id="seekBar" value="0" min="0" max="100" step="1"
+          class="w-full h-2 rounded-lg appearance-none cursor-pointer bg-gray-700">
+        <div class="flex justify-between text-sm text-gray-300 mt-1">
+          <span id="currentTime">0:00</span>
+          <span id="totalTime">0:00</span>
+        </div>
+      </div>
+
+      <!-- 🔊 Volume Control -->
+      <div class="mt-6">
+        <label class="block mb-1 text-gray-300">Volume</label>
+        <input type="range" id="volumeBar" min="0" max="1" step="0.01" value="1"
+          class="w-full h-2 rounded-lg appearance-none cursor-pointer bg-gray-700">
+      </div>
+
+      <!-- 🔙 Back -->
+      <a href="{% url 'selfcare' %}" 
+        class="mt-10 px-6 py-2 inline-block rounded-lg bg-gradient-to-r from-cyan-400 to-green-400 text-white font-semibold hover:scale-105 transition">
+        ⬅ Back to Self-Care Guides
+      </a>
     </div>
   </div>
+</div>
+
   <!-- (Old Modals for breathing/focus/wellness remain same from your code) -->
 
   <footer class="mt-16 py-6 text-center text-sm opacity-70">
@@ -386,55 +445,53 @@
     </div>
   </footer>
 </body>
-<div id="alarmPopup" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
-  <div class="bg-white text-black rounded-lg shadow-lg p-6 text-center max-w-sm">
-    <h2 class="text-2xl font-bold mb-4">⏰ WAKE UP!</h2>
-    <p class="mb-4">Your alarm is ringing. Time to rise and shine 🌞</p>
-    <button onclick="stopAlarm()" class="px-6 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition">
-      🛑 Stop Alarm
-    </button>
-  </div>
-</div>
 <script>
-  let alarmTime = null;
-  let alarmTimeout = null;
-  const alarm = document.getElementById("alarmSound");
-  const popup = document.getElementById("alarmPopup");
+  const music = document.getElementById("therapyMusic");
+  const seekBar = document.getElementById("seekBar");
+  const volumeBar = document.getElementById("volumeBar");
+  const currentTimeEl = document.getElementById("currentTime");
+  const totalTimeEl = document.getElementById("totalTime");
 
-  document.getElementById("setAlarmBtn").addEventListener("click", () => {
-    const wakeupInput = document.getElementById("wakeup").value;
+  // Format time mm:ss
+  function formatTime(sec) {
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  }
 
-    if (!wakeupInput) {
-      alert("Please select a wake-up time ⏰");
-      return;
-    }
-
-    alarmTime = wakeupInput;
-    document.getElementById("alarmStatus").innerText = "✅ Alarm set for " + alarmTime;
-
-    if (alarmTimeout) clearInterval(alarmTimeout);
-
-    alarmTimeout = setInterval(() => {
-      const now = new Date();
-      const currentTime = now.toTimeString().slice(0, 5); // HH:MM
-
-      if (currentTime === alarmTime) {
-        alarm.volume = 1.0; 
-        alarm.play();
-
-        popup.classList.remove("hidden"); 
-        document.getElementById("alarmStatus").innerText = "🚨 Alarm ringing!";
-        clearInterval(alarmTimeout);
-      }
-    }, 1000);
+  // Play, Pause, Restart
+  document.getElementById("playBtn").addEventListener("click", () => music.play());
+  document.getElementById("pauseBtn").addEventListener("click", () => music.pause());
+  document.getElementById("restartBtn").addEventListener("click", () => { 
+    music.currentTime = 0; 
+    music.play(); 
   });
 
-  function stopAlarm() {
-    alarm.pause();
-    alarm.currentTime = 0;
-    popup.classList.add("hidden"); 
-    document.getElementById("alarmStatus").innerText = "🛑 Alarm stopped";
-  }
+  // Update Seek Bar + Time
+  music.addEventListener("timeupdate", () => {
+    if (!isNaN(music.duration)) {
+      const progress = (music.currentTime / music.duration) * 100;
+      seekBar.value = progress;
+      seekBar.style.background = `linear-gradient(to right, #3b82f6 ${progress}%, #374151 ${progress}%)`;
+      currentTimeEl.textContent = formatTime(music.currentTime);
+      totalTimeEl.textContent = formatTime(music.duration);
+    }
+  });
+
+  // Seek music
+  seekBar.addEventListener("input", () => {
+    music.currentTime = (seekBar.value / 100) * music.duration;
+  });
+
+  // Volume control
+  volumeBar.addEventListener("input", () => {
+    music.volume = volumeBar.value;
+    const progress = volumeBar.value * 100;
+    volumeBar.style.background = `linear-gradient(to right, #3b82f6 ${progress}%, #374151 ${progress}%)`;
+  });
+
+  // Init gradient for volume
+  volumeBar.style.background = `linear-gradient(to right, #3b82f6 100%, #374151 100%)`;
 </script>
 
 </html>

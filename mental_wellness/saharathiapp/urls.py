@@ -31,4 +31,5 @@ urlpatterns = [
     path("focus/", views.focus_page, name="focus"),
     path("selfcare/", views.selfcare_page, name="selfcare"),
     path("wellness/", views.wellness_page, name="wellness"),
+    path("sleep-tracker/", views.sleep_tracker, name="sleep_tracker"),
 ]

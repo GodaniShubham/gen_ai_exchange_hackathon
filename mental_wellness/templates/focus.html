@@ -1,21 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Focus Hub</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Focus Hub (Modern UI)</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
   <style>
     body {
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      font-family: 'Poppins', sans-serif;
-      color: white;
+      margin:0;font-family:'Poppins',sans-serif;color:white;
+      background:linear-gradient(-45deg,#0f172a,#1e293b,#0f766e,#2563eb);
+      background-size:400% 400%;
+      animation:gradientMove 12s ease infinite;
     }
+    @keyframes gradientMove {
+      0%{background-position:0% 50%}
+      50%{background-position:100% 50%}
+      100%{background-position:0% 50%}
+    }
+
     .glass {
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      background:rgba(255,255,255,0.08);
+      backdrop-filter:blur(14px);
+      border-radius:1rem;
+      padding:1.5rem;
+      box-shadow:0 0 25px rgba(0,255,204,0.15);
     }
+
     .circle-timer {
       width: 280px;
       height: 280px;
@@ -40,62 +52,66 @@
     @keyframes rotate {
       100% { transform: rotate(360deg); }
     }
-    /* Button animations */
-    .btn-anim {
-      position: relative;
-      overflow: hidden;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    /* NEON BUTTONS */
+    .btn-neon {
+      display:flex; align-items:center; gap:0.5rem;
+      padding:0.75rem 1.75rem;
+      border-radius:0.9rem; font-weight:600;
+      background:linear-gradient(145deg, #0ea5e9, #22d3ee);
+      color:white;
+      box-shadow:0 6px 0 #0c4a6e, 0 0 20px rgba(34,211,238,0.6);
+      transform:translateY(0); transition:all 0.2s ease;
     }
-    .btn-anim:hover {
-      transform: translateY(-3px) scale(1.05);
-      box-shadow: 0 0 20px rgba(0,255,255,0.5);
+    .btn-neon:hover {
+      transform:translateY(-2px) scale(1.05);
+      box-shadow:0 8px 15px rgba(34,211,238,0.8), 0 0 25px rgba(34,211,238,0.6);
     }
-    .btn-anim::after {
-      content: "";
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 0;
-      height: 0;
-      background: rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-      transition: width 0.4s ease, height 0.4s ease;
-    }
-    .btn-anim:active::after {
-      width: 200%;
-      height: 200%;
-    }
+    .btn-green { background:linear-gradient(145deg,#10b981,#34d399); box-shadow:0 6px 0 #064e3b, 0 0 20px rgba(16,185,129,0.6); }
+    .btn-yellow { background:linear-gradient(145deg,#facc15,#fde047); box-shadow:0 6px 0 #854d0e, 0 0 20px rgba(250,204,21,0.6); color:black; }
+    .btn-red { background:linear-gradient(145deg,#ef4444,#f87171); box-shadow:0 6px 0 #7f1d1d, 0 0 20px rgba(239,68,68,0.6); }
   </style>
 </head>
-<body class="min-h-screen flex flex-col items-center p-6">
+<body class="flex flex-col items-center p-6">
 
   <!-- HEADER -->
-  <h1 class="text-4xl font-extrabold mb-6">🎯 Focus Hub</h1>
+  <h1 class="text-4xl font-extrabold mb-2"><i class="fa fa-bullseye text-cyan-300"></i> Focus Hub</h1>
 
-  <!-- TIMER SECTION -->
+  <!-- STREAK + SESSIONS -->
+  <div class="glass text-center mb-6">
+    <p class="text-lg text-cyan-300 font-medium">
+      <i class="fa fa-calendar text-white"></i> Today: <span id="todayDate"></span>
+    </p>
+    <h2 class="text-2xl font-bold mt-2">
+      <i class="fa fa-fire text-yellow-400"></i> Current Streak: <span id="streakCount">0</span> days
+    </h2>
+    <p class="text-lg mt-1"><i class="fa fa-hourglass-half text-green-400"></i> Sessions Today: <span id="todaySessions">0</span></p>
+    <div id="streakDays" class="flex gap-2 justify-center mt-3"></div>
+  </div>
+
+  <!-- TIMER -->
   <div class="circle-timer mb-6" id="timerDisplay">25:00</div>
+
+  <!-- CONTROLS -->
   <div class="flex gap-4 mb-6">
-    <button id="startBtn" class="btn-anim bg-green-600 hover:bg-green-700 px-6 py-3 rounded-xl">▶ Start</button>
-    <button id="pauseBtn" class="btn-anim bg-red-600 hover:bg-red-700 px-6 py-3 rounded-xl">⏸ Pause</button>
-    <button id="resetBtn" class="btn-anim bg-yellow-500 hover:bg-yellow-600 px-6 py-3 rounded-xl">🔄 Reset</button>
+    <button id="startBtn" class="btn-neon btn-green"><i class="fa fa-play"></i> Start</button>
+    <button id="pauseBtn" class="btn-neon btn-yellow"><i class="fa fa-pause"></i> Pause</button>
+    <button id="resetBtn" class="btn-neon btn-red"><i class="fa fa-refresh"></i> Reset</button>
   </div>
 
-  <!-- MODE OPTIONS -->
+  <!-- MODES -->
   <div class="flex flex-wrap justify-center gap-4 mb-10">
-    <button class="btn-anim glass px-4 py-2 rounded-xl" data-time="1500">🍅 Pomodoro (25m)</button>
-    <button class="btn-anim glass px-4 py-2 rounded-xl" data-time="600">⚡ Micro (10m)</button>
-    <button class="btn-anim glass px-4 py-2 rounded-xl" data-time="3000">📘 Deep Work (50m)</button>
-    <button class="btn-anim glass px-4 py-2 rounded-xl" data-time="1800">🛠️ Custom (30m)</button>
+    <button class="btn-neon glass" data-time="1500"><i class="fa fa-clock-o"></i> Pomodoro (25m)</button>
+    <button class="btn-neon glass" data-time="600"><i class="fa fa-bolt"></i> Micro (10m)</button>
+    <button class="btn-neon glass" data-time="3000"><i class="fa fa-book"></i> Deep Work (50m)</button>
+    <button id="customBtn" class="btn-neon glass" data-time="1800"><i class="fa fa-cogs"></i> Custom (30m)</button>
   </div>
 
-  <!-- GRID SECTIONS -->
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 w-full max-w-7xl">
-
-    <!-- Exercise -->
-    <div class="glass p-5 rounded-2xl shadow-lg">
-      <h2 class="text-2xl font-bold mb-3">💪 Quick Exercises</h2>
-      <ul class="list-disc list-inside space-y-2 text-gray-200">
+  <!-- INFO CARDS -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-6xl">
+    <div class="glass">
+      <h2 class="text-2xl font-bold mb-3"><i class="fa fa-heartbeat text-red-400"></i> Quick Exercises</h2>
+      <ul class="list-disc list-inside space-y-2 text-gray-200 text-left">
         <li>Neck rolls – 1 min</li>
         <li>Shoulder shrugs – 15 reps</li>
         <li>Wrist stretch – 30 sec</li>
@@ -103,115 +119,167 @@
       </ul>
     </div>
 
-    <!-- Tips -->
-    <div class="glass p-5 rounded-2xl shadow-lg">
-      <h2 class="text-2xl font-bold mb-3">💡 Focus Tips</h2>
-      <ul class="list-disc list-inside space-y-2 text-gray-200">
-        <li>Turn off notifications 📵</li>
-        <li>Keep water nearby 💧</li>
-        <li>Use noise-cancelling sounds 🎧</li>
-        <li>Break tasks into small chunks ✅</li>
+    <div class="glass">
+      <h2 class="text-2xl font-bold mb-3"><i class="fa fa-lightbulb-o text-yellow-300"></i> Focus Tips</h2>
+      <ul class="list-disc list-inside space-y-2 text-gray-200 text-left">
+        <li>Turn off notifications</li>
+        <li>Keep water nearby</li>
+        <li>Use noise-cancelling sounds</li>
+        <li>Break tasks into small chunks</li>
       </ul>
     </div>
 
-    <!-- Guide -->
-    <div class="glass p-5 rounded-2xl shadow-lg">
-      <h2 class="text-2xl font-bold mb-3">📖 Focus Guide</h2>
-      <ul class="list-disc list-inside space-y-2 text-gray-200">
+    <div class="glass">
+      <h2 class="text-2xl font-bold mb-3"><i class="fa fa-book text-cyan-300"></i> Focus Guide</h2>
+      <ul class="list-disc list-inside space-y-2 text-gray-200 text-left">
         <li><b>Pomodoro:</b> 25m focus + 5m break</li>
         <li><b>Deep Work:</b> 50m work + 10m break</li>
-        <li><b>2 Min Rule:</b> If <2 min → do it now</li>
+        <li><b>2 Min Rule:</b> If under 2 min → do it now</li>
         <li><b>Time Blocking:</b> Plan your day in blocks</li>
       </ul>
     </div>
-
-    <!-- Focus Coach -->
-    <div class="glass p-5 rounded-2xl shadow-lg">
-      <h2 class="text-2xl font-bold mb-3">🧘 Focus Coach</h2>
-      <p id="focusCoach" class="italic text-gray-300">"Stay calm and start strong!"</p>
-    </div>
   </div>
 
-<div class="text-center mt-16 mb-10">
-  <a href="{% url 'selfcare' %}" 
-     class="px-6 py-3 rounded-lg bg-gradient-to-r from-cyan-400 to-green-400 text-white font-semibold hover:scale-105 transition inline-block">
-     ⬅ Back to Self-Care Guides
-  </a>
-</div>
+  <!-- FOOTER -->
+  <div class="text-center mt-16 mb-10">
+    <a href="{% url 'selfcare' %}" 
+       class="px-6 py-3 rounded-lg bg-gradient-to-r from-cyan-400 to-green-400 text-white font-semibold hover:scale-105 transition inline-block">
+       <i class="fa fa-arrow-left"></i> Back to Self-Care Guides
+    </a>
+  </div>
 
-  <script>
-    let timer;
-    let timeLeft = 1500;
-    let isRunning = false;
+<script>
+  let timer;
+  let timeLeft = 1500;
+  let isRunning = false;
 
-    const timerDisplay = document.getElementById("timerDisplay");
-    const startBtn = document.getElementById("startBtn");
-    const pauseBtn = document.getElementById("pauseBtn");
-    const resetBtn = document.getElementById("resetBtn");
-    const modeBtns = document.querySelectorAll("[data-time]");
-    const coachDisplay = document.getElementById("focusCoach");
+  const timerDisplay = document.getElementById("timerDisplay");
+  const startBtn = document.getElementById("startBtn");
+  const pauseBtn = document.getElementById("pauseBtn");
+  const resetBtn = document.getElementById("resetBtn");
+  const modeBtns = document.querySelectorAll("[data-time]");
+  const customBtn = document.getElementById("customBtn");
 
-    const coachQuotes = [
-      "🌟 Stay focused, success is near!",
-      "💡 Small steps every day = Big results.",
-      "🔥 Eliminate distractions, win your time.",
-      "🧘 Breathe, relax, then focus.",
-      "🎯 One task at a time. Give it your best!"
-    ];
+  const streakCount = document.getElementById("streakCount");
+  const todaySessions = document.getElementById("todaySessions");
+  const todayDate = document.getElementById("todayDate");
 
-    function updateDisplay() {
-      let minutes = Math.floor(timeLeft / 60);
-      let seconds = timeLeft % 60;
-      timerDisplay.textContent = 
-        `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+  todayDate.innerText = new Date().toDateString();
+
+  let streak = parseInt(localStorage.getItem("focusStreak")) || 0;
+  let lastDate = localStorage.getItem("focusLastDate") || null;
+  let todayCount = parseInt(localStorage.getItem("focusTodayCount")) || 0;
+
+  function updateStreakUI() {
+    streakCount.textContent = streak;
+    todaySessions.textContent = todayCount;
+    renderStreakDays();
+  }
+
+  function renderStreakDays() {
+    const container = document.getElementById("streakDays");
+    container.innerHTML = '';
+    const today = new Date();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      const key = d.toDateString();
+      const done = (lastDate === key) || (new Date(lastDate).toDateString() === key);
+      const node = document.createElement('div');
+      node.className = 'w-8 h-8 flex items-center justify-center rounded-lg text-sm font-bold';
+      node.style.background = done ? '#16a34a' : '#374151';
+      node.innerText = d.getDate();
+      container.appendChild(node);
     }
+  }
 
-    function startTimer() {
-      if (isRunning) return;
-      isRunning = true;
-      timer = setInterval(() => {
-        if (timeLeft > 0) {
-          timeLeft--;
-          updateDisplay();
-        } else {
-          clearInterval(timer);
-          isRunning = false;
-          alert("⏰ Time’s up! Take a break.");
-        }
-      }, 1000);
-    }
+  function updateDisplay() {
+    let minutes = Math.floor(timeLeft / 60);
+    let seconds = timeLeft % 60;
+    timerDisplay.textContent = 
+      `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+  }
 
-    function pauseTimer() {
-      clearInterval(timer);
-      isRunning = false;
-    }
+  function startTimer() {
+    if (isRunning) return;
+    isRunning = true;
+    timer = setInterval(() => {
+      if (timeLeft > 0) {
+        timeLeft--;
+        updateDisplay();
+      } else {
+        clearInterval(timer);
+        isRunning = false;
+        handleSessionComplete();
+        alert("⏰ Time’s up! Take a break.");
+      }
+    }, 1000);
+  }
 
-    function resetTimer() {
-      clearInterval(timer);
-      isRunning = false;
-      timeLeft = 1500;
-      updateDisplay();
-    }
+  function pauseTimer() {
+    clearInterval(timer);
+    isRunning = false;
+  }
 
-    modeBtns.forEach(btn => {
+  function resetTimer() {
+    clearInterval(timer);
+    isRunning = false;
+    timeLeft = 1500;
+    updateDisplay();
+  }
+
+  modeBtns.forEach(btn => {
+    if (btn.id !== "customBtn") {
       btn.addEventListener("click", () => {
         timeLeft = parseInt(btn.dataset.time);
         updateDisplay();
       });
-    });
+    }
+  });
 
-    startBtn.addEventListener("click", startTimer);
-    pauseBtn.addEventListener("click", pauseTimer);
-    resetBtn.addEventListener("click", resetTimer);
+  customBtn.addEventListener("click", () => {
+    let customMinutes = prompt("Enter focus time in minutes:", "30");
+    if (customMinutes && !isNaN(customMinutes) && customMinutes > 0) {
+      timeLeft = customMinutes * 60;
+      customBtn.innerHTML = `<i class="fa fa-cogs"></i> Custom (${customMinutes}m)`;
+      updateDisplay();
+    }
+  });
 
-    // Coach quotes auto-change every 10s
-    setInterval(() => {
-      const randomQuote = coachQuotes[Math.floor(Math.random() * coachQuotes.length)];
-      coachDisplay.textContent = randomQuote;
-    }, 10000);
+  startBtn.addEventListener("click", startTimer);
+  pauseBtn.addEventListener("click", pauseTimer);
+  resetBtn.addEventListener("click", resetTimer);
 
-    updateDisplay();
-  </script>
+  function handleSessionComplete() {
+    let today = new Date().toDateString();
+
+    if (lastDate !== today) {
+      if (lastDate) {
+        let yesterday = new Date(new Date().setDate(new Date().getDate() - 1)).toDateString();
+        if (lastDate === yesterday) {
+          streak++;
+        } else {
+          streak = 1;
+        }
+      } else {
+        streak = 1;
+      }
+      todayCount = 1;
+      lastDate = today;
+    } else {
+      todayCount++;
+    }
+
+    localStorage.setItem("focusStreak", streak);
+    localStorage.setItem("focusLastDate", lastDate);
+    localStorage.setItem("focusTodayCount", todayCount);
+
+    updateStreakUI();
+  }
+
+  updateDisplay();
+  updateStreakUI();
+</script>
 
 </body>
 </html>

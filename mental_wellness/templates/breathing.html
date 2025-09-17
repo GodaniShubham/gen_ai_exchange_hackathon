@@ -1,270 +1,405 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Breathing Exercises</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Breathing Exercises — Streaks & Sessions</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
-    body {
-      margin: 0;
-      font-family: 'Poppins', sans-serif;
-      color: white;
-      background: linear-gradient(-45deg, #0f172a, #1e293b, #0f766e, #2563eb);
-      background-size: 400% 400%;
-      animation: gradientMove 12s ease infinite;
+    body{
+      margin:0;font-family:'Poppins',sans-serif;color:white;
+      background:linear-gradient(-45deg,#0f172a,#1e293b,#0f766e,#2563eb);
+      background-size:400% 400%;
+      animation:gradientMove 12s ease infinite;
     }
-    @keyframes gradientMove {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+    @keyframes gradientMove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+    .glass-box{
+      background:rgba(255,255,255,0.06);
+      backdrop-filter:blur(12px);
+      border-radius:1rem;padding:1.75rem;text-align:center;
+      box-shadow:0 8px 30px rgba(2,6,23,0.45);transition:all .28s ease;
+      border:1px solid rgba(255,255,255,0.06)
     }
-    .glass-box {
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(14px);
-      border-radius: 1rem;
-      padding: 2rem;
-      text-align: center;
-      box-shadow: 0 0 25px rgba(0,255,204,0.15);
-      transition: all 0.4s ease;
+    .glass-box:hover{transform:translateY(-6px);box-shadow:0 20px 45px rgba(2,6,23,0.55)}
+    .dropdown{position:relative;width:320px;margin-bottom:1rem;z-index:40}
+    .dropdown-btn{
+      width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+      border-radius:12px;padding:12px 16px;font-weight:700;color:white;display:flex;align-items:center;justify-content:space-between;cursor:pointer;
+      backdrop-filter:blur(6px)
     }
-    .glass-box.fade {
-      opacity: 0;
-      transform: translateY(20px);
+    .dropdown-menu{
+      position:absolute;top:110%;left:0;width:100%;background:rgba(7,11,20,0.95);border-radius:12px;padding:6px;
+      box-shadow:0 12px 30px rgba(2,6,23,0.6);opacity:0;transform:translateY(-8px);pointer-events:none;transition:all .18s;z-index:60
     }
-    .glass-box.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* Custom dropdown */
-    .dropdown {
-      position: relative;
-      width: 280px;
-      margin-bottom: 1.5rem;
-    }
-    .dropdown-btn {
-      width: 100%;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border: 2px solid rgba(255, 255, 255, 0.25);
-      border-radius: 12px;
-      padding: 12px 16px;
-      font-weight: 600;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    .dropdown-btn:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-    .dropdown-menu {
-      position: absolute;
-      top: 110%;
-      left: 0;
-      width: 100%;
-      background: rgba(17, 24, 39, 0.95);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 12px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-      overflow: hidden;
-      opacity: 0;
-      transform: translateY(-10px);
-      pointer-events: none;
-      transition: all 0.3s ease;
-      z-index: 50;
-    }
-    .dropdown-menu.show {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
-    .dropdown-item {
-      padding: 12px 16px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: background 0.25s ease;
-    }
-    .dropdown-item:hover {
-      background: rgba(34, 211, 238, 0.2);
-    }
+    .dropdown-menu.show{opacity:1;transform:translateY(0);pointer-events:auto}
+    .dropdown-item{padding:10px 12px;border-radius:8px;cursor:pointer}
+    .dropdown-item:hover{background:rgba(34,211,238,0.06)}
+    .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:28px;background:rgba(0,0,0,0.6);color:white;padding:10px 16px;border-radius:10px;display:none;z-index:80}
+    .streak-dot{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:8px;font-weight:700}
+    /* neon buttons */
+    .btn-neon{display:inline-flex;align-items:center;gap:0.5rem;padding:.75rem 1.4rem;border-radius:.9rem;font-weight:700;color:white;background:linear-gradient(145deg,#0ea5e9,#22d3ee);box-shadow:0 8px 0 rgba(6,78,110,0.35),0 0 20px rgba(34,211,238,0.18);transition:all .18s}
+    .btn-neon:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 18px 30px rgba(34,211,238,0.22)}
+    .btn-green{background:linear-gradient(145deg,#10b981,#34d399);box-shadow:0 8px 0 #064e3b,0 0 20px rgba(16,185,129,0.24)}
+    .btn-yellow{background:linear-gradient(145deg,#facc15,#fde047);box-shadow:0 8px 0 #8a5b0c;color:#001}
+    .btn-red{background:linear-gradient(145deg,#ef4444,#f87171);box-shadow:0 8px 0 #7f1d1d}
+    /* progress circle container */
+    .circle-wrap{width:160px;height:160px;position:relative;margin:auto}
+    .circle-wrap svg{width:160px;height:160px}
+    .timer-number{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:800}
+    /* responsive */
+    @media (max-width:640px){.dropdown{width:100%}.glass-box{padding:1.25rem}}
   </style>
 </head>
 <body class="flex flex-col items-center justify-center min-h-screen p-6">
 
-  <h1 class="text-4xl font-bold mb-8">Guided Breathing Exercises</h1>
-
-  <!-- ✅ Custom Dropdown -->
-  <div class="dropdown">
-    <div id="dropdownBtn" class="dropdown-btn">
-      4-7-8 Breathing
-      <svg id="dropdownIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-300" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.586l3.71-4.354a.75.75 0 111.14.976l-4.25 5a.75.75 0 01-1.14 0l-4.25-5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
-      </svg>
-    </div>
-    <div id="dropdownMenu" class="dropdown-menu">
-      <div class="dropdown-item" data-value="478">4-7-8 Breathing</div>
-      <div class="dropdown-item" data-value="box">Box Breathing</div>
-      <div class="dropdown-item" data-value="nostril">Alternate Nostril</div>
-      <div class="dropdown-item" data-value="deep">Relaxed Deep Breathing</div>
+  <!-- HEADER + STREAK -->
+  <div class="mb-6 text-center">
+    <h1 class="text-3xl md:text-4xl font-extrabold mb-2"><i class="fa-solid fa-lungs mr-2"></i> Guided Breathing</h1>
+    <div class="glass-box w-full max-w-2xl mx-auto mb-3">
+      <div class="flex items-center justify-between gap-4">
+        <div class="text-left">
+          <p class="text-sm text-cyan-200">Today: <span id="todayDate" class="font-semibold"></span></p>
+          <h2 class="text-xl font-bold mt-1">Current Streak: <span id="streakCount">0</span> days</h2>
+          <p class="text-sm text-gray-300 mt-1">Sessions today: <span id="sessionToday">0</span></p>
+        </div>
+        <div id="streakDays" class="flex gap-2"></div>
+      </div>
     </div>
   </div>
 
-  <!-- Current Step -->
-  <div id="stepBox" class="glass-box w-full max-w-lg mb-8 fade">
-    <h2 id="stepTitle" class="text-2xl font-semibold">Inhale</h2>
-    <p id="stepDesc" class="text-lg mt-2 text-gray-300">Take a deep breath in through your nose</p>
-    <div id="timer" class="text-5xl font-bold mt-4">4</div>
+  <!-- Title -->
+  <h2 class="text-2xl font-bold mb-4">Choose exercise</h2>
+
+  <!-- DROPDOWN -->
+  <div class="dropdown mb-4">
+    <div id="dropdownBtn" class="dropdown-btn" aria-haspopup="true" aria-expanded="false">
+      <span id="dropdownLabel">4-7-8 Breathing</span>
+      <i id="dropdownIcon" class="fa-solid fa-angle-down"></i>
+    </div>
+    <div id="dropdownMenu" class="dropdown-menu" role="menu" aria-hidden="true">
+      <div class="dropdown-item" data-value="478"><i class="fa-solid fa-4"></i> 4-7-8 Breathing</div>
+      <div class="dropdown-item" data-value="box"><i class="fa-solid fa-square"></i> Box Breathing</div>
+      <div class="dropdown-item" data-value="nostril"><i class="fa-solid fa-face-smile"></i> Alternate Nostril</div>
+      <div class="dropdown-item" data-value="deep"><i class="fa-solid fa-leaf"></i> Relaxed Deep Breathing</div>
+    </div>
+  </div>
+
+  <!-- Exercise Step Box -->
+  <div id="stepBox" class="glass-box w-full max-w-lg mb-6">
+    <h3 id="stepTitle" class="text-2xl font-semibold">Inhale</h3>
+    <p id="stepDesc" class="text-sm text-gray-200 mt-1">Breathe in through your nose</p>
+
+    <div class="circle-wrap mt-6">
+      <svg viewBox="0 0 160 160" class="transform -rotate-90">
+        <circle cx="80" cy="80" r="70" stroke="rgba(255,255,255,0.08)" stroke-width="12" fill="none"></circle>
+        <circle id="progressCircle" cx="80" cy="80" r="70" stroke="#22d3ee" stroke-width="12" fill="none" stroke-dasharray="440" stroke-dashoffset="440" stroke-linecap="round"></circle>
+      </svg>
+      <div class="timer-number" id="timer">4</div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="flex gap-3 mb-6">
+    <button id="startBtn" class="btn-neon btn-blue"><i class="fa-solid fa-play"></i> Start</button>
+    <button id="pauseBtn" class="btn-neon btn-yellow hidden"><i class="fa-solid fa-pause"></i> Pause</button>
+    <button id="resumeBtn" class="btn-neon btn-green hidden"><i class="fa-solid fa-play"></i> Resume</button>
+    <button id="resetBtn" class="btn-neon btn-red hidden"><i class="fa-solid fa-rotate"></i> Reset</button>
   </div>
 
   <!-- Tips -->
-  <div id="tipsContainer" class="grid md:grid-cols-3 gap-6 max-w-5xl w-full"></div>
+  <div id="tipsContainer" class="grid md:grid-cols-3 gap-6 max-w-4xl w-full"></div>
 
-  <!-- Back -->
-  <a href="{% url 'selfcare' %}" class="mt-10 px-6 py-2 rounded-lg bg-gradient-to-r from-cyan-400 to-green-400 text-white font-semibold hover:scale-105 transition">
-    ⬅ Back to Self-Care Guides
-  </a>
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
 
-  <script>
-    // Exercise data (cleaned)
-    const exercises = {
-      "478": {
-        name: "4-7-8 Breathing",
-        steps: [
-          { title: "Inhale", desc: "Breathe in through your nose", time: 4 },
-          { title: "Hold", desc: "Hold your breath gently", time: 7 },
-          { title: "Exhale", desc: "Slowly exhale through your mouth", time: 8 },
-          { title: "Relax", desc: "Stay calm and notice your body", time: 5 },
-        ],
-        tips: [
-          { title: "Calms Anxiety", desc: "This method helps slow down stress response." },
-          { title: "Better Sleep", desc: "Practicing before bed improves sleep quality." },
-          { title: "Mind Focus", desc: "Enhances mindfulness & focus." }
-        ]
-      },
-      "box": {
-        name: "Box Breathing",
-        steps: [
-          { title: "Inhale", desc: "Inhale for 4 seconds", time: 4 },
-          { title: "Hold", desc: "Hold your breath for 4 seconds", time: 4 },
-          { title: "Exhale", desc: "Exhale for 4 seconds", time: 4 },
-          { title: "Hold", desc: "Pause again before next inhale", time: 4 },
-        ],
-        tips: [
-          { title: "Stress Relief", desc: "Popular with Navy SEALs for calmness." },
-          { title: "Mental Clarity", desc: "Boosts concentration." },
-          { title: "Balance", desc: "Brings balance to nervous system." }
-        ]
-      },
-      "nostril": {
-        name: "Alternate Nostril Breathing",
-        steps: [
-          { title: "Close Right Nostril", desc: "Inhale deeply through the left nostril", time: 5 },
-          { title: "Switch", desc: "Close left, open right", time: 1 },
-          { title: "Exhale", desc: "Exhale through the right nostril", time: 5 },
-          { title: "Repeat", desc: "Now inhale through the right", time: 5 },
-        ],
-        tips: [
-          { title: "Lung Strength", desc: "Improves lung capacity & airflow." },
-          { title: "Yoga Practice", desc: "Used in Pranayama for focus." },
-          { title: "Energy Flow", desc: "Balances left & right brain energy." }
-        ]
-      },
-      "deep": {
-        name: "Relaxed Deep Breathing",
-        steps: [
-          { title: "Inhale", desc: "Breathe in slowly for 5 seconds", time: 5 },
-          { title: "Exhale", desc: "Exhale gently for 5 seconds", time: 5 },
-        ],
-        tips: [
-          { title: "Heart Health", desc: "Lowers blood pressure & heart rate." },
-          { title: "Quick Calm", desc: "Works well for stress-relief." },
-          { title: "Relaxation", desc: "Helps body enter calm state quickly." }
-        ]
+    <!-- FOOTER -->
+  <div class="text-center mt-16 mb-10">
+    <a href="{% url 'selfcare' %}" 
+       class="px-6 py-3 rounded-lg bg-gradient-to-r from-cyan-400 to-green-400 text-white font-semibold hover:scale-105 transition inline-block">
+       <i class="fa fa-arrow-left"></i> Back to Self-Care Guides
+    </a>
+  </div>
+
+<script>
+/* ---------------------------
+   Storage keys + util
+   --------------------------- */
+const STORAGE_KEY = 'breathStreak_v2';
+const SESSIONS_KEY = 'breathSessions_v2';
+
+function todayISO(){
+  const d = new Date();
+  const tzOffset = d.getTimezoneOffset() * 60000;
+  return new Date(Date.now() - tzOffset).toISOString().split('T')[0];
+}
+function loadJSON(key, fallback){ try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch(e){ return fallback; } }
+function saveJSON(key,val){ localStorage.setItem(key, JSON.stringify(val)); }
+
+/* ---------------------------
+   Exercises dataset
+   --------------------------- */
+const exercises = {
+  "478": {
+    name: "4-7-8 Breathing",
+    steps: [
+      { title:"Inhale", desc:"Breathe in through your nose", time:4 },
+      { title:"Hold", desc:"Hold your breath gently", time:7 },
+      { title:"Exhale", desc:"Slowly exhale through your mouth", time:8 },
+      { title:"Relax", desc:"Notice your body", time:5 }
+    ],
+    tips:[
+      {title:"Calms anxiety", desc:"Slows stress response & heart rate."},
+      {title:"Sleep help", desc:"Practice before bed to relax."},
+      {title:"Focus", desc:"Resets attention and mind."}
+    ]
+  },
+  "box": {
+    name: "Box Breathing",
+    steps:[
+      {title:"Inhale",desc:"4 seconds",time:4},
+      {title:"Hold",desc:"4 seconds",time:4},
+      {title:"Exhale",desc:"4 seconds",time:4},
+      {title:"Hold",desc:"4 seconds",time:4}
+    ],
+    tips:[
+      {title:"Calmness",desc:"Used by many for focus & calm."},
+      {title:"Balance",desc:"Stabilizes breathing patterns."},
+      {title:"Performance",desc:"Great before stressful tasks."}
+    ]
+  },
+  "nostril": {
+    name: "Alternate Nostril",
+    steps:[
+      {title:"Close Right",desc:"Inhale left",time:5},
+      {title:"Switch",desc:"Change nostril",time:1},
+      {title:"Exhale",desc:"Exhale right",time:5},
+      {title:"Repeat",desc:"Now inhale right",time:5}
+    ],
+    tips:[{title:"Lung health",desc:"Improves airflow & balance."}]
+  },
+  "deep": {
+    name:"Relaxed Deep Breathing",
+    steps:[{title:"Inhale",desc:"Slow 5s",time:5},{title:"Exhale",desc:"Slow 5s",time:5}],
+    tips:[{title:"Heart Health",desc:"Lowers blood pressure."}]
+  }
+};
+
+/* ---------------------------
+   State
+   --------------------------- */
+let currentExercise = "478";
+let currentStep = 0;
+let timeLeft = exercises[currentExercise].steps[0].time;
+let totalDuration = timeLeft;
+let interval = null;
+let isRunning = false;
+
+const progressCircle = document.getElementById('progressCircle');
+const timerEl = document.getElementById('timer');
+const tipsContainer = document.getElementById('tipsContainer');
+
+/* ---------------------------
+   Streaks & Sessions (robust)
+   Model: { count, lastDay (YYYY-MM-DD), daysDone: [YYYY-MM-DD,...] }
+   Sessions map: { "YYYY-MM-DD": number }
+   --------------------------- */
+function loadStreak(){ return loadJSON(STORAGE_KEY, { count:0, lastDay:null, daysDone:[] }); }
+function saveStreak(s){ saveJSON(STORAGE_KEY, s); }
+function loadSessions(){ return loadJSON(SESSIONS_KEY, {}); }
+function saveSessions(s){ saveJSON(SESSIONS_KEY, s); }
+
+function renderStreakUI(){
+  const s = loadStreak();
+  document.getElementById('streakCount').innerText = s.count || 0;
+  const container = document.getElementById('streakDays');
+  container.innerHTML = '';
+  const today = new Date();
+  for(let i=6;i>=0;i--){
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const key = d.toISOString().split('T')[0];
+    const done = s.daysDone.includes(key);
+    const n = document.createElement('div');
+    n.className = 'streak-dot';
+    n.style.background = done ? '#16a34a' : '#374151';
+    n.innerText = d.getDate();
+    container.appendChild(n);
+  }
+  // sessions today
+  const sessions = loadSessions();
+  document.getElementById('sessionToday').innerText = sessions[todayISO()] || 0;
+}
+
+/* ---------------------------
+   Toast
+   --------------------------- */
+function showToast(msg, ms=2000){
+  const t = document.getElementById('toast');
+  t.innerText = msg; t.style.display='block'; t.style.opacity='1';
+  clearTimeout(t._hideTimer);
+  t._hideTimer = setTimeout(()=>{ t.style.opacity='0'; t.style.display='none'; }, ms);
+}
+
+/* ---------------------------
+   Tips & UI update functions
+   --------------------------- */
+function updateTips(){
+  tipsContainer.innerHTML = '';
+  exercises[currentExercise].tips.forEach(t=>{
+    const el = document.createElement('div');
+    el.className = 'glass-box p-4';
+    el.innerHTML = `<h4 class="font-semibold mb-1">${t.title}</h4><p class="text-sm text-gray-200">${t.desc}</p>`;
+    tipsContainer.appendChild(el);
+  });
+}
+
+function updateStepUI(){
+  const step = exercises[currentExercise].steps[currentStep];
+  document.getElementById('stepTitle').innerText = step.title;
+  document.getElementById('stepDesc').innerText = step.desc || '';
+  timerEl.innerText = timeLeft;
+  totalDuration = step.time || 1;
+  const circumference = 440; // approx 2πr for r=70
+  const progress = circumference - (timeLeft / totalDuration) * circumference;
+  progressCircle.style.strokeDashoffset = isNaN(progress) ? circumference : progress;
+}
+
+/* ---------------------------
+   Session & Streak update logic
+   - On completing a full cycle (wrapping step -> 0) we:
+     * increment today's sessions count
+     * update streak: if lastDay was yesterday -> count++, else set to 1
+     * add today to daysDone (unique)
+   --------------------------- */
+function recordCompletedSession(){
+  const today = todayISO();
+  // sessions
+  const sessions = loadSessions();
+  sessions[today] = (sessions[today] || 0) + 1;
+  saveSessions(sessions);
+  // streak
+  const s = loadStreak();
+  const last = s.lastDay;
+  const diff = last ? ( (new Date(today+'T00:00:00') - new Date(last+'T00:00:00')) / (1000*60*60*24) ) : null;
+  if(last && Math.round(diff) === 1){
+    s.count = (s.count || 0) + 1;
+  } else {
+    s.count = 1;
+  }
+  s.lastDay = today;
+  if(!s.daysDone.includes(today)) s.daysDone.push(today);
+  if(s.daysDone.length > 120) s.daysDone = s.daysDone.slice(-120);
+  saveStreak(s);
+  renderStreakUI();
+  showToast('Session counted — streak updated!');
+}
+
+/* ---------------------------
+   Timer control
+   --------------------------- */
+function startCycle(){
+  if(isRunning) return;
+  isRunning = true;
+  document.getElementById('startBtn').classList.add('hidden');
+  document.getElementById('pauseBtn').classList.remove('hidden');
+  document.getElementById('resetBtn').classList.remove('hidden');
+  document.getElementById('resumeBtn').classList.add('hidden');
+
+  interval = setInterval(()=>{
+    if(timeLeft > 0){
+      timeLeft--;
+    } else {
+      // advance to next step
+      currentStep = (currentStep + 1) % exercises[currentExercise].steps.length;
+      timeLeft = exercises[currentExercise].steps[currentStep].time;
+      // If wrapped to step 0 -> full round complete
+      if(currentStep === 0){
+        recordCompletedSession();
       }
-    };
-
-    let currentExercise = "478";
-    let currentStep = 0;
-    let timeLeft = exercises[currentExercise].steps[0].time;
-
-    function updateStep() {
-      const stepBox = document.getElementById("stepBox");
-      stepBox.classList.remove("show");
-      stepBox.classList.add("fade");
-
-      setTimeout(() => {
-        const step = exercises[currentExercise].steps[currentStep];
-        document.getElementById("stepTitle").innerText = step.title;
-        document.getElementById("stepDesc").innerText = step.desc;
-        document.getElementById("timer").innerText = timeLeft;
-        stepBox.classList.remove("fade");
-        stepBox.classList.add("show");
-      }, 300);
     }
+    updateStepUI();
+  }, 1000);
+}
 
-    function updateTips() {
-      const tipsContainer = document.getElementById("tipsContainer");
-      tipsContainer.innerHTML = "";
-      exercises[currentExercise].tips.forEach(tip => {
-        tipsContainer.innerHTML += `
-          <div class="p-6 rounded-xl bg-gray-800/70 hover:scale-105 transition shadow-lg shadow-cyan-500/20">
-            <h3 class="text-xl font-semibold mb-2">${tip.title}</h3>
-            <p class="text-gray-300">${tip.desc}</p>
-          </div>
-        `;
-      });
-    }
+function pauseCycle(){
+  if(!isRunning) return;
+  clearInterval(interval); interval = null; isRunning = false;
+  document.getElementById('pauseBtn').classList.add('hidden');
+  document.getElementById('resumeBtn').classList.remove('hidden');
+  document.getElementById('startBtn').classList.add('hidden'); // keep start hidden
+  showToast('Paused');
+}
 
-    function startCycle() {
-      setInterval(() => {
-        if (timeLeft > 0) {
-          timeLeft--;
-        } else {
-          currentStep = (currentStep + 1) % exercises[currentExercise].steps.length;
-          timeLeft = exercises[currentExercise].steps[currentStep].time;
-        }
-        updateStep();
-      }, 1000);
-    }
+function resumeCycle(){
+  if(isRunning) return;
+  document.getElementById('resumeBtn').classList.add('hidden');
+  document.getElementById('pauseBtn').classList.remove('hidden');
+  startCycle(); // reuse
+}
 
-    // ✅ Dropdown functionality
-    const dropdownBtn = document.getElementById("dropdownBtn");
-    const dropdownMenu = document.getElementById("dropdownMenu");
-    const dropdownIcon = document.getElementById("dropdownIcon");
+function resetCycle(){
+  clearInterval(interval); interval = null; isRunning = false;
+  currentStep = 0;
+  timeLeft = exercises[currentExercise].steps[0].time;
+  document.getElementById('startBtn').classList.remove('hidden');
+  document.getElementById('pauseBtn').classList.add('hidden');
+  document.getElementById('resumeBtn').classList.add('hidden');
+  document.getElementById('resetBtn').classList.add('hidden');
+  updateStepUI();
+  showToast('Reset');
+}
 
-    dropdownBtn.addEventListener("click", () => {
-      dropdownMenu.classList.toggle("show");
-      dropdownIcon.classList.toggle("rotate-180");
-    });
+/* ---------------------------
+   Dropdown handling
+   --------------------------- */
+const dropdownBtn = document.getElementById('dropdownBtn');
+const dropdownMenu = document.getElementById('dropdownMenu');
+const dropdownLabel = document.getElementById('dropdownLabel');
+const dropdownIcon = document.getElementById('dropdownIcon');
 
-    document.querySelectorAll(".dropdown-item").forEach(item => {
-      item.addEventListener("click", () => {
-        currentExercise = item.dataset.value;
-        currentStep = 0;
-        timeLeft = exercises[currentExercise].steps[0].time;
-        dropdownBtn.childNodes[0].textContent = item.textContent;
-        updateStep();
-        updateTips();
-        dropdownMenu.classList.remove("show");
-        dropdownIcon.classList.remove("rotate-180");
-      });
-    });
-
-    document.addEventListener("click", (e) => {
-      if (!dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
-        dropdownMenu.classList.remove("show");
-        dropdownIcon.classList.remove("rotate-180");
-      }
-    });
-
-    updateStep();
+dropdownBtn.addEventListener('click', ()=>{
+  dropdownMenu.classList.toggle('show');
+  dropdownIcon.classList.toggle('fa-rotate-180');
+});
+document.querySelectorAll('.dropdown-item').forEach(item=>{
+  item.addEventListener('click', ()=>{
+    const val = item.dataset.value;
+    if(!exercises[val]) return;
+    currentExercise = val;
+    currentStep = 0;
+    timeLeft = exercises[currentExercise].steps[0].time;
+    dropdownLabel.textContent = exercises[currentExercise].name;
+    dropdownMenu.classList.remove('show');
+    dropdownIcon.classList.remove('fa-rotate-180');
     updateTips();
-    startCycle();
-  </script>
+    updateStepUI();
+    resetCycle();
+  });
+});
+document.addEventListener('click', (e)=>{
+  if(!dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)){
+    dropdownMenu.classList.remove('show');
+    dropdownIcon.classList.remove('fa-rotate-180');
+  }
+});
+
+/* ---------------------------
+   Button hooks
+   --------------------------- */
+document.getElementById('startBtn').addEventListener('click', startCycle);
+document.getElementById('pauseBtn').addEventListener('click', pauseCycle);
+document.getElementById('resumeBtn').addEventListener('click', resumeCycle);
+document.getElementById('resetBtn').addEventListener('click', resetCycle);
+
+/* ---------------------------
+   Init UI
+   --------------------------- */
+document.getElementById('todayDate').innerText = new Date().toDateString();
+updateTips();
+updateStepUI();
+renderStreakUI();
+
+</script>
 </body>
 </html>

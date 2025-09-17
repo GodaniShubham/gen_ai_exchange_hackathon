@@ -1,130 +1,328 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wellness Journey</title>
+  <title>Wellness Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/scrollreveal"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     body {
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      font-family: 'Inter', sans-serif;
-      overflow-x: hidden;
+      margin:0; font-family:'Poppins', sans-serif; color:white;
+      background:linear-gradient(-45deg,#0f172a,#1e293b,#0f766e,#2563eb);
+      background-size:400% 400%;
+      animation:gradientMove 12s ease infinite;
     }
-    /* Glassmorphism Card */
-    .card {
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 1.2rem;
-      transition: all 0.4s ease;
+    @keyframes gradientMove {
+      0%{background-position:0% 50%}
+      50%{background-position:100% 50%}
+      100%{background-position:0% 50%}
     }
-    .card:hover {
-      transform: translateY(-6px) scale(1.03);
-      background: rgba(255, 255, 255, 0.15);
-      box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+    .glass {
+      background:rgba(255,255,255,0.08);
+      backdrop-filter:blur(14px);
+      border-radius:1rem;
+      padding:1.5rem;
+      box-shadow:0 0 25px rgba(0,255,204,0.15);
+      transition:transform .2s ease, box-shadow .2s ease;
     }
-    /* Breathing Orb */
-    .orb {
-      width: 160px;
-      height: 160px;
-      border-radius: 50%;
-      background: radial-gradient(circle, #6dd5ed, #2193b0);
-      animation: breathe 6s infinite ease-in-out;
-      margin: auto;
-      box-shadow: 0 0 50px rgba(109, 213, 237, 0.7);
+    .glass:hover {
+      transform:translateY(-4px) scale(1.02);
+      box-shadow:0 0 40px rgba(0,255,204,0.3);
     }
-    @keyframes breathe {
-      0%, 100% { transform: scale(0.85); opacity: 0.8; }
-      50% { transform: scale(1.2); opacity: 1; }
+    /* Neon Checkbox */
+    .challenge-item input[type="checkbox"] {
+      appearance: none;
+      width: 22px; height: 22px;
+      border: 2px solid #22d3ee;
+      border-radius: 6px;
+      margin-right: 10px;
+      position: relative;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .challenge-item input[type="checkbox"]:checked {
+      background: #22d3ee;
+      box-shadow: 0 0 10px #22d3ee, 0 0 20px #22d3ee;
+    }
+    .challenge-item input[type="checkbox"]:checked::after {
+      content: "✔";
+      position: absolute;
+      color: #0f172a;
+      font-weight: bold;
+      left: 4px; top: -1px;
     }
   </style>
 </head>
-<body class="text-white">
+<body class="flex flex-col items-center p-6">
 
-  <!-- Hero -->
-  <header class="text-center py-16">
-    <h1 class="text-6xl font-extrabold tracking-tight bg-gradient-to-r from-teal-300 to-blue-400 bg-clip-text text-transparent">
-      Wellness Journey
-    </h1>
-    <p class="mt-6 text-lg text-gray-200 max-w-2xl mx-auto">
-      Discover calm, clarity, and inner balance with guided practices
-    </p>
-  </header>
+  <!-- HEADER -->
+  <h1 class="text-4xl font-extrabold mb-4"><i class="fa fa-heart text-pink-400"></i> Wellness Dashboard</h1>
 
-  <!-- Breathing Orb -->
-  <section class="py-16 text-center">
-    <h2 class="text-3xl font-semibold mb-8">Mindful Breathing</h2>
-    <div class="orb"></div>
-    <p class="mt-6 text-gray-300">Inhale as the orb expands, exhale as it shrinks</p>
-  </section>
+  <!-- STREAK (Shifted UP) -->
+  <div class="glass text-center w-full max-w-3xl mb-6">
+    <h2 class="text-2xl font-bold"><i class="fa fa-fire text-yellow-400"></i> Streak: <span id="streakCount">0</span> days</h2>
+    <div id="streakFlames" class="flex justify-center gap-1 mt-2"></div>
+  </div>
 
-  <!-- Daily Tip / Quote -->
-  <section class="py-12 px-6 text-center">
-    <div class="card p-10 shadow-xl max-w-2xl mx-auto">
-      <h2 class="text-2xl font-semibold mb-4">Today’s Wellness Tip</h2>
-      <p id="tip" class="text-gray-100 text-lg italic"></p>
+  <!-- MOOD TRACKER -->
+  <div class="glass text-center mb-6 w-full max-w-3xl">
+    <h2 class="text-2xl font-bold mb-4"><i class="fa fa-face-smile text-yellow-400"></i> How are you feeling today?</h2>
+    <div id="moodOptions" class="flex flex-wrap justify-center gap-4 mb-2">
+      <button class="glass px-4 py-2" data-mood="happy">😊 Happy</button>
+      <button class="glass px-4 py-2" data-mood="stressed">😓 Stressed</button>
+      <button class="glass px-4 py-2" data-mood="sad">😔 Sad</button>
+      <button class="glass px-4 py-2" data-mood="energetic">⚡ Energetic</button>
+      <button class="glass px-4 py-2" data-mood="angry">😡 Angry</button>
     </div>
-  </section>
+    <p class="text-gray-300 text-sm">Select your mood and get personalized tips + challenges 🌿</p>
+  </div>
 
-  <!-- Wellness Journey Timeline -->
-  <section class="px-6 md:px-20 py-20">
-    <h2 class="text-center text-3xl font-bold mb-16">Your Path to Balance</h2>
-    
-    <div class="space-y-10">
-      <div class="card p-8 flex flex-col gap-4" data-sr>
-        <h3 class="text-2xl font-semibold">Gratitude Practice</h3>
-        <p class="text-gray-200">Write down three things you’re thankful for daily to cultivate positivity.</p>
-      </div>
+  <!-- MOOD TIPS -->
+  <div id="moodTips" class="hidden glass w-full max-w-3xl mb-6">
+    <h2 class="text-2xl font-bold mb-4">🌟 Wellness Tips for You</h2>
+    <div id="tipsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+  </div>
 
-      <div class="card p-8 flex flex-col gap-4" data-sr>
-        <h3 class="text-2xl font-semibold">Body Scan</h3>
-        <p class="text-gray-200">Focus on each body part, release tension, and feel grounded in the present moment.</p>
-      </div>
+  <!-- DAILY CHALLENGES -->
+  <div id="challengesBox" class="hidden glass w-full max-w-3xl mb-6">
+    <h2 class="text-2xl font-bold mb-4"><i class="fa fa-list-check text-cyan-300"></i> Today's Challenges</h2>
+    <div id="challengeList" class="space-y-3"></div>
+  </div>
 
-      <div class="card p-8 flex flex-col gap-4" data-sr>
-        <h3 class="text-2xl font-semibold">Visualization</h3>
-        <p class="text-gray-200">Imagine your happy place — forest, beach, or mountain — and immerse yourself in it for deep calmness.</p>
-      </div>
+  <!-- MOTIVATION MESSAGES -->
+  <div id="motivationBox" class="glass w-full max-w-3xl text-center hidden">
+    <h2 class="text-xl font-bold mb-2">🌟 Motivation Boost</h2>
+    <p id="motivationText" class="text-lg"></p>
+  </div>
 
-      <div class="card p-8 flex flex-col gap-4" data-sr>
-        <h3 class="text-2xl font-semibold">Digital Detox</h3>
-        <p class="text-gray-200">Step away from screens for ten minutes and observe your surroundings mindfully.</p>
-      </div>
+  <!-- CONFETTI CANVAS -->
+  <canvas id="confettiCanvas" class="fixed top-0 left-0 w-full h-full pointer-events-none"></canvas>
+
+  <!-- REWARD MODAL -->
+  <div id="rewardModal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center z-50">
+    <div class="glass text-center p-8 max-w-md">
+      <h2 class="text-3xl font-bold mb-4">🎉 Congratulations!</h2>
+      <p id="rewardMessage" class="text-lg mb-4"></p>
+      <button onclick="closeReward()" class="bg-cyan-400 text-black px-4 py-2 rounded-lg font-bold hover:bg-cyan-300 transition">
+        Awesome 🚀
+      </button>
     </div>
-  </section>
+  </div>
 
-<!-- Back Button at Bottom -->
-<div class="text-center mt-1 mb-10">
-  <a href="{% url 'selfcare' %}" 
-     class="px-6 py-3 rounded-lg bg-gradient-to-r from-cyan-400 to-green-400 text-white font-semibold hover:scale-105 transition inline-block">
-     ⬅ Back to Self-Care Guides
-  </a>
-</div>
+  <!-- FOOTER -->
+ <div class="text-center mt-16 mb-10">
+    <a href="{% url 'selfcare' %}" 
+       class="px-6 py-3 rounded-lg bg-gradient-to-r from-cyan-400 to-green-400 text-white font-semibold hover:scale-105 transition inline-block">
+       <i class="fa fa-arrow-left"></i> Back to Self-Care Guides
+    </a>
+  </div>
 
+<script>
+  // --- MOOD DATA ---
+  const moodData = {
+    happy: {
+      tips: ["Share your smile 😃","Write down 3 things that made you happy","Do something kind for a friend","Capture the moment 📸"],
+      challenges: [
+        "Spread positivity: Compliment 2 people",
+        "Dance to your favorite song 💃",
+        "Write down 3 happy memories",
+        "Take a fun selfie & smile",
+        "Call a friend and laugh together",
+        "Cook something you love 🍲"
+      ]
+    },
+    stressed: {
+      tips: ["Take 5 deep breaths 🧘","Stretch for 2 minutes","Listen to calming music 🎶","Write down what's stressing you out"],
+      challenges: [
+        "Do a 5-min meditation",
+        "Unplug from your phone for 30 min",
+        "Drink chamomile tea 🍵",
+        "Write 1 thing you're grateful for",
+        "Do 10 mins yoga",
+        "Take a power nap 😴"
+      ]
+    },
+    sad: {
+      tips: ["Talk to a close friend 💬","Write in your journal ✍️","Take a short walk 🚶","Remind yourself: this will pass 💖"],
+      challenges: [
+        "Call a loved one ❤️",
+        "Go outside for 10 minutes 🌳",
+        "Listen to uplifting music 🎶",
+        "Write 3 things you like about yourself",
+        "Watch a funny video 😂",
+        "Draw or doodle 🎨"
+      ]
+    },
+    energetic: {
+      tips: ["Go for a jog or dance it out 💃","Channel energy into a creative task 🎨","Encourage someone else","Start a fun challenge ⚡"],
+      challenges: [
+        "Do 20 push-ups 💪",
+        "Dance for 10 minutes",
+        "Try a new workout",
+        "Do 5 mins of jumping jacks",
+        "Run up and down stairs",
+        "Do 10 burpees"
+      ]
+    },
+    angry: {
+      tips: ["Take a break: walk away 🧘","Splash water on your face 🚿","Write feelings then tear it","Do slow breathing for 2 mins"],
+      challenges: [
+        "Punch a pillow for release 🥊",
+        "Do 15 mins exercise",
+        "Write your anger in a journal",
+        "Practice forgiveness",
+        "Do 20 push-ups",
+        "Take a cold shower 🚿"
+      ]
+    }
+  };
 
-  <script>
-    // Random Tip Generator
-    const tips = [
-      "Take a deep breath — peace begins with your inhale.",
-      "Start your day with gratitude. Write down three small joys.",
-      "Pause for five minutes today. Just observe your surroundings.",
-      "Sip water mindfully — hydration is meditation too.",
-      "Stretch your body. Release the stress locked inside."
-    ];
-    document.getElementById("tip").innerText = 
-      tips[Math.floor(Math.random() * tips.length)];
+  const rewardMessages = [
+    "🎖 You unlocked the *Mindful Master* badge!",
+    "🌟 Great job! Here’s a *Wellness Star* for you.",
+    "💎 You earned a *Diamond of Discipline*!",
+    "🏆 Champion! You’ve won today’s *Health Hero* trophy.",
+    "🎁 Surprise! You get a *Self-Care Gift Box*."
+  ];
 
-    // Scroll Reveal Animations
-    ScrollReveal().reveal('[data-sr]', { 
-      delay: 200, 
-      distance: '50px',
-      duration: 1000,
-      easing: 'ease-out',
-      origin: 'bottom'
+  const moodButtons=document.querySelectorAll("#moodOptions button");
+  const moodTips=document.getElementById("moodTips");
+  const tipsContainer=document.getElementById("tipsContainer");
+  const challengeList=document.getElementById("challengeList");
+  const challengesBox=document.getElementById("challengesBox");
+  let checkboxes=[];
+
+  // streak
+  let streak=parseInt(localStorage.getItem("wellnessStreak"))||0;
+  let lastDate=localStorage.getItem("lastCompletedDate")||null;
+  const streakCount=document.getElementById("streakCount");
+  const streakFlames=document.getElementById("streakFlames");
+
+  // Random challenge picker
+  function getRandomChallenges(arr,count){
+    let shuffled=[...arr].sort(()=>0.5-Math.random());
+    return shuffled.slice(0,count);
+  }
+
+  moodButtons.forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const mood=btn.dataset.mood;
+
+      // Tips
+      tipsContainer.innerHTML="";
+      moodData[mood].tips.forEach(tip=>{
+        const card=document.createElement("div");
+        card.className="glass p-4 text-center transform transition hover:rotate-1 hover:scale-105";
+        card.innerHTML=`<p class="text-lg">${tip}</p>`;
+        tipsContainer.appendChild(card);
+      });
+      moodTips.classList.remove("hidden");
+
+      // Random challenges
+      challengeList.innerHTML="";
+      const randomChallenges=getRandomChallenges(moodData[mood].challenges,4);
+      randomChallenges.forEach((ch,idx)=>{
+        const label=document.createElement("label");
+        label.className="challenge-item flex items-center text-lg";
+        label.innerHTML=`<input type="checkbox" value="${idx}"> ${ch}`;
+        challengeList.appendChild(label);
+      });
+      challengesBox.classList.remove("hidden");
+
+      checkboxes=document.querySelectorAll("#challengeList input[type='checkbox']");
+      checkboxes.forEach(cb=>{
+        cb.addEventListener("change",()=>{
+          if(cb.checked) showMotivation();
+          checkAllDone();
+        });
+      });
     });
-  </script>
+  });
+
+  // Motivation
+  const motivationMessages=["🔥 Nice! Keep it going!","💪 That’s the spirit!","🌟 You’re unstoppable!","⚡ Boom! Next level!","✨ Finish strong!"];
+  const motivationBox=document.getElementById("motivationBox");
+  const motivationText=document.getElementById("motivationText");
+
+  function showMotivation(){
+    motivationBox.classList.remove("hidden");
+    motivationText.textContent=motivationMessages[Math.floor(Math.random()*motivationMessages.length)];
+  }
+
+  function showReward() {
+    const msg = rewardMessages[Math.floor(Math.random() * rewardMessages.length)];
+    document.getElementById("rewardMessage").innerHTML = msg;
+    document.getElementById("rewardModal").classList.remove("hidden");
+  }
+
+  function closeReward() {
+    document.getElementById("rewardModal").classList.add("hidden");
+  }
+
+  function checkAllDone(){
+    let completed=[...checkboxes].filter(cb=>cb.checked).length;
+    if(completed===checkboxes.length && checkboxes.length>0){
+      let today=new Date().toDateString();
+      if(lastDate!==today){
+        streak++;
+        lastDate=today;
+        localStorage.setItem("wellnessStreak",streak);
+        localStorage.setItem("lastCompletedDate",lastDate);
+        launchConfetti();
+        showReward(); // 🎉 reward added here
+      }
+      updateStreakUI();
+      motivationText.textContent="🎉 All done! You’re amazing! Streak boosted!";
+    }
+  }
+
+  function updateStreakUI(){
+    streakCount.textContent=streak;
+    streakFlames.innerHTML="";
+    for(let i=0;i<streak;i++){
+      streakFlames.innerHTML+=`<i class="fa fa-fire text-yellow-400 animate-bounce"></i>`;
+    }
+  }
+  updateStreakUI();
+
+  // Confetti
+  const canvas=document.getElementById("confettiCanvas");
+  const ctx=canvas.getContext("2d");
+  let confetti=[];
+  let confettiInterval;
+
+  function launchConfetti(){
+    confetti=[];
+    for(let i=0;i<200;i++){
+      confetti.push({
+        x:Math.random()*window.innerWidth,
+        y:Math.random()*window.innerHeight-window.innerHeight,
+        r:Math.random()*6+2,
+        d:Math.random()*0.5+0.5,
+        color:`hsl(${Math.random()*360},100%,50%)`
+      });
+    }
+    animateConfetti();
+    clearTimeout(confettiInterval);
+    confettiInterval=setTimeout(()=>{confetti=[];ctx.clearRect(0,0,canvas.width,canvas.height)},5000);
+  }
+
+  function animateConfetti(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    confetti.forEach(p=>{
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2,false);
+      ctx.fillStyle=p.color;
+      ctx.fill();
+      p.y+=p.d*5;
+      if(p.y>canvas.height)p.y=-10;
+    });
+    if(confetti.length)requestAnimationFrame(animateConfetti);
+  }
+  window.addEventListener("resize",()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;});
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+</script>
 
 </body>
 </html>

@@ -268,6 +268,9 @@ def selfcare_page(request):
 def wellness_page(request):
     return render(request, "wellness.html")
 
+def sleep_tracker(request):
+    return render(request, "sleeptracker.html")
+
 def settings_privacy(request):
     """
     ⚙️ Handles Settings & Privacy:

@@ -1,0 +1,225 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sleep Tracker · Saharathi AI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      color: white;
+      background: linear-gradient(270deg, #0a0f2c, #0f1e3a, #10274a, #1a1f5c);
+      background-size: 600% 600%;
+      animation: gradientShift 20s ease infinite;
+      min-height: 100vh;
+      padding-bottom: 50px;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .glass {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .btn-glow {
+      background: linear-gradient(90deg, #00e5ff, #00ff94);
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 4px rgba(0, 255, 204, 0.3);
+    }
+    .btn-glow:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
+    }
+  </style>
+</head>
+<body class="px-4 md:px-12 lg:px-32">
+
+  <h1 class="text-4xl font-bold text-center py-8">😴 Sleep Tracker</h1>
+
+  <!-- 🔔 Alarm Section -->
+  <section class="glass p-6 rounded-2xl mb-8">
+    <h2 class="text-2xl font-semibold mb-4">⏰ Set Your Alarm</h2>
+    
+    <!-- Time Picker -->
+    <div class="flex justify-center mb-4">
+      <input type="time" id="alarmTime" class="p-3 rounded-lg text-black w-2/3 md:w-1/3">
+    </div>
+
+    <!-- Buttons -->
+    <div class="flex flex-col md:flex-row gap-4 items-center justify-center">
+      <button id="setAlarmBtn" class="btn-glow px-6 py-3 rounded-lg">Set Alarm</button>
+      <button id="stopAlarmBtn" class="btn-glow bg-red-500 hover:bg-red-600 px-6 py-3 rounded-lg">Stop Alarm</button>
+    </div>
+    <p id="alarmStatus" class="mt-3 text-center opacity-80"></p>
+  </section>
+
+  <!-- 🛏️ Sleep Tracking + Recent Sessions -->
+  <section class="glass p-6 rounded-2xl mb-8">
+    <h2 class="text-2xl font-semibold mb-4">🛏️ Sleep Tracking</h2>
+    
+    <!-- Tracking Buttons -->
+    <div class="flex flex-col md:flex-row gap-4 items-center justify-center mb-4">
+      <button id="startBtn" class="btn-glow px-6 py-3 rounded-lg">Start Tracking</button>
+      <button id="stopBtn" class="btn-glow bg-red-500 hover:bg-red-600 px-6 py-3 rounded-lg">Stop Tracking</button>
+    </div>
+    <p id="sessionStatus" class="text-center mb-4 opacity-80"></p>
+
+    <!-- Recent Sessions -->
+    <h3 class="text-xl font-semibold mb-2">🕒 Recent Sessions</h3>
+    <ul id="recentSessions" class="list-disc pl-6"></ul>
+  </section>
+
+  <!-- 📊 Graph Section -->
+  <section class="glass p-6 rounded-2xl mb-8">
+    <h2 class="text-2xl font-semibold mb-4">📊 Sleep Duration (Last 14 Sessions)</h2>
+    <canvas id="sleepChart"></canvas>
+  </section>
+
+  <!-- ⭐ Sleep Quality -->
+  <section class="glass p-6 rounded-2xl mb-8 text-center">
+    <h2 class="text-2xl font-semibold mb-4">⭐ Sleep Quality</h2>
+    <p id="sleepQuality" class="text-xl opacity-90"></p>
+  </section>
+
+ <!-- 🔔 Alarm Sound -->
+<audio id="alarmSound" preload="auto" loop>
+  <source src="{% static 'sounds/loud_alarm.mp3' %}" type="audio/mpeg">
+</audio>
+
+<!-- FOOTER -->
+  <div class="text-center mt-16 mb-10">
+    <a href="{% url 'selfcare' %}" 
+       class="px-6 py-3 rounded-lg bg-gradient-to-r from-cyan-400 to-green-400 text-white font-semibold hover:scale-105 transition inline-block">
+       <i class="fa fa-arrow-left"></i> Back to Self-Care Guides
+    </a>
+  </div>
+
+<script> 
+ let alarmTime = null;
+ let alarmInterval = null;
+ const alarm = document.getElementById("alarmSound");
+ const alarmStatus = document.getElementById("alarmStatus");
+
+ // ✅ Force browser to allow sound
+ function unlockAudio() {
+   alarm.play().then(() => {
+     alarm.pause();
+     alarm.currentTime = 0;
+     console.log("Audio unlocked ✅");
+   }).catch(err => {
+     console.warn("Audio unlock failed:", err);
+   });
+ }
+
+ document.getElementById("setAlarmBtn").addEventListener("click", () => {
+   unlockAudio(); // 👈 First interaction unlocks audio
+   alarmTime = document.getElementById("alarmTime").value;
+   if (!alarmTime) return alert("Please select a time ⏰");
+   alarmStatus.innerText = "✅ Alarm set for " + alarmTime;
+   if (alarmInterval) clearInterval(alarmInterval);
+
+   alarmInterval = setInterval(() => {
+     const now = new Date();
+     const current = now.toTimeString().slice(0,5);
+     if (current === alarmTime) {
+       alarm.play().catch(err => console.error("Play failed:", err));
+       alarmStatus.innerText = "🚨 Alarm ringing!";
+       clearInterval(alarmInterval);
+     }
+   }, 1000);
+ });
+
+ document.getElementById("stopAlarmBtn").addEventListener("click", () => {
+   alarm.pause();
+   alarm.currentTime = 0;
+   alarmStatus.innerText = "🛑 Alarm stopped";
+ });
+
+ // 🛏️ Sleep Tracking
+ let startTime = null;
+ let sessions = JSON.parse(localStorage.getItem("sleepSessions")) || [];
+
+ document.getElementById("startBtn").addEventListener("click", () => {
+   startTime = new Date();
+   document.getElementById("sessionStatus").innerText = "🟢 Tracking started...";
+ });
+
+ document.getElementById("stopBtn").addEventListener("click", () => {
+   if (!startTime) return alert("Start tracking first!");
+   const endTime = new Date();
+   const diff = endTime - startTime; // in ms
+
+   // Convert to H:M:S
+   const hours = Math.floor(diff / (1000 * 60 * 60));
+   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+   const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+   const formatted = `${hours}h ${minutes}m ${seconds}s`;
+
+   // Save session
+   sessions.push({
+     date: new Date().toLocaleDateString(),
+     duration: formatted,
+     rawSeconds: diff / 1000 // use for graph
+   });
+
+   localStorage.setItem("sleepSessions", JSON.stringify(sessions));
+   startTime = null;
+   document.getElementById("sessionStatus").innerText = "✅ Session saved: " + formatted;
+   updateUI();
+ });
+
+ // 📊 Chart + UI Update
+ let ctx = document.getElementById("sleepChart").getContext("2d");
+ let chart = new Chart(ctx, {
+   type: 'line',
+   data: { 
+     labels: [], 
+     datasets: [{ 
+       label: "Sleep Duration (hrs)", 
+       data: [], 
+       borderColor: "#00e5ff", 
+       backgroundColor: "rgba(0,229,255,0.3)", 
+       fill: true 
+     }] 
+   },
+   options: { responsive: true, scales: { y: { beginAtZero: true, max: 12 } } }
+ });
+
+ function updateUI() {
+   let recentList = document.getElementById("recentSessions");
+   recentList.innerHTML = "";
+   sessions.slice(-5).reverse().forEach(s => {
+     let li = document.createElement("li");
+     li.innerText = `${s.date}: ${s.duration}`;
+     recentList.appendChild(li);
+   });
+
+   // Chart update (convert seconds → hours)
+   let last14 = sessions.slice(-14);
+   chart.data.labels = last14.map(s => s.date);
+   chart.data.datasets[0].data = last14.map(s => (s.rawSeconds / 3600).toFixed(2));
+   chart.update();
+
+   // Sleep Quality
+   if (sessions.length > 0) {
+     let last5 = sessions.slice(-5).map(s => s.rawSeconds / 3600);
+     let avg = last5.reduce((a,b) => a+b, 0) / last5.length;
+     let quality = avg >= 7 ? "Excellent 🌙" : avg >= 5 ? "Good 🙂" : "Poor 😴";
+     document.getElementById("sleepQuality").innerText = `${avg.toFixed(2)} hrs avg → ${quality}`;
+   }
+ }
+
+ updateUI();
+</script>
+
+</body>
+</html>

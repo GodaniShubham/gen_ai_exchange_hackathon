@@ -16,65 +16,65 @@ User = get_user_model()
 
 # -------------------- SIGNUP --------------------
 def signup_view(request):
-    if request.method == "POST":
-        username = request.POST.get("username")
-        email = request.POST.get("email")
-        password1 = request.POST.get("password1")
-        password2 = request.POST.get("password2")
+    if request.method != "POST":
+        return render(request, "auth/signup.html")
 
-        # Password match check
-        if password1 != password2:
-            messages.error(request, "❌ Passwords do not match!", extra_tags="auth")
-            return redirect("signup")
+    username = request.POST.get("username")
+    email = request.POST.get("email")
+    password1 = request.POST.get("password1")
+    password2 = request.POST.get("password2")
 
-        # Strong password check
-        try:
-            validate_password(password1)
-        except ValidationError as e:
-            messages.error(request, f"⚠️ Weak Password: {' '.join(e.messages)}", extra_tags="auth")
-            return redirect("signup")
+    # Password match check
+    if password1 != password2:
+        messages.error(request, "❌ Passwords do not match!", extra_tags="auth")
+        return redirect("signup")
 
-        # Existing user check
-        if User.objects.filter(email=email).exists():
-            messages.error(request, "⚠️ Email already registered!", extra_tags="auth")
-            return redirect("signup")
+    # Strong password check
+    try:
+        validate_password(password1)
+    except ValidationError as e:
+        messages.error(request, f"⚠️ Weak Password: {' '.join(e.messages)}", extra_tags="auth")
+        return redirect("signup")
 
-        if User.objects.filter(username=username).exists():
-            messages.error(request, "⚠️ Username already taken!", extra_tags="auth")
-            return redirect("signup")
+    # Existing user check
+    if User.objects.filter(email=email).exists():
+        messages.error(request, "⚠️ Email already registered!", extra_tags="auth")
+        return redirect("signup")
 
-        # Generate OTP
-        otp = str(random.randint(100000, 999999))
+    if User.objects.filter(username=username).exists():
+        messages.error(request, "⚠️ Username already taken!", extra_tags="auth")
+        return redirect("signup")
 
-        user = User.objects.create_user(
-            username=username,
-            email=email,
-            password=password1,
-            otp=otp,
-            is_verified=False
-        )
-        user.save()
+    # Generate OTP
+    otp = str(random.randint(100000, 999999))
 
-        # Send OTP email
-        subject = "Your Saharathi AI OTP Verification"
-        from_email = settings.DEFAULT_FROM_EMAIL
-        to_email = [email]
+    user = User.objects.create_user(
+        username=username,
+        email=email,
+        password=password1,
+        otp=otp,
+        is_verified=False
+    )
+    user.save()
 
-        html_content = render_to_string("emails/otp_email.html", {
-            "username": username,
-            "otp": otp,
-        })
-        text_content = strip_tags(html_content)
+    # Send OTP email
+    subject = "Your Saharathi AI OTP Verification"
+    from_email = settings.DEFAULT_FROM_EMAIL
+    to_email = [email]
 
-        email_message = EmailMultiAlternatives(subject, text_content, from_email, to_email)
-        email_message.attach_alternative(html_content, "text/html")
-        email_message.send()
+    html_content = render_to_string("emails/otp_email.html", {
+        "username": username,
+        "otp": otp,
+    })
+    text_content = strip_tags(html_content)
 
-        request.session["email_for_verification"] = email
-        messages.success(request, "✅ Signup successful! Check your email for OTP verification.", extra_tags="auth")
-        return redirect("verify_otp")
+    email_message = EmailMultiAlternatives(subject, text_content, from_email, to_email)
+    email_message.attach_alternative(html_content, "text/html")
+    email_message.send()
 
-    return render(request, "auth/signup.html")
+    request.session["email_for_verification"] = email
+    messages.success(request, "✅ Signup successful! Check your email for OTP verification.", extra_tags="auth")
+    return redirect("verify_otp")
 
 # -------------------- VERIFY OTP --------------------
 def verify_otp_view(request):
@@ -207,3 +207,7 @@ def reset_password(request, email):
         return redirect("login")
 
     return render(request, "auth/reset_password.html", {"email": email})
+
+
+def confirm_email(request):
+    return render(request, "auth/confirm_email.html")

@@ -24,6 +24,7 @@ urlpatterns = [
     path('', include('saharathiapp.urls')),
     path('journals/', include('journals.urls')),
     path('accounts/', include('allauth.urls')),
+    # path('accounts/', include('accounts.urls')),
     path('auth/', include('accounts.urls')),
 ]
 

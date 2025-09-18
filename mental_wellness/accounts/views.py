@@ -10,11 +10,9 @@ from django.utils.html import strip_tags
 import random
 from datetime import timedelta
 from django.utils import timezone
-
-
+from allauth.socialaccount.models import SocialAccount  # For social user check
 
 User = get_user_model()
-
 
 # -------------------- SIGNUP --------------------
 def signup_view(request):
@@ -78,7 +76,6 @@ def signup_view(request):
 
     return render(request, "auth/signup.html")
 
-
 # -------------------- VERIFY OTP --------------------
 def verify_otp_view(request):
     if request.method == "POST":
@@ -102,7 +99,6 @@ def verify_otp_view(request):
 
     return render(request, "auth/verify_otp.html")
 
-
 # -------------------- LOGIN --------------------
 def login_view(request):
     if request.method == "POST":
@@ -111,6 +107,9 @@ def login_view(request):
 
         try:
             user = User.objects.get(email=email)
+            if not user.is_verified:
+                messages.error(request, "❌ Please verify your email first!", extra_tags="auth")
+                return redirect("verify_otp")
         except User.DoesNotExist:
             messages.error(request, "❌ Invalid email or password", extra_tags="auth")
             return redirect("login")
@@ -126,13 +125,13 @@ def login_view(request):
 
     return render(request, "auth/login.html")
 
-
 # -------------------- LOGOUT --------------------
 def logout_view(request):
     logout(request)
     messages.success(request, "✅ Logged out successfully", extra_tags="auth")
     return redirect("login")
 
+# -------------------- FORGOT PASSWORD --------------------
 def forgot_password(request):
     if request.method == "POST":
         email = request.POST.get("email")
@@ -142,7 +141,7 @@ def forgot_password(request):
             # Generate OTP
             otp = str(random.randint(100000, 999999))
             user.otp = otp
-            user.otp_created_at = timezone.now()  # Track OTP creation time
+            user.otp_created_at = timezone.now()
             user.save()
             
             # Send OTP via email
@@ -163,7 +162,6 @@ def forgot_password(request):
         except User.DoesNotExist:
             messages.error(request, "❌ Email not found!")
     return render(request, "auth/forgot-password.html")
-
 
 # -------------------- RESET PASSWORD --------------------
 def reset_password(request, email):

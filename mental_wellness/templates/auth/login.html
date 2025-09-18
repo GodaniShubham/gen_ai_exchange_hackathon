@@ -1,9 +1,13 @@
+{% load static %}
+{% load socialaccount %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="{% static 'css/tailwind.css' %}">
+    <link rel="stylesheet" href="{% static 'css/toastify.min.css' %}">
+    <script src="{% static 'js/toastify.min.js' %}"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login | Saharathi AI</title>
@@ -19,7 +23,6 @@
         50% {background-position: 100% 50%;}
         100% {background-position: 0% 50%;}
     }
-
     .toastify {
         animation: fadeInUp 0.5s ease;
     }
@@ -27,51 +30,65 @@
         from { opacity: 0; transform: translate3d(0, 20%, 0); }
         to { opacity: 1; transform: translate3d(0, 0, 0); }
     }
+    @media (max-width: 640px) {
+        .max-w-md { max-width: 100%; margin: 0 1rem; }
+    }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen text-white">
-
-    <div class="w-full max-w-md p-8 space-y-6 bg-black/40 backdrop-blur-2xl rounded-2xl shadow-2xl border border-gray-800">
+    <div class="w-full max-w-md p-6 space-y-6 bg-black/40 backdrop-blur-2xl rounded-2xl shadow-2xl border border-gray-800">
         <div class="text-center">
             <h1 class="text-3xl font-bold tracking-tight">Saharathi AI</h1>
             <p class="text-gray-400 text-sm">Welcome back — sign in to continue</p>
         </div>
-
-    <form method="POST" action="{% url 'login' %}" class="space-y-4">
-    {% csrf_token %}
-
-        <input type="email" name="email" placeholder="Email"
-            class="w-full px-4 py-3 rounded-lg bg-gray-900 border border-gray-700 focus:ring-2 focus:ring-indigo-400 outline-none text-white" required>
-
-        <div class="relative">
-            <input type="password" name="password" id="password" placeholder="Password"
-                class="w-full px-4 py-3 rounded-lg bg-gray-900 border border-gray-700 focus:ring-2 focus:ring-indigo-400 outline-none text-white" required>
-            
-            <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-white">
-                <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-                <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.052 10.052 0 013.094-4.23M6.41 6.41A9.968 9.968 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.963 9.963 0 01-1.788 3.046M3 3l18 18" />
-                </svg>
+        <form method="POST" action="{% url 'login' %}" class="space-y-4" novalidate>
+            {% csrf_token %}
+            <input type="email" name="email" placeholder="Email" required
+                class="w-full px-4 py-3 rounded-lg bg-gray-900 border border-gray-700 focus:ring-2 focus:ring-indigo-400 outline-none text-white placeholder-gray-500"
+                aria-label="Email">
+            <div class="relative">
+                <input type="password" name="password" id="password" placeholder="Password" required
+                    class="w-full px-4 py-3 rounded-lg bg-gray-900 border border-gray-700 focus:ring-2 focus:ring-indigo-400 outline-none text-white placeholder-gray-500"
+                    aria-label="Password">
+                <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-white">
+                    <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.052 10.052 0 013.094-4.23M6.41 6.41A9.968 9.968 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.963 9.963 0 01-1.788 3.046M3 3l18 18" />
+                    </svg>
+                </button>
+            </div>
+            <p class="text-right text-sm mt-1">
+                <a href="{% url 'forgot_password' %}" class="text-indigo-400 hover:underline">Forgot Password?</a>
+            </p>
+            <button type="submit"
+                class="w-full py-3 font-semibold text-black bg-white rounded-lg hover:bg-gray-200 transition duration-200">
+                Login
             </button>
+        </form>
+        <div class="relative my-4">
+            <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-gray-600"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+                <span class="px-2 bg-black/40 text-gray-400">Or continue with</span>
+            </div>
         </div>
-
-        <p class="text-right text-sm mt-1">
-            <a href="{% url 'forgot_password' %}" class="text-indigo-400 hover:underline">Forgot Password?</a>
+        <a href="{% url 'social:begin' 'google-oauth2' %}" class="w-full flex items-center justify-center py-3 font-semibold text-white bg-gray-800 rounded-lg hover:bg-gray-700 transition duration-200">
+            <svg class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12.24 10.4V14.8H16.4C16.16 16.24 15.04 17.36 13.6 17.84V20.88H17.44C19.92 18.56 21.36 15.28 21.36 12C21.36 11.28 21.28 10.56 21.12 9.92H12.24V10.4Z" fill="#4285F4"/>
+                <path d="M12 22C15.28 22 17.92 20.88 19.44 18.56L13.6 17.84C12.56 18.48 11.28 18.88 10 18.88C6.8 18.88 4.08 16.56 3.12 13.6H1.2V17.44C2.72 20.48 6.08 22 12 22Z" fill="#34A853"/>
+                <path d="M3.12 13.6C2.88 12.56 2.88 11.44 3.12 10.4V6.56H1.2C0.48 7.92 0 9.44 0 11C0 12.56 0.48 14.08 1.2 15.44L3.12 13.6Z" fill="#FBBC05"/>
+                <path d="M12 5.12C13.36 5.12 14.64 5.68 15.6 6.56L19.92 2.24C17.92 0.48 15.28 0 12 0C6.08 0 2.72 1.52 1.2 4.56L3.12 6.4C4.08 3.44 6.8 1.12 12 1.12Z" fill="#EA4335"/>
+            </svg>
+            Sign in with Google
+        </a>
+        <p class="text-center text-sm text-gray-400">
+            Don’t have an account? 
+            <a href="{% url 'signup' %}" class="text-indigo-400 hover:underline">Sign up</a>
         </p>
-
-        <button type="submit"
-            class="w-full py-3 font-semibold text-black bg-white rounded-lg hover:bg-gray-200 transition">
-            Login
-        </button>
-    </form>
-
-    <p class="text-center text-sm text-gray-400">
-        Don’t have an account? 
-        <a href="{% url 'signup' %}" class="text-indigo-400 hover:underline">Sign up</a>
-    </p>
     </div>
     {% for message in messages %}
     {% if "auth" in message.tags %}
@@ -88,13 +105,12 @@
         </script>
     {% endif %}
     {% endfor %}
-
     <script>
-        function togglePassword() {
-            const pass = document.getElementById("password");
-            const eyeOpen = document.getElementById("eyeOpen");
-            const eyeClosed = document.getElementById("eyeClosed");
-
+    function togglePassword() {
+        const pass = document.getElementById("password");
+        const eyeOpen = document.getElementById("eyeOpen");
+        const eyeClosed = document.getElementById("eyeClosed");
+        if (pass && eyeOpen && eyeClosed) {
             if (pass.type === "password") {
                 pass.type = "text";
                 eyeOpen.classList.remove("hidden");
@@ -105,6 +121,7 @@
                 eyeClosed.classList.remove("hidden");
             }
         }
+    }
     </script>
 </body>
 </html>

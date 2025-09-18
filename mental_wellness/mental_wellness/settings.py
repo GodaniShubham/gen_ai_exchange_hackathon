@@ -30,7 +30,49 @@ INSTALLED_APPS = [
     "accounts",
     'tailwind',
     'theme',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+]   
+
+SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
+
+
+# allauth settings
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_USERNAME_REQUIRED = True
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'APP': {
+            'client_id': '553127092893-a6if09ggosqk25jbgert57993utsdhp3.apps.googleusercontent.com',
+            'secret': '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',
+            'key': ''
+        }
+    }
+}
+
+# Redirect URLs after login/signup
+LOGIN_REDIRECT_URL = 'index'
+ACCOUNT_LOGOUT_REDIRECT_URL = 'login'
+SOCIALACCOUNT_LOGIN_ON_GET = True  # Skip confirmation page for social login
+
+
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
 MIDDLEWARE = [
@@ -39,6 +81,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -58,6 +101,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -112,3 +156,6 @@ EMAIL_HOST_USER = "godanishubham30@gmail.com"
 EMAIL_HOST_PASSWORD = "zodm usky pzwx uded"   # Gmail App Password (not normal password)
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+
+SOCIALACCOUNT_LOGIN_ON_GET=True

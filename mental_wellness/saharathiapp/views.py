@@ -188,7 +188,7 @@ def chatbot_api(request):
             "please reach out to someone you trust or contact emergency services right now.\n\n"
             "🇮🇳 India Helpline (AASRA): +91-98204 66726\n"
             "🌍 If you are elsewhere, please look up your local suicide prevention hotline.\n\n"
-            "🙏 You are not alone — please talk to someone you trust. 💙"
+            "🙏 You are not alone — please talk to someone you trust. 💙    "
         )})
 
     
@@ -324,3 +324,6 @@ def get_chat_messages(request, session_id):
         {"sender": "user", "text": "Hi there!"}
     ]
     return JsonResponse({"session_id": str(session_id), "messages": messages})
+
+def consultations(request):
+    return render(request, "consultations.html")

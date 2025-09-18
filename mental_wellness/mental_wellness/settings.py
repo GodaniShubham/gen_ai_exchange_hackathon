@@ -50,6 +50,10 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_USERNAME_REQUIRED = True
+
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv("GOOGLE_CLIENT_ID")
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'SCOPE': [
@@ -60,12 +64,13 @@ SOCIALACCOUNT_PROVIDERS = {
             'access_type': 'online',
         },
         'APP': {
-            'client_id': '553127092893-a6if09ggosqk25jbgert57993utsdhp3.apps.googleusercontent.com',
-            'secret': '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',
+            'client_id': 'SOCIAL_AUTH_GOOGLE_OAUTH2_KEY',
+            'secret': 'SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET',
             'key': ''
         }
     }
 }
+
 
 # Redirect URLs after login/signup
 LOGIN_REDIRECT_URL = 'index'
@@ -153,7 +158,9 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
 EMAIL_HOST_USER = "godanishubham30@gmail.com"
-EMAIL_HOST_PASSWORD = "zodm usky pzwx uded"   # Gmail App Password (not normal password)
+
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASSWORD")
+
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 

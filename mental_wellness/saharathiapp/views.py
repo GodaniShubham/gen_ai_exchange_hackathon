@@ -191,34 +191,24 @@ def chatbot_api(request):
             "🙏 You are not alone — please talk to someone you trust. 💙"
         )})
 
-    # -----------------------
-    # 2) Wellness keyword detection (allow only wellness topics)
-    # -----------------------
-    wellness_keywords = [
-        "stress", "anxiety", "sleep", "mood", "depression", "self care",
-        "meditation", "wellness", "focus", "relax", "happy", "sad", "tired",
-        "mental health", "panic", "lonely", "anger", "fear", "overthinking"
-    ]
-    contains_wellness = any(keyword in lm for keyword in wellness_keywords)
+    
+    sad_keywords = ["sad", "lonely", "crying", "heartbroken"]
+    stress_keywords = ["stressed", "tired", "anxious", "overwhelmed", "pressure"]
 
-    if not contains_wellness:
-        # ❌ Reject if not wellness related
-        return JsonResponse({
-            "reply": (
-                "⚠️ I only provide information and support about mental health, mood, and wellness topics.\n\n"
-                "🙏 कृपया केवल मानसिक स्वास्थ्य, मूड या वेलनेस से जुड़े सवाल पूछें।\n\n"
-                "⚠️ હું ફક્ત માનસિક સ્વાસ્થ્ય, મૂડ અને વેલનેસ વિષયક પ્રશ્નોના જવાબ આપી શકું છું."
-            )
-        })
-
+    context = "Casual friendly conversation."
+    if any(kw in lm for kw in sad_keywords):
+        context = "The user feels sad. Reply like a caring, empathetic friend in natural casual language."
+    elif any(kw in lm for kw in stress_keywords):
+        context = "The user feels stressed. Reply casually and consolingly, offering light encouragement and support."
+  
     # -----------------------
     # 3) Build system prompt (multilingual)
     # -----------------------
     system_prompt = (
-        "You are a compassionate, multilingual Mental Wellness Assistant. "
-        "You can reply in English, Hindi, or Gujarati depending on the user's input language. "
+        "You are a supportive, casual mental wellness friend. "
+        "You can reply in English, Hindi, or any regional language depending on the user's input language. "
         "Always answer kindly and empathetically, give practical coping tips (breathing, grounding, sleep hygiene, small routines). "
-        "Never give medical diagnoses or prescriptions. "
+        "Keep replies natural, and human-like.Never sound like a therapist, just a warm companion "
         "If the user appears in crisis, remind them to seek emergency help and provide helpline information. "
     )
 

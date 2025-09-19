@@ -54,6 +54,7 @@ ACCOUNT_USERNAME_REQUIRED = True
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv("GOOGLE_CLIENT_ID")
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'SCOPE': [
@@ -64,12 +65,13 @@ SOCIALACCOUNT_PROVIDERS = {
             'access_type': 'online',
         },
         'APP': {
-            'client_id': 'SOCIAL_AUTH_GOOGLE_OAUTH2_KEY',
-            'secret': 'SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET',
+            'client_id': SOCIAL_AUTH_GOOGLE_OAUTH2_KEY,
+            'secret': SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET,
             'key': ''
         }
     }
 }
+
 
 
 # Redirect URLs after login/signup
@@ -166,3 +168,15 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
 SOCIALACCOUNT_LOGIN_ON_GET=True
+
+import firebase_admin
+from firebase_admin import credentials, db
+
+# Firebase setup
+FIREBASE_CRED = credentials.Certificate(BASE_DIR / "firebase.json")
+
+# Initialize only once
+if not firebase_admin._apps:
+    firebase_admin.initialize_app(FIREBASE_CRED, {
+        'databaseURL': os.getenv("FIREBASE_DB_URL")  # Add this in your .env
+    })

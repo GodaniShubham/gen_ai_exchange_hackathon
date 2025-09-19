@@ -43,3 +43,4 @@ urllib3==2.5.0
 gunicorn>=20.1.0
 firebase-admin
 django-allauth
+whitenoise==6.10.0

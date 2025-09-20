@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import ChatSession, Message
-
+from .models import Consultant, Booking
 # 🔹 Inline messages inside ChatSession
 class MessageInline(admin.TabularInline):
     model = Message
@@ -50,3 +50,44 @@ class MessageAdmin(admin.ModelAdmin):
     def short_text(self, obj):
         return obj.text[:100] + ("..." if len(obj.text) > 100 else "")
     short_text.short_description = "Preview"
+
+@admin.register(Consultant)
+class ConsultantAdmin(admin.ModelAdmin):
+    list_display = ['name', 'specialty', 'rating', 'availability', 'is_online', 'created_at']
+    list_filter = ['specialty', 'availability', 'is_online', 'rating']
+    search_fields = ['name', 'specialty', 'bio']
+    list_editable = ['is_online', 'availability']
+    ordering = ['-rating', 'name']
+    
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('name', 'specialty', 'bio')
+        }),
+        ('Location', {
+            'fields': ('latitude', 'longitude')
+        }),
+        ('Professional Details', {
+            'fields': ('rating', 'availability', 'is_online')
+        }),
+    )
+
+@admin.register(Booking)
+class BookingAdmin(admin.ModelAdmin):
+    list_display = ['consultant', 'email', 'session_type', 'date_time', 'created_at']
+    list_filter = ['session_type', 'date_time', 'created_at']
+    search_fields = ['consultant__name', 'email', 'phone']
+    readonly_fields = ['created_at']
+    date_hierarchy = 'date_time'
+    
+    fieldsets = (
+        ('Booking Details', {
+            'fields': ('consultant', 'session_type', 'date_time')
+        }),
+        ('Contact Information', {
+            'fields': ('email', 'phone')
+        }),
+        ('Metadata', {
+            'fields': ('created_at',),
+            'classes': ('collapse',)
+        }),
+    )

@@ -18,7 +18,7 @@ urlpatterns = [
     # 🤖 Chat API (backend endpoint for AI reply)
     path("chatbot_api/", views.chatbot_api, name="chatbot_api"),
 
-   
+    
 
     # ⚙️ Settings & Privacy
     path("settings/", views.settings_privacy, name="settings_privacy"),
@@ -33,4 +33,6 @@ urlpatterns = [
     path("wellness/", views.wellness_page, name="wellness"),
     path("sleep-tracker/", views.sleep_tracker, name="sleep_tracker"),
     path("consultations/", views.consultations, name="consultations"),
+    path('consultants/', views.get_consultants_json, name='consultants_json'),
+    path('book/', views.book_consultation, name='book_consultation'),
 ]

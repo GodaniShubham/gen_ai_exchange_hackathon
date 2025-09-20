@@ -91,13 +91,13 @@ MIDDLEWARE = [
     'allauth.account.middleware.AccountMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 if DEBUG:
-    INSTALLED_APPS += ["django_browser_reload"]
-    MIDDLEWARE += ["django_browser_reload.middleware.BrowserReloadMiddleware"]
-
+    # Add django_browser_reload middleware only in DEBUG mode
+    MIDDLEWARE += [
+        "django_browser_reload.middleware.BrowserReloadMiddleware",
+    ]
 
 ROOT_URLCONF = 'mental_wellness.urls'
 
@@ -141,7 +141,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ================================
@@ -169,14 +169,38 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 SOCIALACCOUNT_LOGIN_ON_GET=True
 
+# ---------------- Firebase Admin (safe init) ----------------
 import firebase_admin
 from firebase_admin import credentials, db
+import json
+from pathlib import Path
 
-# Firebase setup
-FIREBASE_CRED = credentials.Certificate(BASE_DIR / "firebase.json")
+# Prefer absolute path from env; fallback to BASE_DIR / "firebase.json"
+FIREBASE_CREDENTIAL_PATH = os.getenv("FIREBASE_CREDENTIAL_PATH")  # full path to JSON
+FIREBASE_DB_URL = os.getenv("FIREBASE_DB_URL")
 
-# Initialize only once
-if not firebase_admin._apps:
-    firebase_admin.initialize_app(FIREBASE_CRED, {
-        'databaseURL': os.getenv("FIREBASE_DB_URL")  # Add this in your .env
-    })
+firebase_cred_obj = None
+if FIREBASE_CREDENTIAL_PATH:
+    cred_path = Path(FIREBASE_CREDENTIAL_PATH)
+    if cred_path.exists():
+        firebase_cred_obj = credentials.Certificate(str(cred_path))
+    else:
+        # If path provided but not exist, try interpreting as JSON content
+        try:
+            firebase_cred_obj = credentials.Certificate(json.loads(FIREBASE_CREDENTIAL_PATH))
+        except Exception:
+            firebase_cred_obj = None
+else:
+    # fallback to project-level firebase.json if present (but avoid committing this file)
+    fallback = BASE_DIR / "firebase.json"
+    if fallback.exists():
+        firebase_cred_obj = credentials.Certificate(str(fallback))
+
+if firebase_cred_obj and FIREBASE_DB_URL:
+    if not firebase_admin._apps:
+        firebase_admin.initialize_app(firebase_cred_obj, {
+            "databaseURL": FIREBASE_DB_URL
+        })
+else:
+    # Not fatal — we will handle firebase calls gracefully (try/except) in models/views.
+    print("⚠️ Firebase not configured (FIREBASE_CREDENTIAL_PATH or FIREBASE_DB_URL missing).")

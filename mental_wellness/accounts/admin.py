@@ -4,7 +4,8 @@ from .models import CustomUser
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
-    list_display = ("email", "username", "is_verified", "is_staff", "date_joined")
+    list_display = ("id","email", "username", "otp","is_verified", "is_staff", "date_joined")
+    ordering = ("-date_joined",)
     fieldsets = (
         (None, {"fields": ("email", "username", "password")}),
         ("Permissions", {"fields": ("is_staff", "is_active", "is_superuser", "groups", "user_permissions")}),

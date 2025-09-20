@@ -1,654 +1,372 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Consultations – Saharathi AI</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
-  <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Google Maps JavaScript API for Places -->
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_API_KEY&libraries=places"></script>
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: { sans: ["Inter", "ui-sans-serif", "system-ui"] },
-          colors: {
-            brand: {
-              50: "#e9fdf5",
-              100: "#c8f8e6",
-              200: "#9df0d3",
-              300: "#6de6be",
-              400: "#42d6a7",
-              500: "#1cc88a",
-              600: "#13a573",
-              700: "#0f845e",
-              800: "#0b6549",
-              900: "#084f3a",
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mental Health Consultations – Saharathi AI</title>
+    <meta name="description" content="Connect with verified mental health professionals for personalized consultations. Find nearby consultants with flexible scheduling and secure booking.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Leaflet Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ["Inter", "ui-sans-serif", "system-ui"] },
+                    colors: {
+                        primary: {
+                            50: "hsl(142, 76%, 96%)",
+                            100: "hsl(142, 72%, 91%)",
+                            200: "hsl(142, 71%, 82%)",
+                            300: "hsl(142, 71%, 70%)",
+                            400: "hsl(142, 69%, 58%)",
+                            500: "hsl(142, 69%, 45%)",
+                            600: "hsl(142, 70%, 37%)",
+                            700: "hsl(142, 69%, 30%)",
+                            800: "hsl(142, 67%, 25%)",
+                            900: "hsl(142, 65%, 21%)",
+                        },
+                        background: "hsl(220, 65%, 4%)",
+                        foreground: "hsl(220, 9%, 98%)",
+                        card: "hsl(220, 50%, 6%)",
+                        "card-foreground": "hsl(220, 9%, 98%)",
+                        popover: "hsl(220, 50%, 6%)",
+                        "popover-foreground": "hsl(220, 9%, 98%)",
+                        muted: "hsl(220, 50%, 14%)",
+                        "muted-foreground": "hsl(220, 9%, 65%)",
+                        accent: "hsl(220, 50%, 14%)",
+                        "accent-foreground": "hsl(220, 9%, 98%)",
+                        destructive: "hsl(0, 62%, 50%)",
+                        "destructive-foreground": "hsl(220, 9%, 98%)",
+                        border: "hsl(220, 50%, 14%)",
+                        input: "hsl(220, 50%, 14%)",
+                        ring: "hsl(142, 69%, 58%)",
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.8s ease-in-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'pulse-glow': 'pulseGlow 3s ease-in-out infinite',
+                        'float': 'float 4s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { 
+                                transform: 'scale(1)', 
+                                opacity: '0.7',
+                                boxShadow: '0 0 20px rgba(34, 197, 94, 0.3)'
+                            },
+                            '50%': { 
+                                transform: 'scale(1.1)', 
+                                opacity: '1',
+                                boxShadow: '0 0 30px rgba(34, 197, 94, 0.6)'
+                            },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                    },
+                },
             },
-          },
-          boxShadow: { mnc: "0 10px 30px rgba(0,0,0,.25)" },
-          animation: {
-            'fade-in': 'fadeIn 0.8s ease-in-out',
-            'slide-up': 'slideUp 0.5s ease-out',
-            'pulse-slow': 'pulseSlow 3s ease-in-out infinite',
-            'float': 'float 4s ease-in-out infinite',
-          },
-          keyframes: {
-            fadeIn: {
-              '0%': { opacity: '0' },
-              '100%': { opacity: '1' },
-            },
-            slideUp: {
-              '0%': { transform: 'translateY(20px)', opacity: '0' },
-              '100%': { transform: 'translateY(0)', opacity: '1' },
-            },
-            pulseSlow: {
-              '0%, 100%': { transform: 'scale(1)', opacity: '0.7' },
-              '50%': { transform: 'scale(1.1)', opacity: '1' },
-            },
-            float: {
-              '0%, 100%': { transform: 'translateY(0)' },
-              '50%': { transform: 'translateY(-10px)' },
-            },
-          },
-        },
-      },
-    };
-  </script>
-  <style>
-    html,
-    body {
-      scroll-behavior: smooth;
-    }
+        };
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: hsl(220, 65%, 4%);
+            color: hsl(220, 9%, 98%);
+        }
+        
+        .breathing-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, hsl(142, 69%, 58%), hsl(142, 69%, 45%));
+            animation: pulseGlow 6s ease-in-out infinite;
+            position: absolute;
+        }
 
-    .breathing-circle {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: radial-gradient(circle, #4f9cff, #2563eb);
-      animation: pulseSlow 6s ease-in-out infinite;
-      opacity: 0.8;
-      box-shadow: 0 0 25px rgba(79, 156, 255, 0.5);
-      position: absolute;
-    }
-
-    #map {
-      height: 500px;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      transition: all 0.3s ease;
-    }
-
-    #map:hover {
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    }
-
-    .leaflet-popup-content-wrapper {
-      background: #0b1320;
-      border-radius: 8px;
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .leaflet-popup-tip {
-      background: #0b1320;
-    }
-
-    .leaflet-container {
-      background: #0b1320;
-    }
-
-    .select-custom {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: white;
-      transition: all 0.2s ease;
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23fff' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 0.75rem center;
-      background-size: 1.5em;
-    }
-
-    .select-custom:focus {
-      border-color: #1cc88a;
-      box-shadow: 0 0 0 3px rgba(28, 200, 138, 0.1);
-      background: rgba(255, 255, 255, 0.08);
-    }
-
-    .select-custom option {
-      background: #0b1320;
-      color: white;
-      padding: 8px;
-    }
-
-    .consultant-card {
-      transition: all 0.2s ease;
-      cursor: pointer;
-    }
-
-    .consultant-card:hover {
-      transform: translateX(4px);
-      background: rgba(255, 255, 255, 0.08);
-    }
-
-    .loading {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(255,255,255,.3);
-      border-radius: 50%;
-      border-top-color: #fff;
-      animation: spin 1s ease-in-out infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    @media (max-width: 768px) {
-      #map { height: 400px; }
-      .grid-cols-4 { grid-template-columns: 1fr; }
-    }
-  </style>
+        #map {
+            height: 500px;
+            border-radius: 12px;
+            border: 1px solid hsl(220, 50%, 14%);
+            background: hsl(220, 50%, 6%);
+        }
+        
+        .leaflet-popup-content-wrapper {
+            background: hsl(220, 50%, 6%);
+            border-radius: 8px;
+            color: hsl(220, 9%, 98%);
+            border: 1px solid hsl(220, 50%, 14%);
+        }
+        
+        .leaflet-popup-tip {
+            background: hsl(220, 50%, 6%);
+        }
+        
+        .leaflet-container {
+            background: hsl(220, 50%, 6%);
+        }
+        
+        .consultant-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            background: hsl(220, 50%, 6%);
+            border: 1px solid hsl(220, 50%, 14%);
+        }
+        
+        .consultant-card:hover {
+            transform: translateX(4px);
+            background: hsl(220, 50%, 8%);
+            border-color: hsl(142, 69%, 58%);
+        }
+        
+        .select-custom {
+            background: hsl(220, 50%, 6%);
+            border: 1px solid hsl(220, 50%, 14%);
+            color: hsl(220, 9%, 98%);
+            transition: all 0.2s ease;
+        }
+        
+        .select-custom:focus {
+            border-color: hsl(142, 69%, 58%);
+            box-shadow: 0 0 0 3px hsla(142, 69%, 58%, 0.1);
+        }
+        
+        .btn-primary {
+            background: hsl(142, 69%, 58%);
+            color: hsl(220, 9%, 98%);
+            border: none;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            background: hsl(142, 69%, 50%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px hsla(142, 69%, 58%, 0.3);
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 
-<body class="font-sans bg-[#0b1320] text-white">
-  <!-- Go Back Button -->
-  <div class="fixed top-4 left-4 z-50">
-    <a href="{% url  'index' %}" class="flex items-center gap-2 text-white/80 hover:text-white transition-all px-4 py-2 rounded-md hover:bg-white/10">
-      <i class="fas fa-arrow-left"></i> Go Back
-    </a>
-  </div>  
-
-  <!-- HERO FOR CONSULTATIONS -->
-  <section class="relative pt-16 pb-20 bg-gradient-to-br from-brand-900 via-indigo-900 to-[#0b1320] overflow-hidden">
-    <div class="absolute inset-0 opacity-20">
-      <div class="breathing-circle top-10 left-10"></div>
-      <div class="breathing-circle bottom-20 right-20" style="animation-delay: -2s;"></div>
-    </div>
-    <div class="mx-auto max-w-7xl px-6 lg:px-8 text-center space-y-6 relative z-10">
-      <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight animate-slide-up">
-        Connect with Expert Consultants
-      </h1>
-      <p class="text-white/80 text-base md:text-lg max-w-xl mx-auto animate-slide-up" style="animation-delay: 0.2s;">
-        Discover verified mental health professionals for personalized in-person or virtual consultations tailored to your needs.
-      </p>
-      <div class="flex justify-center gap-4 animate-slide-up" style="animation-delay: 0.4s;">
-        <button id="locateBtn"
-          class="px-6 py-3 rounded-xl bg-brand-500 text-[#0a1713] font-semibold hover:bg-brand-400 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 inline-flex items-center gap-2">
-          <i class="fas fa-location-arrow"></i>
-          Find Nearby Experts
-        </button>
-        <a href="{% url 'chat_page' %}"
-          class="px-6 py-3 rounded-xl bg-transparent border border-white/20 text-white/80 hover:bg-white/10 hover:text-white transition-all duration-300 inline-flex items-center gap-2">
-          <i class="fas fa-comment-dots"></i>
-          Start Virtual Consultation
+<body>
+    <!-- Go Back Button -->
+    <div class="fixed top-4 left-4 z-50">
+        <a href="/" class="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all px-4 py-2 rounded-md hover:bg-muted">
+            <i class="fas fa-arrow-left"></i> Go Back
         </a>
-      </div>
     </div>
-  </section>
 
-  <!-- MAIN CONSULTATIONS SECTION -->
-  <section class="relative py-16 bg-[#0b1320] pt-20">
-    <div class="mx-auto max-w-7xl px-6 lg:px-8">
-      <div class="grid lg:grid-cols-4 gap-8">
-        <!-- Filters & List Sidebar -->
-        <div class="lg:col-span-1 space-y-6 animate-slide-up">
-          <!-- Search Bar -->
-          <div class="p-4 rounded-2xl bg-white/5 border border-white/10 relative">
-            <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-white/50"></i>
-            <input type="text" id="searchInput" placeholder="Search consultants..."
-              class="w-full bg-transparent border-0 text-white placeholder-white/50 pl-10 focus:outline-none focus:ring-1 focus:ring-brand-300 rounded-lg py-2" />
-          </div>
-
-          <!-- Filters -->
-          <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-4">
-            <h3 class="font-semibold flex items-center gap-2">
-              <i class="fas fa-filter text-brand-300"></i>
-              Filters
-            </h3>
-            <div>
-              <label class="block text-sm text-white/70 mb-2 flex items-center gap-2">
-                <i class="fas fa-stethoscope text-brand-300"></i>
-                Specialty
-              </label>
-              <select id="specialtyFilter" class="select-custom w-full rounded-lg px-3 py-2">
-                <option>All</option>
-                <option>OCD</option>
-                <option>Neuropsychiatry</option>
-                <option>De-addiction</option>
-                <option>Child Psychiatry</option>
-                <option>Psychiatry</option>
-                <option>Mental Health</option>
-                <option>Addiction Psychiatry</option>
-                <option>Geriatric Psychiatry</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm text-white/70 mb-2 flex items-center gap-2">
-                <i class="fas fa-calendar-check text-brand-300"></i>
-                Availability
-              </label>
-              <select id="availabilityFilter" class="select-custom w-full rounded-lg px-3 py-2">
-                <option>All</option>
-                <option>Today</option>
-                <option>This Week</option>
-                <option>Next Month</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm text-white/70 mb-2 flex items-center gap-2">
-                <i class="fas fa-star text-brand-300"></i>
-                Rating
-              </label>
-              <select id="ratingFilter" class="select-custom w-full rounded-lg px-3 py-2">
-                <option>All</option>
-                <option>4+ Stars</option>
-                <option>5 Stars</option>
-              </select>
-            </div>
-            <button id="clearFilters"
-              class="w-full mt-4 px-4 py-2 rounded-lg bg-transparent border border-white/20 text-white/70 hover:bg-white/10 transition-all duration-200 text-sm">
-              Clear Filters
-            </button>
-          </div>
-
-          <!-- Consultants List -->
-          <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-4 max-h-96 overflow-y-auto">
-            <h3 class="font-semibold flex items-center gap-2">
-              <i class="fas fa-users text-brand-300"></i>
-              Nearby Consultants (<span id="resultsCount">0</span>)
-            </h3>
-            <div id="consultantsList">
-              <!-- Dynamic list populated by JS -->
-            </div>
-          </div>
+    <!-- Hero Section -->
+    <section class="relative pt-16 pb-20 bg-gradient-to-br from-primary-900 via-card to-background overflow-hidden">
+        <div class="absolute inset-0 opacity-20">
+            <div class="breathing-circle top-10 left-10"></div>
+            <div class="breathing-circle bottom-20 right-20" style="animation-delay: -2s;"></div>
         </div>
-
-        <!-- Map -->
-        <div class="lg:col-span-3 relative">
-          <div id="map" class="animate-fade-in"></div>
-          <div id="loadingMap" class="absolute inset-0 bg-[#0b1320]/80 flex items-center justify-center rounded-2xl">
-            <div class="text-center">
-              <div class="loading mx-auto mb-4"></div>
-              <p class="text-white/70">Loading map...</p>
+        
+        <div class="mx-auto max-w-7xl px-6 lg:px-8 text-center space-y-6 relative z-10">
+            <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight animate-slide-up">
+                Connect with Expert Consultants
+            </h1>
+            <p class="text-muted-foreground text-base md:text-lg max-w-xl mx-auto animate-slide-up" style="animation-delay: 0.2s;">
+                Discover verified mental health professionals for personalized consultations tailored to your needs.
+            </p>
+            <div class="flex justify-center gap-4 animate-slide-up" style="animation-delay: 0.4s;">
+                <button id="locateBtn" class="btn-primary px-6 py-3 rounded-xl font-semibold inline-flex items-center gap-2">
+                    <i class="fas fa-location-arrow"></i>
+                    Find Nearby Experts
+                </button>
+                <a href="/chat/" class="px-6 py-3 rounded-xl bg-transparent border border-border text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-300 inline-flex items-center gap-2">
+                    <i class="fas fa-comment-dots"></i>
+                    Start Virtual Consultation
+                </a>
             </div>
-          </div>
         </div>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- FEATURES SECTION -->
-  <section class="bg-[#0b1320] py-16">
-    <div class="mx-auto max-w-7xl px-6 lg:px-8">
-      <div class="text-center mb-12 animate-fade-in">
-        <h2 class="text-3xl md:text-4xl font-bold">Why Choose Our Consultants?</h2>
-        <p class="mt-3 text-white/60 text-lg max-w-xl mx-auto">Verified professionals with expertise in youth mental wellness, offering flexible scheduling and culturally sensitive care.</p>
-      </div>
-      <div class="grid md:grid-cols-3 gap-6">
-        <div class="p-6 rounded-2xl bg-white/5 border border-white/10 text-center group hover:bg-white/10 transition-all duration-300 animate-slide-up">
-          <div class="mx-auto w-12 h-12 bg-brand-500 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-            <i class="fas fa-user-check w-6 h-6 text-[#0a1713]"></i>
-          </div>
-          <h3 class="text-xl font-semibold mb-2">Verified Experts</h3>
-          <p class="text-white/70">All consultants are licensed and background-checked.</p>
-        </div>
-        <div class="p-6 rounded-2xl bg-white/5 border border-white/10 text-center group hover:bg-white/10 transition-all duration-300 animate-slide-up" style="animation-delay: 0.1s;">
-          <div class="mx-auto w-12 h-12 bg-indigo-500 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-            <i class="fas fa-video w-6 h-6 text-white"></i>
-          </div>
-          <h3 class="text-xl font-semibold mb-2">Flexible Sessions</h3>
-          <p class="text-white/70">In-person, virtual, or hybrid options to fit your life.</p>
-        </div>
-        <div class="p-6 rounded-2xl bg-white/5 border border-white/10 text-center group hover:bg-white/10 transition-all duration-300 animate-slide-up" style="animation-delay: 0.2s;">
-          <div class="mx-auto w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-            <i class="fas fa-lock w-6 h-6 text-white"></i>
-          </div>
-          <h3 class="text-xl font-semibold mb-2">Secure Booking</h3>
-          <p class="text-white/70">End-to-end encryption and easy rescheduling.</p>
-        </div>
-      </div>
-    </div>
-  </section>
+    <!-- Main Consultations Section -->
+    <section class="relative py-16 bg-background">
+        <div class="mx-auto max-w-7xl px-6 lg:px-8">
+            <div class="grid lg:grid-cols-4 gap-8">
+                <!-- Filters & List Sidebar -->
+                <div class="lg:col-span-1 space-y-6 animate-slide-up">
+                    <!-- Search Bar -->
+                    <div class="p-4 rounded-2xl bg-card border border-border">
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"></i>
+                            <input type="text" id="searchInput" placeholder="Search consultants..." 
+                                class="w-full bg-input border border-border text-foreground placeholder-muted-foreground pl-10 pr-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" />
+                        </div>
+                    </div>
 
-  <footer class="border-t border-white/10 bg-[#0b1320]">
-    <div class="mx-auto max-w-7xl px-6 py-6 text-center text-white/50 text-sm">
-      © 2025 Saharathi AI
-    </div>
-  </footer>
+                    <!-- Manual Location Input -->
+                    <div class="p-4 rounded-2xl bg-card border border-border">
+                        <div class="relative">
+                            <i class="fas fa-map-marker-alt absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"></i>
+                            <input type="text" id="manualLocation" placeholder="Enter location (e.g., Ahmedabad)..." 
+                                class="w-full bg-input border border-border text-foreground placeholder-muted-foreground pl-10 pr-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-ring" />
+                        </div>
+                    </div>
 
-  <script>
-    // Initial consultants as fallback
-    let consultants = [
-      { id: 1, name: 'Dr. Manish Jain', specialty: 'OCD', lat: 28.64435, lng: 77.1916, rating: 4.8, availability: 'Today', distance: '2.1 km', bio: 'Complex cases of OCDs, Depression, Panic Disorder, marital problems.' },
-      { id: 2, name: 'Dr. Vikas Jain', specialty: 'Neuropsychiatry', lat: 28.6139, lng: 77.2090, rating: 4.9, availability: 'This Week', distance: '3.5 km', bio: 'Treatment of Agoraphobia, Claustrophobia, Generalised Anxiety Disorder, OCD symptoms.' },
-      { id: 3, name: 'Dr. Vishal Chhabra', specialty: 'De-addiction', lat: 28.6728, lng: 77.1714, rating: 4.7, availability: 'Today', distance: '1.8 km', bio: 'De-addiction (heroin, brown sugar, alcohol, marijuana, smoking, etc.), negligence, memory problems, bipolar affective disorders.' },
-      { id: 4, name: 'Dr. Vikas Moun', specialty: 'Child Psychiatry', lat: 28.6770, lng: 77.1300, rating: 4.6, availability: 'This Week', distance: '4.2 km', bio: 'Children\'s Academic/School Problems, Abuse & Trauma, Sexual Problems, Youth Issues.' },
-      { id: 5, name: 'Dr. Soumiya Mudgal', specialty: 'Psychiatry', lat: 28.4595, lng: 77.0266, rating: 5.0, availability: 'Next Month', distance: '2.8 km', bio: 'Headache, Anger Control, Psychosis/Schizophrenia, De-Addiction.' },
-      { id: 6, name: 'Dr. Rupali', specialty: 'Mental Health', lat: 28.4744, lng: 77.5040, rating: 4.8, availability: 'Today', distance: '5.1 km', bio: 'Mental health, human behavioural aspects.' },
-      { id: 7, name: 'Dr. Vishal Girotra', specialty: 'Addiction Psychiatry', lat: 28.5130, lng: 77.1570, rating: 4.9, availability: 'This Week', distance: '3.2 km', bio: 'Addiction psychiatry, forensic, geriatric, adolescent, and child psychiatry, Sexual and marital issues.' },
-      { id: 8, name: 'Dr. Maneesh Gupta', specialty: 'Geriatric Psychiatry', lat: 28.6000, lng: 77.2000, rating: 4.7, availability: 'Today', distance: '4.5 km', bio: 'Geriatric Psychiatry, Adolescent and Child Psychiatrist, Adult Psychiatrist.' },
-      { id: 9, name: 'Dr. Srikant Sharma', specialty: 'Mental Health', lat: 28.6300, lng: 77.2200, rating: 4.8, availability: 'This Week', distance: '2.9 km', bio: 'Senior Resident at Centre of Excellence In Mental Health.' },
-      { id: 10, name: 'Dr. Gourav Gupta', specialty: 'Psychiatry', lat: 28.6444, lng: 77.1915, rating: 4.7, availability: 'Today', distance: '2.0 km', bio: 'Provides excellent treatment for mental health issues at Mind Circle Clinic.' },
-      { id: 11, name: 'Dr. Achal Bhagat', specialty: 'Psychiatry', lat: 28.5678, lng: 77.2431, rating: 4.9, availability: 'This Week', distance: '3.0 km', bio: 'Senior Consultant Psychiatrist at Apollo Hospitals Indraprastha.' },
-      { id: 12, name: 'Dr. Shashi Bhushan Kumar', specialty: 'Psychiatry', lat: 28.6667, lng: 77.2167, rating: 4.8, availability: 'Today', distance: '1.5 km', bio: 'Senior Consultant Psychiatrist at BLK-Max Hospital.' },
-      { id: 13, name: 'Dr. Sameer Malhotra', specialty: 'Psychiatry', lat: 28.5355, lng: 77.2130, rating: 4.8, availability: 'This Week', distance: '4.0 km', bio: 'Psychiatrist & Mental Health Expert, skills in marriage counseling, cognitive behavioral therapy.' },
-      { id: 14, name: 'Dr. Ruchi Malhotra', specialty: 'Psychiatry', lat: 28.5314, lng: 77.2511, rating: 4.8, availability: 'This Week', distance: '3.5 km', bio: 'Psychiatrist at FSIVF, expertise in women's mental health.' },
-      { id: 15, name: 'Dr. Samir Parikh', specialty: 'Mental Health', lat: 28.5941, lng: 77.2260, rating: 4.7, availability: 'Today', distance: '2.5 km', bio: 'Director Mental Health & Behavioural Sciences at Fortis Healthcare.' },
-      { id: 16, name: 'Dr. Ashitabh Tiwari', specialty: 'Psychiatry', lat: 28.5535, lng: 77.2365, rating: 4.8, availability: 'This Week', distance: '4.5 km', bio: 'Experienced psychiatrist for various mental health concerns.' },
-    ];
+                    <!-- Filters -->
+                    <div class="p-4 rounded-2xl bg-card border border-border space-y-4">
+                        <h3 class="font-semibold flex items-center gap-2">
+                            <i class="fas fa-filter text-primary"></i>
+                            Filters
+                        </h3>
+                        
+                        <div>
+                            <label class="block text-sm text-muted-foreground mb-2 flex items-center gap-2">
+                                <i class="fas fa-stethoscope text-primary"></i>
+                                Specialty
+                            </label>
+                            <select id="specialtyFilter" class="select-custom w-full rounded-lg px-3 py-2">
+                                <option value="All">All</option>
+                                {% for specialty_code, specialty_name in specialties %}
+                                <option value="{{ specialty_code }}">{{ specialty_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm text-muted-foreground mb-2 flex items-center gap-2">
+                                <i class="fas fa-calendar-check text-primary"></i>
+                                Availability
+                            </label>
+                            <select id="availabilityFilter" class="select-custom w-full rounded-lg px-3 py-2">
+                                <option value="All">All</option>
+                                {% for avail_code, avail_name in availability_options %}
+                                <option value="{{ avail_code }}">{{ avail_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm text-muted-foreground mb-2 flex items-center gap-2">
+                                <i class="fas fa-star text-primary"></i>
+                                Rating
+                            </label>
+                            <select id="ratingFilter" class="select-custom w-full rounded-lg px-3 py-2">
+                                <option value="All">All</option>
+                                <option value="4+ Stars">4+ Stars</option>
+                                <option value="5 Stars">5 Stars</option>
+                            </select>
+                        </div>
+                        
+                        <button id="clearFilters" class="w-full mt-4 px-4 py-2 rounded-lg bg-transparent border border-border text-muted-foreground hover:bg-muted transition-all duration-200 text-sm">
+                            Clear Filters
+                        </button>
+                    </div>
 
-    let map, userMarker, consultantMarkers = [];
-    let userLat = 28.6139, userLng = 77.2090; // Default Delhi
+                    <!-- Consultants List -->
+                    <div class="p-4 rounded-2xl bg-card border border-border space-y-4 max-h-96 overflow-y-auto">
+                        <h3 class="font-semibold flex items-center gap-2">
+                            <i class="fas fa-users text-primary"></i>
+                            Nearby Consultants (<span id="resultsCount">0</span>)
+                        </h3>
+                        <div id="consultantsList">
+                            <!-- Dynamic list populated by JS -->
+                        </div>
+                    </div>
+                </div>
 
-    // Haversine formula for distance
-    function getDistance(lat1, lon1, lat2, lon2) {
-      const R = 6371; // Earth's radius in km
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      return (R * c).toFixed(1);
-    }
-
-    // Fetch nearby consultants using Google Places API with improved error handling and timeout
-    function fetchNearbyConsultants(lat, lng, radius = 5000) {
-      if (!window.google || !google.maps) {
-        console.error('Google Maps API not loaded. Using fallback data.');
-        updateMapMarkers();
-        updateConsultantsList();
-        return;
-      }
-      const request = {
-        location: new google.maps.LatLng(lat, lng),
-        radius: radius,
-        keyword: 'psychiatrist mental health consultant psychiatrist'
-      };
-
-      const service = new google.maps.places.PlacesService(map);
-      const timeout = setTimeout(() => {
-        console.error('Places API request timed out. Using fallback data.');
-        updateMapMarkers();
-        updateConsultantsList();
-      }, 5000); // 5 second timeout for API response
-
-      service.nearbySearch(request, (results, status) => {
-        clearTimeout(timeout);
-        if (status === google.maps.places.PlacesServiceStatus.OK) {
-          consultants = results.map((place, index) => ({
-            id: index + 1,
-            name: place.name || 'Unknown Consultant',
-            specialty: place.types.includes('doctor') ? 'Psychiatry' : 'Mental Health',
-            lat: place.geometry.location.lat(),
-            lng: place.geometry.location.lng(),
-            rating: place.rating || 4.5,
-            availability: Math.random() > 0.5 ? 'Today' : 'This Week', // Simulated
-            distance: getDistance(lat, lng, place.geometry.location.lat(), place.geometry.location.lng()) + ' km',
-            bio: place.vicinity || 'Mental health professional specializing in various therapies.'
-          }));
-        } else {
-          console.error('Places search failed:', status);
-          alert('Failed to fetch nearby consultants. Using fallback data.');
-        }
-        updateMapMarkers();
-        updateConsultantsList();
-      });
-    }
-
-    // Initialize map with OpenStreetMap tiles to fix black screen, removed setTimeout for faster loading
-    function initMap(lat = userLat, lng = userLng) {
-      document.getElementById('loadingMap').classList.remove('hidden');
-      map = L.map('map').setView([lat, lng], 12);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      }).addTo(map);
-
-      // Custom user marker
-      const userIcon = L.divIcon({
-        className: 'custom-user-icon',
-        html: '<i class="fas fa-user text-blue-400 text-xl"></i>',
-        iconSize: [30, 30],
-        iconAnchor: [15, 30]
-      });
-
-      userMarker = L.marker([lat, lng], { icon: userIcon }).addTo(map)
-        .bindPopup('<b>You are here</b>').openPopup();
-
-      document.getElementById('loadingMap').classList.add('hidden');
-      updateConsultantsList();
-    }
-
-    // Update map markers without animations for faster loading
-    function updateMapMarkers() {
-      if (consultantMarkers.length > 0) {
-        consultantMarkers.forEach(marker => map.removeLayer(marker));
-      }
-      consultantMarkers = [];
-      const cluster = L.markerClusterGroup();
-      const consultantIcon = L.divIcon({
-        className: 'custom-consultant-icon',
-        html: '<i class="fas fa-user-md text-brand-500 text-xl"></i>',
-        iconSize: [30, 30],
-        iconAnchor: [15, 30]
-      });
-
-      consultants.forEach((consultant) => {
-        const marker = L.marker([consultant.lat, consultant.lng], { icon: consultantIcon })
-          .bindPopup(`
-            <div class="p-4 max-w-xs">
-              <h4 class="font-bold text-lg mb-2">${consultant.name}</h4>
-              <p class="text-sm text-brand-300 mb-1"><i class="fas fa-stethoscope mr-1"></i>${consultant.specialty}</p>
-              <p class="text-sm text-yellow-400 mb-1"><i class="fas fa-star mr-1"></i>${consultant.rating} ⭐</p>
-              <p class="text-sm text-green-400 mb-1"><i class="fas fa-calendar-check mr-1"></i>${consultant.availability}</p>
-              <p class="text-sm text-white/70 mb-3"><i class="fas fa-map-marker-alt mr-1"></i>${consultant.distance}</p>
-              <p class="text-xs text-white/60 italic mb-4">${consultant.bio}</p>
-              <button onclick="bookConsultation(${consultant.id})" class="w-full px-3 py-2 bg-brand-500 text-[#0a1713] rounded-lg font-medium hover:bg-brand-400 transition-colors">Book Now</button>
+                <!-- Map -->
+                <div class="lg:col-span-3 relative">
+                    <div id="map" class="animate-fade-in"></div>
+                    <div id="loadingMap" class="absolute inset-0 bg-card/80 flex items-center justify-center rounded-2xl">
+                        <div class="text-center">
+                            <div class="loading mx-auto mb-4"></div>
+                            <p class="text-muted-foreground">Loading map...</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-          `);
-        marker.consultant = consultant;
-        cluster.addLayer(marker);
-        consultantMarkers.push(marker);
-      });
-
-      map.addLayer(cluster);
-    }
-
-    // Get user location and fetch consultants
-    document.getElementById('locateBtn').addEventListener('click', () => {
-      console.log('Locate button clicked'); // Debug
-      const btn = document.getElementById('locateBtn');
-      btn.innerHTML = '<div class="loading mr-2"></div> Locating...';
-      btn.disabled = true;
-
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          position => {
-            console.log('Geolocation success:', position.coords); // Debug
-            userLat = position.coords.latitude;
-            userLng = position.coords.longitude;
-            map.setView([userLat, userLng], 13);
-            if (userMarker) map.removeLayer(userMarker);
-            const userIcon = L.divIcon({
-              className: 'custom-user-icon',
-              html: '<i class="fas fa-user text-blue-400 text-xl"></i>',
-              iconSize: [30, 30],
-              iconAnchor: [15, 30]
-            });
-            userMarker = L.marker([userLat, userLng], { icon: userIcon }).addTo(map)
-              .bindPopup('<b>You are here</b>').openPopup();
-
-            // Fetch dynamic consultants within 5km radius
-            fetchNearbyConsultants(userLat, userLng, 5000);
-
-            btn.innerHTML = '<i class="fas fa-location-arrow"></i> Find Nearby Experts';
-            btn.disabled = false;
-          },
-          error => {
-            console.error('Geolocation error:', error); // Debug
-            alert('Unable to get location. Using default (Delhi).');
-            fetchNearbyConsultants(userLat, userLng, 5000); // Use default
-            btn.innerHTML = '<i class="fas fa-location-arrow"></i> Find Nearby Experts';
-            btn.disabled = false;
-          },
-          { timeout: 10000 }
-        );
-      } else {
-        console.error('Geolocation not supported'); // Debug
-        alert('Geolocation not supported.');
-        fetchNearbyConsultants(userLat, userLng, 5000); // Use default
-        btn.innerHTML = '<i class="fas fa-location-arrow"></i> Find Nearby Experts';
-        btn.disabled = false;
-      }
-    });
-
-    // Update list based on filters/search
-    function updateConsultantsList() {
-      const search = document.getElementById('searchInput').value.toLowerCase();
-      const specialty = document.getElementById('specialtyFilter').value;
-      const availability = document.getElementById('availabilityFilter').value;
-      const rating = document.getElementById('ratingFilter').value;
-
-      let filtered = consultants.filter(c =>
-        c.name.toLowerCase().includes(search) &&
-        (specialty === 'All' || c.specialty === specialty) &&
-        (availability === 'All' || c.availability === availability) &&
-        (rating === 'All' || c.rating >= (rating === '4+ Stars' ? 4 : 5))
-      );
-
-      filtered.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
-
-      const list = document.getElementById('consultantsList');
-      const countEl = document.getElementById('resultsCount');
-      countEl.textContent = filtered.length;
-
-      if (filtered.length === 0) {
-        list.innerHTML = '<p class="text-white/50 text-center py-4">No consultants found. Try adjusting filters.</p>';
-        return;
-      }
-
-      list.innerHTML = filtered.map((c, index) => `
-        <div class="consultant-card p-3 rounded-lg bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200 animate-slide-up" style="animation-delay: ${index * 0.05}s;" onclick="zoomToConsultant(${c.lat}, ${c.lng}, '${c.name}')">
-          <div class="flex items-center gap-3 mb-2">
-            <div class="w-10 h-10 bg-gradient-to-br from-brand-500 to-indigo-500 rounded-full flex items-center justify-center">
-              <i class="fas fa-user-md text-[#0a1713]"></i>
-            </div>
-            <div>
-              <h4 class="font-semibold text-white">${c.name}</h4>
-              <p class="text-sm text-brand-300">${c.specialty}</p>
-            </div>
-          </div>
-          <div class="flex justify-between items-center text-sm">
-            <span class="text-yellow-400"><i class="fas fa-star mr-1"></i>${c.rating}</span>
-            <span class="text-green-400"><i class="fas fa-calendar-check mr-1"></i>${c.availability}</span>
-          </div>
-          <p class="text-xs text-white/50 mt-1"><i class="fas fa-map-marker-alt mr-1"></i>${c.distance}</p>
         </div>
-      `).join('');
-    }
+    </section>
 
-    // Zoom to consultant
-    function zoomToConsultant(lat, lng, name) {
-      map.setView([lat, lng], 15);
-      consultantMarkers.forEach(marker => {
-        if (Math.abs(marker.getLatLng().lat - lat) < 0.001 && Math.abs(marker.getLatLng().lng - lng) < 0.001) {
-          marker.openPopup();
-        }
-      });
-    }
-
-    // Clear filters
-    document.getElementById('clearFilters').addEventListener('click', () => {
-      document.getElementById('searchInput').value = '';
-      document.getElementById('specialtyFilter').value = 'All';
-      document.getElementById('availabilityFilter').value = 'All';
-      document.getElementById('ratingFilter').value = 'All';
-      updateConsultantsList();
-    });
-
-    // Event listeners for filters
-    document.getElementById('searchInput').addEventListener('input', updateConsultantsList);
-    document.getElementById('specialtyFilter').addEventListener('change', updateConsultantsList);
-    document.getElementById('availabilityFilter').addEventListener('change', updateConsultantsList);
-    document.getElementById('ratingFilter').addEventListener('change', updateConsultantsList);
-
-    // Improved book consultation with form submission simulation
-    function bookConsultation(id) {
-      const consultant = consultants.find(c => c.id === id);
-      if (consultant) {
-        const modal = `
-          <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" id="bookingModal" onclick="document.getElementById('bookingModal').remove()">
-            <div class="bg-[#0b1320] p-6 rounded-xl max-w-md w-full m-4 border border-white/10 animate-slide-up" onclick="event.stopPropagation()">
-              <h3 class="text-xl font-bold mb-4">Book Session with ${consultant.name}</h3>
-              <p class="text-white/70 mb-4">Specialty: ${consultant.specialty}</p>
-              <form id="bookingForm" class="space-y-3 mb-6">
-                <select class="select-custom w-full" name="sessionType">
-                  <option>Virtual Session</option>
-                  <option>In-Person</option>
-                  <option>Hybrid</option>
-                </select>
-                <input type="datetime-local" class="select-custom w-full" name="dateTime" />
-                <input type="email" class="select-custom w-full" placeholder="Your Email" name="email" required />
-                <input type="tel" class="select-custom w-full" placeholder="Your Phone" name="phone" required />
-              </form>
-              <button onclick="submitBooking(${consultant.id})" class="w-full bg-brand-500 text-[#0a1713] py-3 rounded-lg font-semibold hover:bg-brand-400 transition">Confirm Booking</button>
+    <!-- Features Section -->
+    <section class="bg-background py-16">
+        <div class="mx-auto max-w-7xl px-6 lg:px-8">
+            <div class="text-center mb-12 animate-fade-in">
+                <h2 class="text-3xl md:text-4xl font-bold text-foreground">Why Choose Our Consultants?</h2>
+                <p class="mt-3 text-muted-foreground text-lg max-w-xl mx-auto">
+                    Verified professionals with expertise in mental wellness, offering flexible scheduling and secure care.
+                </p>
             </div>
-          </div>
-        `;
-        document.body.insertAdjacentHTML('beforeend', modal);
-      }
-    }
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="p-6 rounded-2xl bg-card border border-border text-center group hover:bg-muted transition-all duration-300 animate-slide-up">
+                    <div class="mx-auto w-12 h-12 bg-primary rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-user-check text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 text-foreground">Verified Experts</h3>
+                    <p class="text-muted-foreground">All consultants are licensed and background-checked.</p>
+                </div>
+                
+                <div class="p-6 rounded-2xl bg-card border border-border text-center group hover:bg-muted transition-all duration-300 animate-slide-up" style="animation-delay: 0.1s;">
+                    <div class="mx-auto w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-video text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 text-foreground">Flexible Sessions</h3>
+                    <p class="text-muted-foreground">In-person, virtual, or hybrid options to fit your life.</p>
+                </div>
+                
+                <div class="p-6 rounded-2xl bg-card border border-border text-center group hover:bg-muted transition-all duration-300 animate-slide-up" style="animation-delay: 0.2s;">
+                    <div class="mx-auto w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-lock text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 text-foreground">Secure Booking</h3>
+                    <p class="text-muted-foreground">End-to-end encryption and easy rescheduling.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    // Simulate booking submission (improve by sending to server)
-    function submitBooking(id) {
-      const form = document.getElementById('bookingForm');
-      const formData = new FormData(form);
-      const bookingDetails = {
-        consultantId: id,
-        sessionType: formData.get('sessionType'),
-        dateTime: formData.get('dateTime'),
-        email: formData.get('email'),
-        phone: formData.get('phone')
-      };
-      console.log('Booking submitted:', bookingDetails); // Debug/simulate
-      alert('Booking confirmed! Details sent to console.'); // Placeholder for real submission
-      document.getElementById('bookingModal').remove();
-      // In real app, send to backend: fetch('/book', { method: 'POST', body: JSON.stringify(bookingDetails) })
-    }
+    <!-- Footer -->
+    <footer class="border-t border-border bg-background">
+        <div class="mx-auto max-w-7xl px-6 py-6 text-center text-muted-foreground text-sm">
+            © 2025 Saharathi AI
+        </div>
+    </footer>
 
-    // Mobile menu toggle
-    document.getElementById('menuBtn').addEventListener('click', () => {
-      document.getElementById('mobileNav').classList.toggle('hidden');
-    });
-
-    // Language switcher (placeholder)
-    document.getElementById('langSwitcher').addEventListener('change', (e) => {
-      console.log('Language changed to:', e.target.value);
-    });
-
-    document.getElementById('langSwitcherMobile').addEventListener('change', (e) => {
-      console.log('Language changed to:', e.target.value);
-    });
-
-    // Init on load
-    document.addEventListener('DOMContentLoaded', () => {
-      initMap();
-      fetchNearbyConsultants(userLat, userLng, 5000); // Initial fetch with default location
-    });
-  </script>
+    <!-- JavaScript -->
+    <script src="{% static 'js/main.js' %}"></script>
 </body>
 </html>

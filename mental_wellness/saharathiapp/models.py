@@ -4,14 +4,7 @@ from accounts.models import CustomUser
 from django.db import models
 import uuid
 from django.utils import timezone
-
-class Message(models.Model):
-    sender = models.CharField(max_length=10)  # 'user' ya 'bot'
-    text = models.TextField()
-    timestamp = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.sender}: {self.text[:30]}"
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 class MoodEntry(models.Model):
     MOOD_CHOICES = [
@@ -79,3 +72,65 @@ class Message(models.Model):
 
     def short_text(self):
         return self.text[:50] + ("..." if len(self.text) > 50 else "")
+    
+class Consultant(models.Model):
+    SPECIALTIES = [
+        ('OCD', 'OCD'),
+        ('Neuropsychiatry', 'Neuropsychiatry'),
+        ('De-addiction', 'De-addiction'),
+        ('Child Psychiatry', 'Child Psychiatry'),
+        ('Psychiatry', 'Psychiatry'),
+        ('Mental Health', 'Mental Health'),
+        ('Addiction Psychiatry', 'Addiction Psychiatry'),
+        ('Geriatric Psychiatry', 'Geriatric Psychiatry'),
+    ]
+    
+    AVAILABILITY_CHOICES = [
+        ('Today', 'Today'),
+        ('This Week', 'This Week'),
+        ('Next Month', 'Next Month'),
+    ]
+    
+    name = models.CharField(max_length=200)
+    specialty = models.CharField(max_length=50, choices=SPECIALTIES)
+    bio = models.TextField()
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    rating = models.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(5.0)]
+    )
+    availability = models.CharField(max_length=20, choices=AVAILABILITY_CHOICES)
+    is_online = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"Dr. {self.name} - {self.specialty}"
+    
+    class Meta:
+        ordering = ['name']
+
+class Booking(models.Model):
+    SESSION_TYPES = [
+        ('Virtual', 'Virtual Session'),
+        ('In-Person', 'In-Person'),
+        ('Hybrid', 'Hybrid'),
+    ]
+    
+    consultant = models.ForeignKey(Consultant, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name="bookings",
+        null=True,
+        blank=True
+    )
+    session_id = models.CharField(max_length=50, null=True, blank=True)
+    session_type = models.CharField(max_length=20, choices=SESSION_TYPES)
+    date_time = models.DateTimeField()
+    email = models.EmailField()
+    phone = models.CharField(max_length=20)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Booking with {self.consultant.name} - {self.date_time}"

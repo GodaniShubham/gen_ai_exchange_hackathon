@@ -1,20 +1,20 @@
 import requests
 import json
-from django.shortcuts import render, redirect
+import math
+import logging
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 from django.conf import settings
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib import messages
-from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
-from .models import ChatSession, MoodEntry
+from django.utils import timezone
+from .models import ChatSession, MoodEntry, Consultant, Booking
 from collections import defaultdict
 from datetime import datetime
-from django.utils import timezone
-import requests
-import json
 
+logger = logging.getLogger(__name__)
 # ========== MAIN PAGES ==========
 def index(request):
     return render(request, "index.html")
@@ -325,5 +325,168 @@ def get_chat_messages(request, session_id):
     ]
     return JsonResponse({"session_id": str(session_id), "messages": messages})
 
+
 def consultations(request):
-    return render(request, "consultations.html")
+    """Main consultation page"""
+    consultants = Consultant.objects.all()
+    consultant_data = [
+        {
+            'id': c.id,
+            'name': c.name,
+            'specialty': c.specialty,
+            'availability': c.availability,
+            'rating': float(c.rating),
+            'latitude': float(c.latitude),
+            'longitude': float(c.longitude),
+            'is_online': c.is_online,
+            'bio': c.bio or 'No bio available.'
+        }
+        for c in consultants
+    ]
+    context = {
+        'consultants': consultant_data,
+        'specialties': Consultant.SPECIALTIES,
+        'availability_options': Consultant.AVAILABILITY_CHOICES,
+    }
+    return render(request, 'consultations.html', context)
+
+
+@require_http_methods(["GET"])
+def get_consultants_json(request):
+    """API endpoint to get consultants as JSON"""
+    try:
+        search = request.GET.get('search', '')
+        specialty = request.GET.get('specialty', '')
+        availability = request.GET.get('availability', '')
+        rating = request.GET.get('rating', '')
+        user_lat = request.GET.get('lat', 28.6139)
+        user_lng = request.GET.get('lng', 77.2090)
+
+        # Validate latitude and longitude
+        try:
+            user_lat = float(user_lat)
+            user_lng = float(user_lng)
+            if not (-90 <= user_lat <= 90) or not (-180 <= user_lng <= 180):
+                raise ValueError("Invalid coordinates")
+        except ValueError:
+            logger.warning(f"Invalid coordinates received: lat={user_lat}, lng={user_lng}")
+            user_lat, user_lng = 28.6139, 77.2090  # Default to Delhi
+
+        logger.info(f"Fetching consultants with params: search={search}, specialty={specialty}, availability={availability}, rating={rating}, lat={user_lat}, lng={user_lng}")
+
+        consultants = Consultant.objects.all()
+
+        if search:
+            consultants = consultants.filter(name__icontains=search)
+        if specialty and specialty != 'All':
+            if specialty not in [s[0] for s in Consultant.SPECIALTIES]:
+                return JsonResponse({"success": False, "message": "Invalid specialty"}, status=400)
+            consultants = consultants.filter(specialty=specialty)
+        if availability and availability != 'All':
+            if availability not in [a[0] for a in Consultant.AVAILABILITY_CHOICES]:
+                return JsonResponse({"success": False, "message": "Invalid availability"}, status=400)
+            consultants = consultants.filter(availability=availability)
+        if rating and rating != 'All':
+            min_rating = 4.0 if rating == '4+ Stars' else 5.0
+            consultants = consultants.filter(rating__gte=min_rating)
+
+        consultant_data = [
+            {
+                'id': c.id,
+                'name': c.name,
+                'specialty': c.specialty,
+                'bio': c.bio or 'No bio available.',
+                'latitude': float(c.latitude),
+                'longitude': float(c.longitude),
+                'rating': float(c.rating),
+                'availability': c.availability,
+                'is_online': c.is_online,
+                'distance': f"{calculate_distance(user_lat, user_lng, c.latitude, c.longitude):.1f} km"
+            }
+            for c in consultants
+        ]
+
+        # Sort by distance
+        consultant_data.sort(key=lambda x: float(x['distance'].replace(' km', '')))
+
+        if not consultant_data:
+            return JsonResponse({"success": True, "consultants": [], "message": "No consultants found matching your criteria"})
+
+        return JsonResponse({"success": True, "consultants": consultant_data})
+    except Exception as e:
+        logger.error(f"Error in get_consultants_json: {str(e)}")
+        return JsonResponse({"success": False, "message": f"Error: {str(e)}"}, status=500)
+
+def calculate_distance(lat1, lon1, lat2, lon2):
+    """Calculate distance between two points using Haversine formula"""
+    R = 6371  # Earth's radius in km
+    lat1_rad = math.radians(float(lat1))
+    lon1_rad = math.radians(float(lon1))
+    lat2_rad = math.radians(float(lat2))
+    lon2_rad = math.radians(float(lon2))
+    
+    dlat = lat2_rad - lat1_rad
+    dlon = lon2_rad - lon1_rad
+    
+    a = math.sin(dlat/2)**2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlon/2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    
+    return R * c
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def book_consultation(request):
+    """Handle booking submission"""
+    try:
+        data = json.loads(request.body)
+        consultant_id = data.get('consultant_id')
+        session_type = data.get('session_type')
+        date_time = data.get('date_time')
+        email = data.get('email')
+        phone = data.get('phone')
+
+        # Validate inputs
+        if not all([consultant_id, session_type, date_time, email, phone]):
+            return JsonResponse({"success": False, "message": "Missing required fields"}, status=400)
+
+        consultant = get_object_or_404(Consultant, id=consultant_id)
+
+        if session_type not in [s[0] for s in Booking.SESSION_TYPES]:
+            return JsonResponse({"success": False, "message": "Invalid session type"}, status=400)
+
+        try:
+            booking_time = datetime.fromisoformat(date_time.replace('Z', '+00:00'))
+            if booking_time < timezone.now():
+                return JsonResponse({"success": False, "message": "Booking time must be in the future"}, status=400)
+        except ValueError:
+            return JsonResponse({"success": False, "message": "Invalid date/time format"}, status=400)
+
+        # Validate phone (basic regex for +91 or 10-12 digits)
+        import re
+        if not re.match(r'^\+?\d{10,12}$', phone):
+            return JsonResponse({"success": False, "message": "Invalid phone number"}, status=400)
+
+        session_key = request.session.session_key
+        if not session_key:
+            request.session.create()
+            session_key = request.session.session_key
+
+        booking = Booking.objects.create(
+            consultant=consultant,
+            user=request.user if request.user.is_authenticated else None,
+            session_id=None if request.user.is_authenticated else session_key,
+            session_type=session_type,
+            date_time=booking_time,
+            email=email,
+            phone=phone
+        )
+
+        logger.info(f"Booking created: ID={booking.id}, Consultant={consultant.name}, User={'Authenticated' if request.user.is_authenticated else 'Guest'}")
+        return JsonResponse({
+            'success': True,
+            'message': f'Booking confirmed with {consultant.name} for {booking_time.strftime("%Y-%m-%d %H:%M")}',
+            'booking_id': booking.id
+        })
+    except Exception as e:
+        logger.error(f"Error in book_consultation: {str(e)}")
+        return JsonResponse({"success": False, "message": f"Error: {str(e)}"}, status=400)

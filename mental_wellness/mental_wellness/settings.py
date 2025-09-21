@@ -176,7 +176,7 @@ import json
 from pathlib import Path
 
 # Prefer absolute path from env; fallback to BASE_DIR / "firebase.json"
-FIREBASE_CREDENTIAL_PATH = os.getenv("FIREBASE_CREDENTIAL_PATH")  # full path to JSON
+FIREBASE_CREDENTIAL_PATH = os.getenv("FIREBASE_CREDENTIAL_PATH", "/etc/secrets/firebase.json")
 FIREBASE_DB_URL = os.getenv("FIREBASE_DB_URL")
 
 firebase_cred_obj = None

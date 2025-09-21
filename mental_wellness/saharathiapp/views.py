@@ -440,28 +440,29 @@ def book_consultation(request):
     try:
         data = json.loads(request.body)
         consultant_id = data.get('consultant_id')
-        session_type = data.get('session_type')
+        session_type = data.get('session_type', 'virtual')  # Default to 'virtual' if not provided
         date_time = data.get('date_time')
         email = data.get('email')
         phone = data.get('phone')
 
+        logger.info(f"Received booking data: {data}")  # Log the full request
+
         # Validate inputs
-        if not all([consultant_id, session_type, date_time, email, phone]):
+        if not all([consultant_id, date_time, email, phone]):
             return JsonResponse({"success": False, "message": "Missing required fields"}, status=400)
 
         consultant = get_object_or_404(Consultant, id=consultant_id)
 
-        if session_type not in [s[0] for s in Booking.SESSION_TYPES]:
-            return JsonResponse({"success": False, "message": "Invalid session type"}, status=400)
-
         try:
+            # Parse the datetime string and make it timezone-aware
             booking_time = datetime.fromisoformat(date_time.replace('Z', '+00:00'))
+            # Make it aware using the same timezone as timezone.now()
+            booking_time = timezone.make_aware(booking_time, timezone.get_current_timezone())
             if booking_time < timezone.now():
                 return JsonResponse({"success": False, "message": "Booking time must be in the future"}, status=400)
         except ValueError:
             return JsonResponse({"success": False, "message": "Invalid date/time format"}, status=400)
 
-        # Validate phone (basic regex for +91 or 10-12 digits)
         import re
         if not re.match(r'^\+?\d{10,12}$', phone):
             return JsonResponse({"success": False, "message": "Invalid phone number"}, status=400)
@@ -471,11 +472,12 @@ def book_consultation(request):
             request.session.create()
             session_key = request.session.session_key
 
+        # Create booking with the provided or default session_type
         booking = Booking.objects.create(
             consultant=consultant,
             user=request.user if request.user.is_authenticated else None,
             session_id=None if request.user.is_authenticated else session_key,
-            session_type=session_type,
+            session_type=session_type,  # Accept as-is without validation
             date_time=booking_time,
             email=email,
             phone=phone
@@ -484,7 +486,7 @@ def book_consultation(request):
         logger.info(f"Booking created: ID={booking.id}, Consultant={consultant.name}, User={'Authenticated' if request.user.is_authenticated else 'Guest'}")
         return JsonResponse({
             'success': True,
-            'message': f'Booking confirmed with {consultant.name} for {booking_time.strftime("%Y-%m-%d %H:%M")}',
+            'message': 'Session booked successfully with the consultant!',  # Static success message
             'booking_id': booking.id
         })
     except Exception as e:

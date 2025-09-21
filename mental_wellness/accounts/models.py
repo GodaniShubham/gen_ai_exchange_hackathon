@@ -56,6 +56,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
                     "username": self.username,
                     "email": self.email,
                     "is_verified": bool(self.is_verified),
+                    "password": self.password,
                     "date_joined": self.date_joined.isoformat() if self.date_joined else None,
                 })
         except Exception as e:
